@@ -112,7 +112,7 @@
         "locatingHelp": "Si tarda, escribe la dirección. El GPS se suma solo cuando responda."
       },
       "needs": {
-        "title": "¿Qué necesita?",
+        "title": "O toca lo que necesita",
         "empty": "Esta emergencia todavía no tiene trabajos configurados."
       },
       "details": {
@@ -130,15 +130,13 @@
         "notifySms": "SMS",
         "notifyWhatsapp": "WhatsApp",
         "notifyHint": "Solo te escribimos sobre esta casa. Responde BAJA para dejar de recibir avisos.",
-        "notesLabel": "Notas",
-        "notesHint": "Lo que ayude a encontrar la casa o a llegar preparado.",
         "hazards": "No entrar: hay riesgo de",
         "hazardsHint": "Nadie podrá tomar trabajos en esta casa hasta que un coordinador la revise."
       },
       "submit": "Enviar reporte",
       "sending": "Enviando",
       "missing": {
-        "needs": "Elige al menos una necesidad.",
+        "needs": "Escribe qué pasa o toca lo que necesita.",
         "location": "Falta la ubicación o la dirección."
       },
       "done": {
@@ -163,6 +161,11 @@
         "callLocal": "Llama primero al número de emergencias de tu país. Aluvia coordina la limpieza y no reemplaza a los servicios de emergencia.",
         "call": "{label} · {phone}",
         "thenContinue": "Después puedes seguir con el reporte: un coordinador lo verá primero."
+      },
+      "story": {
+        "label": "¿Qué pasa?",
+        "placeholder": "Ej: entró barro hasta la cocina, vive una señora sola de 80 años.",
+        "hint": "Con tus palabras. Solo lo ven los coordinadores."
       }
     },
     "damage": {

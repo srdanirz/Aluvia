@@ -8,7 +8,7 @@ import { track } from "@/shared/analytics/client";
 import { useErrorMessage } from "@/shared/i18n/use-error-message";
 import { discardOutboxEntry, enqueue } from "@/shared/offline/outbox";
 import { usePersistedState } from "@/shared/offline/use-persisted-state";
-import { Button, Card, FormError, Spinner, ToggleTile } from "@/shared/ui";
+import { Button, Card, Field, FormError, Spinner, Textarea, ToggleTile } from "@/shared/ui";
 
 import { toE164 } from "../phone";
 import type { WorksiteReportInput, WorksiteSource } from "../schemas";
@@ -52,7 +52,9 @@ export function ReportForm({ slug, workTypes, emergencyNumbers, source }: Report
   const hasFix = location.status === "ready" || location.status === "approximate";
   const point = hasFix ? { lng: location.lng, lat: location.lat } : null;
   const hasPlace = point !== null || draft.addressText.trim() !== "";
-  const missing = draft.workTypeKeys.length === 0 ? "needs" : !hasPlace ? "location" : null;
+  // Either is enough: a sentence in their own words, or tapping what it needs (DESIGN.md, sin fricción).
+  const described = draft.workTypeKeys.length > 0 || draft.notes.trim() !== "";
+  const missing = !described ? "needs" : !hasPlace ? "location" : null;
 
   const toggleNeed = (key: string, pressed: boolean) =>
     setDraft((current) => ({
@@ -145,6 +147,15 @@ export function ReportForm({ slug, workTypes, emergencyNumbers, source }: Report
         addressText={draft.addressText}
         onAddressChange={(addressText) => setDraft((current) => ({ ...current, addressText }))}
       />
+
+      <Field id="report-notes" label={t("story.label")} hint={t("story.hint")}>
+        <Textarea
+          rows={3}
+          value={draft.notes}
+          placeholder={t("story.placeholder")}
+          onChange={(event) => setDraft((current) => ({ ...current, notes: event.target.value }))}
+        />
+      </Field>
 
       <section aria-labelledby="report-needs" className="flex flex-col gap-4">
         <h2 id="report-needs" className="text-subheading font-medium text-ink">

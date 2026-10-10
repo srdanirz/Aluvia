@@ -89,10 +89,17 @@ export const newWorksiteSchema = z
   .object({ ...worksiteFields, workTypeKeys: workTypeKeysSchema(0) })
   .refine(hasPlace.check, hasPlace.params);
 
-/** A report from the form or the batch import: at least one need (DESIGN.md: what does it need). */
+/**
+ * A report from the form or the batch import: at least one need or a few words of what happened,
+ * whichever the reporter finds easier; a coordinator turns the words into work later.
+ */
 export const worksiteReportSchema = z
-  .object({ ...worksiteFields, workTypeKeys: workTypeKeysSchema(1) })
-  .refine(hasPlace.check, hasPlace.params);
+  .object({ ...worksiteFields, workTypeKeys: workTypeKeysSchema(0) })
+  .refine(hasPlace.check, hasPlace.params)
+  .refine((home) => home.workTypeKeys.length > 0 || home.contact.notes !== null, {
+    path: ["workTypeKeys"],
+    message: "need_or_description_required",
+  });
 
 /** Who a home report came from; decided by the server from the session, never by the body. */
 export type WorksiteSource = (typeof reportSource.enumValues)[number];
