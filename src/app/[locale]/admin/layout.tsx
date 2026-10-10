@@ -1,4 +1,4 @@
-import { Layers, Siren } from "lucide-react";
+import { Layers, MessageSquare, Siren } from "lucide-react";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
@@ -20,6 +20,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
         items={[
           { href: "/admin/emergencies", label: t("emergencies"), icon: <Siren /> },
           { href: "/admin/disaster-types", label: t("disasterTypes"), icon: <Layers /> },
+          { href: "/admin/feedback", label: t("feedback"), icon: <MessageSquare /> },
         ]}
       />
       <main className="mx-auto flex max-w-content flex-col gap-12 px-4 pt-16 pb-nav-bottom md:px-8 md:pt-nav-top md:pb-16">

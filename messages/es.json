@@ -88,7 +88,9 @@
     "mapMarkers": "Marcadores del mapa",
     "copyValue": "https://aluvia.example/es/invitations/ejemplo",
     "copy": "Copiar",
-    "copied": "Copiado"
+    "copied": "Copiado",
+    "textLinks": "Links en el texto",
+    "textLinkSample": "Un texto con <link>un link</link> en medio."
   },
   "notFound": {
     "title": "No encontramos esta página",
@@ -374,7 +376,8 @@
     "nav": {
       "label": "Administración",
       "emergencies": "Emergencias",
-      "disasterTypes": "Tipos de desastre"
+      "disasterTypes": "Tipos de desastre",
+      "feedback": "Comentarios"
     },
     "common": {
       "save": "Guardar",
@@ -512,6 +515,17 @@
     },
     "notice": {
       "label": "Aviso oficial"
+    },
+    "feedback": {
+      "title": "Comentarios",
+      "lead": "Lo que la gente cuenta sobre Aluvia, lo más nuevo primero.",
+      "empty": "Todavía no llegan comentarios.",
+      "contact": "Contacto: {contact}",
+      "categories": {
+        "problem": "Problema",
+        "idea": "Idea",
+        "other": "Otro"
+      }
     }
   },
   "map": {
@@ -558,7 +572,8 @@
     "waiting": "{waiting, plural, =0 {Ninguna espera ayuda ahora} one {# espera ayuda} other {# esperan ayuda}}",
     "askHelp": "Pedir ayuda",
     "offerHelp": "Quiero ayudar",
-    "legendToggle": "Qué significa cada color"
+    "legendToggle": "Qué significa cada color",
+    "feedback": "Comentarios"
   },
   "worksite": {
     "title": "Casa en {emergency}",
@@ -930,5 +945,27 @@
     "actions": "Acciones del centro de acopio",
     "call": "Llamar al {phone}",
     "marker": "Centro de acopio {name}: {status}"
+  },
+  "feedback": {
+    "title": "Comentarios",
+    "lead": "Cuéntanos qué falló, qué falta o qué mejorarías. Lo leen las personas que hacen Aluvia.",
+    "back": "Volver al mapa",
+    "developers": "¿Eres dev? Aluvia es open source. Aporta en <repo>github.com/srdanirz/Aluvia</repo> siguiendo la <guide>guía para contribuir</guide>.",
+    "form": {
+      "categoryLabel": "Tipo de comentario",
+      "categories": {
+        "problem": "Problema",
+        "idea": "Idea",
+        "other": "Otro"
+      },
+      "messageLabel": "Tu comentario",
+      "messageHint": "Hasta {max} caracteres.",
+      "contactLabel": "Contacto (opcional)",
+      "contactHint": "Un correo o teléfono, solo si quieres que te respondamos.",
+      "submit": "Enviar",
+      "sending": "Enviando",
+      "sentTitle": "Gracias, lo recibimos",
+      "sentBody": "Lo vamos a leer. Si dejaste un contacto, te escribimos si hace falta."
+    }
   }
 }

@@ -26,6 +26,7 @@ export { Select } from "./select";
 export { Skeleton } from "./skeleton";
 export { Spinner } from "./spinner";
 export { Stepper } from "./stepper";
+export { TextLink } from "./text-link";
 export { Textarea } from "./textarea";
 export { ThemeScript } from "./theme-script";
 export { ThemeSwitcher } from "./theme-switcher";

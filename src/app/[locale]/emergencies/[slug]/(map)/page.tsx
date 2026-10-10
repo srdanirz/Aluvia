@@ -1,3 +1,4 @@
+import { MessageSquare } from "lucide-react";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import * as rootParams from "next/root-params";
@@ -53,6 +54,12 @@ export default async function EmergencyMapPage({ params }: PageProps<"/[locale]/
       <Disclosure label={t("legendToggle")}>
         <MapLegend />
       </Disclosure>
+      <Button variant="ghost" size="compact" asChild className="self-start">
+        <Link href={{ pathname: "/feedback", query: { emergency: slug } }}>
+          <MessageSquare aria-hidden />
+          {t("feedback")}
+        </Link>
+      </Button>
     </GlassPanel>
   );
 }

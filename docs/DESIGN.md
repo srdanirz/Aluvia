@@ -123,6 +123,7 @@ Espaciado base 4 px: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, más los tokens d
 | `Field` + `Input` | Etiqueta, campo de vidrio esmerilado con brillo arriba, ayuda o error. Al enfocarlo el vidrio se aclara y se eleva con `shadow-float`; sin luz de color, halo ni anillo. Error: vidrio teñido de `status-urgent-tint` y texto `status-urgent-text`. |
 | `Select`, `Textarea`, `FileButton` | Van dentro de `Field` como `Input`. `Select` es nativo (el teléfono abre su lista) con el mismo vidrio; `FileButton` se ve como `Button` secundario. |
 | `FormError` | El único lugar que decide el color de un error: `field` bajo un campo, `form` para un formulario entero. El lint rechaza `text-status-*` fuera de `shared/ui`. |
+| `TextLink` | Link dentro de un texto: color `accent` y subrayado, así no depende solo del color. Para un link solo, `Button` con `asChild`. |
 | `Section`, `DescriptionList` | Bloque con título y bajada dentro de una vista; datos como etiqueta chica sobre valor, en dos columnas desde tablet. |
 | `Skeleton`, `Spinner` | Ver Carga. `Skeleton` toma su forma con `shape`: `block`, `pill` o `card`. |
 
