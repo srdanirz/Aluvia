@@ -20,6 +20,19 @@ Somos dos mantenedores. Cada uno revisa el trabajo del otro, y así los dos sabe
 6. **El otro mantenedor revisa.** Nadie aprueba ni mergea su propio PR. `main` está protegida y exige una aprobación.
 7. **Squash and merge** y se borra la rama. Después: `git switch main && git pull --ff-only`.
 
+## Cómo se ve un buen PR
+
+La plantilla se carga sola al abrir el PR. Lo que la hace funcionar:
+
+- **Título = commit del squash**, en inglés y Conventional Commits: `feat(work-items): claim a work item from the map`.
+- **Una sola cosa.** Si la descripción necesita un "y además", son dos PRs.
+- **"Qué cambia" en lenguaje de producto**: "un voluntario puede tomar un trabajo desde el mapa", no "agrego claimWorkItem".
+- **Evidencia, no promesas**: el output de los tests, capturas de muestra a 375 y 1024 px en los dos temas (la prueba cubre 375, 768, 1024 y 1440), el `EXPLAIN ANALYZE` de un listado nuevo.
+- **Riesgos y lo que queda fuera**, con dónde quedó anotado lo pendiente (un issue, no "después").
+- **Del checklist se marca lo que aplica**; lo que no aplica se borra, no se marca.
+
+Los issues usan formularios (`.github/ISSUE_TEMPLATE/`): feature o error. Un error siempre dice su impacto; "alguien no puede pedir o recibir ayuda" se atiende antes que todo.
+
 ## Revisión
 
 - Ritmo: un PR abierto no espera más de **12 horas** sin primera revisión mientras dure la emergencia. Si no puedes revisar, avisa.
