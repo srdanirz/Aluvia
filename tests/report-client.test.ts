@@ -46,6 +46,7 @@ describe("batch extraction", () => {
         addressText: "Calle Inventada 12 (frente a la plaza)",
         workTypeKeys: ["mud"],
         hasVulnerablePeople: true,
+        isPersonInDanger: true,
       },
     ]);
   });

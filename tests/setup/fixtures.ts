@@ -11,13 +11,13 @@ export async function createEmergency(
 ) {
   await db
     .insert(disasterTypes)
-    .values({ key: "test_flood", name: { es: "Prueba" } })
+    .values({ key: "test_report", name: { es: "Prueba" } })
     .onConflictDoNothing();
   const [emergency] = await db
     .insert(emergencies)
     .values({
       slug,
-      disasterTypeKey: "test_flood",
+      disasterTypeKey: "test_report",
       name: { es: `Emergencia ${slug}`, en: `Emergency ${slug}` },
       defaultLocale: "es",
       timeZone: "America/Santiago",
