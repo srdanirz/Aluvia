@@ -2,10 +2,10 @@ import { type SQL, sql } from "drizzle-orm";
 
 import { workItemStatus } from "@/shared/db/schema";
 
-import { ATTENTION_LEVELS } from "../attention";
+import { ATTENTION_LEVELS, isOpenWorkStatus } from "../attention";
 
-// Work that still needs someone: the enum values prefixed `open_`, read from the enum itself.
-const OPEN_STATUSES = workItemStatus.enumValues.filter((status) => status.startsWith("open_"));
+// Work that still needs someone, read from the enum itself.
+const OPEN_STATUSES = workItemStatus.enumValues.filter(isOpenWorkStatus);
 
 /**
  * Hours without activity after which an unattended home shows "to confirm"; per emergency in

@@ -255,7 +255,9 @@
       "emptyTitle": "Nadie ha reportado una casa todavía",
       "emptyBody": "Si conoces una casa que necesita ayuda, repórtala: toma menos de un minuto y no necesitas cuenta.",
       "emptyReport": "Reportar una casa",
-      "contact": "Contacto: {name} · {phone}"
+      "contact": "Contacto: {name} · {phone}",
+      "vulnerable": "Personas vulnerables",
+      "updated": "Última novedad {relative}"
     }
   },
   "worksiteUpdates": {
@@ -509,17 +511,19 @@
   "map": {
     "title": "Mapa de {emergency}",
     "legendLabel": "Qué significa cada color",
-    "levels": {
-      "unattended": "Sin atender",
-      "do_not_enter": "No entrar",
-      "unconfirmed": "Por confirmar",
-      "no_request": "Afectada, sin pedido",
-      "in_progress": "En curso",
-      "attended": "Atendida"
+    "states": {
+      "needs_help": "Necesita ayuda",
+      "on_the_way": "Alguien va",
+      "attended": "Atendida",
+      "do_not_enter": "No entrar"
+    },
+    "detail": {
+      "unconfirmed": "Nadie la actualiza hace tiempo: puede que ya esté lista. Si pasas por ahí, confírmalo.",
+      "noRequest": "Está en el catastro oficial de casas afectadas, pero nadie ha pedido ayuda todavía. Si pasas por ahí, pregunta qué necesita."
     },
     "marker": {
-      "home": "Casa: {level}",
-      "group": "{count, plural, one {# casa} other {# casas}}: {doNotEnter} no entrar, {unattended} sin atender, {unconfirmed} por confirmar, {noRequest} afectadas sin pedido, {inProgress} en curso, {attended} atendidas"
+      "home": "Casa: {state}",
+      "group": "{count, plural, one {# casa} other {# casas}}: {needsHelp} necesitan ayuda, {onTheWay} con alguien que va, {attended} atendidas, {doNotEnter} no entrar"
     },
     "cell": {
       "title": "{count, plural, one {# casa} other {# casas}} en este grupo",
@@ -541,7 +545,7 @@
     "fallback": {
       "back": "Ver todas las zonas",
       "zone": "Zona {position} · {count, plural, one {# casa} other {# casas}}",
-      "levelCount": "{level}: {count}"
+      "stateCount": "{state}: {count}"
     },
     "truncated": "Hay más casas de las que caben. Acerca el mapa para verlas todas.",
     "summary": "{homes, plural, =0 {Aún no hay casas reportadas} one {# casa reportada} other {# casas reportadas}}",
@@ -552,7 +556,7 @@
   },
   "worksite": {
     "title": "Casa en {emergency}",
-    "metaTitle": "Casa en {emergency} · {level}",
+    "metaTitle": "Casa en {emergency} · {state}",
     "back": "Volver al mapa",
     "damage": {
       "chip": "Daño: {level}",
@@ -566,12 +570,22 @@
     "share": "Compartir",
     "copied": "Link copiado",
     "directions": "Cómo llegar",
-    "unconfirmedHint": "Sin novedades hace tiempo: puede que ya esté lista. Si pasas por ahí, confírmalo.",
     "googleMaps": "Google Maps",
     "waze": "Waze",
     "appleMaps": "Apple Maps",
     "shareFailed": "No se pudo compartir. Copia el link desde el navegador.",
-    "meta": "Reportada el {date} · actualizada {relative}",
+    "reported": "Reportada el {date}",
+    "facts": {
+      "needs": "Necesita",
+      "needsNothing": "Nada pedido todavía",
+      "going": "Quién va",
+      "goingCount": "{count, plural, one {# voluntario tomó trabajo aquí} other {# voluntarios tomaron trabajo aquí}}",
+      "goingNobody": "Nadie todavía",
+      "present": "Trabajando ahora",
+      "presentCount": "{count, plural, =0 {Nadie} one {# persona} other {# personas}}",
+      "waiting": "Pidió ayuda",
+      "updated": "Última novedad"
+    },
     "noLocation": "Esta casa todavía no tiene su punto en el mapa.",
     "hazardsHint": "No entrar. Un coordinador tiene que revisar el riesgo antes de que alguien tome trabajos.",
     "contact": {
@@ -580,7 +594,9 @@
       "name": "Nombre",
       "phone": "Teléfono",
       "notes": "Qué pasa",
-      "logged": "Solo coordinadores. Queda registrado que lo viste."
+      "logged": "Solo coordinadores. Queda registrado que lo viste.",
+      "vulnerable": "Personas vulnerables",
+      "vulnerableYes": "Viven personas mayores, niños o con discapacidad"
     },
     "publicContact": {
       "title": "Contacto",

@@ -6,7 +6,13 @@ import { z } from "zod";
 import type { Executor } from "@/shared/db/types";
 
 import type { AttentionLevel } from "@/features/map/attention";
-import { attentionLevelSql, isOpenWorkItemSql, staleBeforeSql } from "@/features/map/server/attention-level";
+import {
+  attentionLevelSql,
+  isOpenWorkItemSql,
+  lastActivitySql,
+  staleBeforeSql,
+} from "@/features/map/server/attention-level";
+import type { damageLevel } from "@/shared/db/schema/enums";
 import { publicAddressSql, publicContactSql } from "@/features/map/server/public-address";
 
 /**
@@ -31,6 +37,13 @@ export const REPORTS_PAGE_SIZE = 20;
 export type ReportedWorksite = {
   id: string;
   level: AttentionLevel;
+  damageLevel: (typeof damageLevel.enumValues)[number] | null;
+  /** People who took its open work: how many are going, never who. */
+  volunteerCount: number;
+  /** Someone vulnerable lives there; only for a contact viewer, null for the public (ADR 0011). */
+  hasVulnerablePeople: boolean | null;
+  /** Last time anyone touched the home or its work. */
+  updatedAt: Date;
   /** The written address as the public reads it (ADR 0017). */
   address: string | null;
   /** Name and phone, only when the reporter chose to show them; null otherwise. */
@@ -50,6 +63,10 @@ export type ReportedWorksitesPage = { items: ReportedWorksite[]; nextCursor: str
 type Row = {
   id: string;
   level: AttentionLevel;
+  damage_level: ReportedWorksite["damageLevel"];
+  volunteer_count: number;
+  has_vulnerable_people: boolean | null;
+  updated_at: string;
   address: string | null;
   contact_name: string | null;
   contact_phone: string | null;
@@ -148,6 +165,10 @@ export async function listReportedWorksites(
           (w.source <> 'official')::int
         )::int AS report_count,
         (count(wi.id) FILTER (WHERE ${isOpenWorkItemSql} AND wi.claimed_by IS NULL))::int AS open_unclaimed,
+        (count(DISTINCT wi.claimed_by) FILTER (WHERE ${isOpenWorkItemSql}))::int AS volunteer_count,
+        ${lastActivitySql} AS updated_at,
+        w.damage_level,
+        w.has_vulnerable_people,
         coalesce(w.unclaimed_since, 'infinity'::timestamptz) AS waiting_at,
         coalesce(w.unclaimed_since, w.created_at) AS waiting_since,
         -- to_json: the driver parses json, not text[].
@@ -175,7 +196,8 @@ export async function listReportedWorksites(
         ${publicAddressSql(sql`c.address_text`)} AS address,
         ${publicContactSql("c", "name")} AS contact_name,
         ${publicContactSql("c", "phone")} AS contact_phone,
-        ${showAddress ? sql`c.address_text` : sql`NULL::text`} AS address_text
+        ${showAddress ? sql`c.address_text` : sql`NULL::text`} AS address_text,
+        ${showAddress ? sql`l.has_vulnerable_people` : sql`NULL::boolean`} AS vulnerable
       FROM listed l
       LEFT JOIN worksite_contacts c ON c.worksite_id = l.id
       ${resume}
@@ -194,6 +216,7 @@ export async function listReportedWorksites(
     }
     SELECT
       id, level, address, contact_name, contact_phone, address_text, report_count, needs, flag_key, open_unclaimed,
+      damage_level, volunteer_count, vulnerable AS has_vulnerable_people, ${utcText("updated_at")} AS updated_at,
       ${utcText("waiting_since")} AS waiting_since,
       CASE WHEN waiting_at = 'infinity' THEN 'infinity' ELSE ${utcText("waiting_at")} END AS waiting_key,
       ${utcText("created_at")} AS created_key
@@ -207,6 +230,10 @@ export async function listReportedWorksites(
     items: page.map((row) => ({
       id: row.id,
       level: row.level,
+      damageLevel: row.damage_level,
+      volunteerCount: row.volunteer_count,
+      hasVulnerablePeople: row.has_vulnerable_people,
+      updatedAt: new Date(row.updated_at),
       address: row.address,
       contactName: row.contact_name,
       contactPhone: row.contact_phone,

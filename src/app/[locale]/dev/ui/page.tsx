@@ -1,15 +1,17 @@
 import {
   Check,
   CircleHelp,
+  Footprints,
+  HandHelping,
   House,
   LayoutGrid,
   MessageCircle,
   Navigation,
+  OctagonX,
   Package,
   Phone,
   Search,
   Share2,
-  Shovel,
   TriangleAlert,
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
@@ -147,12 +149,13 @@ export default async function DesignSystemPage() {
 
         <Section title={t("mapMarkers")}>
           <div className="flex flex-wrap items-center gap-3">
-            <MapMarker tone="urgent" icon={<TriangleAlert />} />
-            <MapMarker tone="pending" icon={<Shovel />} />
+            <MapMarker tone="urgent" icon={<HandHelping />} />
+            <MapMarker tone="pending" icon={<Footprints />} />
             <MapMarker tone="done" icon={<Check />} />
+            <MapMarker tone="urgent" shape="sign" icon={<OctagonX />} />
             <MapMarker tone="closed" icon={<CircleHelp />} />
-            <MapMarker tone="urgent" icon={<TriangleAlert />} count={128} />
-            <MapMarker tone="pending" icon={<Shovel />} selected />
+            <MapMarker tone="urgent" icon={<HandHelping />} count={128} />
+            <MapMarker tone="pending" icon={<Footprints />} selected />
             <MapMarker tone="place" icon={<Package />} />
           </div>
         </Section>

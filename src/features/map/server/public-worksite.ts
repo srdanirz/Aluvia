@@ -7,7 +7,7 @@ import type { damageLevel, worksiteHazard } from "@/shared/db/schema/enums";
 import type { Executor } from "@/shared/db/types";
 
 import type { AttentionLevel, WorkItemStatus } from "../attention";
-import { attentionLevelSql, lastActivitySql, staleBeforeSql } from "./attention-level";
+import { attentionLevelSql, isOpenWorkItemSql, lastActivitySql, staleBeforeSql } from "./attention-level";
 import { publicAddressSql, publicContactSql } from "./public-address";
 
 type DamageLevel = (typeof damageLevel.enumValues)[number];
@@ -30,6 +30,12 @@ export type PublicWorksite = {
   /** Last time anyone touched the home or its work. */
   updatedAt: Date;
   workItems: { workType: string; status: WorkItemStatus }[];
+  /** People who took its open work: how many are going, never who. */
+  volunteerCount: number;
+  /** People working there by the newest field update (worksite_updates); null without one. */
+  peoplePresent: number | null;
+  /** Since when its open work waits for someone, or when it was reported if nothing waits. */
+  waitingSince: Date;
   /** The written address with its number, so a volunteer finds the door (ADR 0017). */
   address: string | null;
   /** Name and phone, only when the reporter chose to show them (ADR 0017); null otherwise. */
@@ -50,6 +56,9 @@ type WorksiteRow = {
   created_at: Date | string;
   updated_at: Date | string;
   work_items: { workType: string; status: WorkItemStatus }[] | null;
+  volunteer_count: number;
+  people_present: number | null;
+  waiting_since: Date | string;
   address: string | null;
   contact_name: string | null;
   contact_phone: string | null;
@@ -84,6 +93,9 @@ export async function findPublicWorksite(
         )
         ORDER BY wt.sort_order, wt.key, wi.id
       ) FILTER (WHERE wi.id IS NOT NULL) AS work_items,
+      (count(DISTINCT wi.claimed_by) FILTER (WHERE ${isOpenWorkItemSql}))::int AS volunteer_count,
+      u.people_present,
+      coalesce(w.unclaimed_since, w.created_at) AS waiting_since,
       ${publicAddressSql(sql`c.address_text`)} AS address,
       ${publicContactSql("c", "name")} AS contact_name,
       ${publicContactSql("c", "phone")} AS contact_phone
@@ -93,8 +105,14 @@ export async function findPublicWorksite(
     LEFT JOIN emergency_settings es ON es.emergency_id = e.id
     LEFT JOIN work_items wi ON wi.worksite_id = w.id AND wi.emergency_id = w.emergency_id
     LEFT JOIN work_types wt ON wt.emergency_id = wi.emergency_id AND wt.key = wi.work_type_key
+    -- The newest live field update; one home, so one index probe (worksite_id, created_at DESC).
+    LEFT JOIN LATERAL (
+      SELECT wu.people_present FROM worksite_updates wu
+      WHERE wu.worksite_id = w.id AND wu.cancelled_at IS NULL
+      ORDER BY wu.created_at DESC LIMIT 1
+    ) u ON true
     WHERE e.slug = ${slug} AND w.id = ${id}
-    GROUP BY w.id, e.id, es.emergency_id, c.worksite_id
+    GROUP BY w.id, e.id, es.emergency_id, c.worksite_id, u.people_present
   `);
   if (!row) return null;
   return {
@@ -109,6 +127,9 @@ export async function findPublicWorksite(
     reportedAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
     workItems: row.work_items ?? [],
+    volunteerCount: row.volunteer_count,
+    peoplePresent: row.people_present,
+    waitingSince: new Date(row.waiting_since),
     address: row.address,
     contactName: row.contact_name,
     contactPhone: row.contact_phone,

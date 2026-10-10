@@ -5,9 +5,9 @@ import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 
 import { Link } from "@/shared/i18n/navigation";
-import { Card, Chip, GlassPanel, IconButton } from "@/shared/ui";
+import { Card, GlassPanel, IconButton } from "@/shared/ui";
 
-import { LEVEL_ICON, LEVEL_TONE } from "../attention";
+import { HomeStateChip } from "./home-state-chip";
 import type { OpenCell } from "./map-shell";
 
 /**
@@ -31,7 +31,6 @@ export function CellPanel({ cell, onClose }: { cell: OpenCell; onClose: () => vo
       </div>
       <ul className="flex min-h-0 flex-col gap-3 overflow-y-auto">
         {homes.map((home, index) => {
-          const Icon = LEVEL_ICON[home.level];
           return (
             <li key={home.id}>
               <Link
@@ -42,11 +41,9 @@ export function CellPanel({ cell, onClose }: { cell: OpenCell; onClose: () => vo
                 <Card interactive size="compact" className="flex-row items-center justify-between gap-3">
                   <div className="flex flex-col gap-2">
                     <span className="text-body font-medium text-ink">
-                      {t("cell.home", { position: index + 1 })}
+                      {home.address ?? t("cell.home", { position: index + 1 })}
                     </span>
-                    <Chip tone={LEVEL_TONE[home.level]} icon={<Icon />}>
-                      {t(`levels.${home.level}`)}
-                    </Chip>
+                    <HomeStateChip level={home.level} />
                   </div>
                   <ChevronRight aria-hidden className="size-icon shrink-0 text-ink-muted" strokeWidth={1.5} />
                 </Card>

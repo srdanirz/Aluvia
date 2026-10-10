@@ -16,6 +16,7 @@ import {
   workItems,
   workTypes,
   worksiteContacts,
+  worksiteUpdates,
   worksites,
 } from "@/shared/db/schema";
 
@@ -239,11 +240,13 @@ describe("listMapCells", () => {
   it("lists the homes of a group that sits in one block, most urgent first", async () => {
     const done = await createHome(inCell(0, 0, 0.2), [{ status: "closed_done" }]);
     const open = await createHome(inCell(0, 0, 0.7), [{}]);
+    // The written address tells neighbors apart in the block's list (invented, never a real one).
+    await db.insert(worksiteContacts).values({ worksiteId: open, addressText: "  calle inventada 123 " });
     // Zoom 17 groups two blocks per side, so both homes share one group in a single block.
     const [cell] = await listCells({ slug, bbox: NEAR, zoom: 17, now: NOW }, db);
     expect(cell?.worksites).toEqual([
-      { id: open, level: "unattended" },
-      { id: done, level: "attended" },
+      { id: open, level: "unattended", address: "Calle Inventada 123" },
+      { id: done, level: "attended", address: null },
     ]);
   });
 
@@ -254,8 +257,8 @@ describe("listMapCells", () => {
     const [cell, ...rest] = await listCells({ slug, bbox: NEAR, zoom: STREET_ZOOM, now: NOW }, db);
     expect(rest).toHaveLength(0);
     expect(cell?.worksites).toEqual([
-      { id: open, level: "unattended" },
-      { id: done, level: "attended" },
+      { id: open, level: "unattended", address: null },
+      { id: done, level: "attended", address: null },
     ]);
   });
 
@@ -343,6 +346,44 @@ describe("findPublicWorksite", () => {
     const serialized = JSON.stringify(home);
     expect(serialized).not.toContain("Nombre inventado");
     expect(serialized).not.toContain("+56900000000");
+  });
+
+  it("counts who is going and who is there, never naming them", async () => {
+    const id = await createHome(inCell(0, 0), [
+      { status: "open_claimed", claimed: true },
+      { status: "open_claimed", claimed: true },
+      {},
+    ]);
+    const minutesAgo = (minutes: number) => new Date(NOW.getTime() - minutes * 60_000);
+    await db.insert(worksiteUpdates).values([
+      { id: randomUUID(), emergencyId, worksiteId: id, peoplePresent: 3, createdAt: minutesAgo(30) },
+      { id: randomUUID(), emergencyId, worksiteId: id, peoplePresent: 5, createdAt: minutesAgo(20) },
+      // The newest one was cancelled as wrong: the count falls back to the one before.
+      {
+        id: randomUUID(),
+        emergencyId,
+        worksiteId: id,
+        peoplePresent: 90,
+        createdAt: minutesAgo(10),
+        cancelledAt: minutesAgo(5),
+      },
+    ]);
+
+    const home = await findPublicWorksite({ slug, id, locale: "es", now: NOW }, db);
+    // Two claimed items by the same volunteer are one person going.
+    expect(home).toMatchObject({
+      level: "in_progress",
+      volunteerCount: 1,
+      peoplePresent: 5,
+      waitingSince: NOW,
+    });
+    expect(JSON.stringify(home)).not.toContain(claimantId);
+  });
+
+  it("has no people count without a field update", async () => {
+    const id = await createHome(inCell(0, 0), [{}]);
+    const home = await findPublicWorksite({ slug, id, locale: "es", now: NOW }, db);
+    expect(home).toMatchObject({ volunteerCount: 0, peoplePresent: null });
   });
 
   it("has no position for a home reported with a written address only", async () => {

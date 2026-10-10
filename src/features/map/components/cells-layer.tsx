@@ -9,7 +9,7 @@ import { useParams } from "next/navigation";
 import { useRouter } from "@/shared/i18n/navigation";
 import { Button, Chip, GlassPanel, MapMarker } from "@/shared/ui";
 
-import { LEVEL_ICON, LEVEL_TONE, mostUrgentLevel } from "../attention";
+import { countByState, LEVEL_STATE, mostUrgentLevel, STATE_ICON, STATE_TONE } from "../attention";
 import { FIT_PADDING } from "../grid";
 import { mergeOverlappingCells } from "../merge-cells";
 import type { MapCell } from "../server/map-cells";
@@ -56,6 +56,17 @@ export function CellsLayer({
   const cells = mergeOverlappingCells(query.data?.cells ?? [], zoom, PIN_PIXELS);
   const errorCode = query.error instanceof MapCellsError ? query.error.code : null;
 
+  function groupLabel(cell: MapCell) {
+    const states = countByState(cell.levels);
+    return t("marker.group", {
+      count: cell.count,
+      needsHelp: states.needs_help,
+      onTheWay: states.on_the_way,
+      attended: states.attended,
+      doNotEnter: states.do_not_enter,
+    });
+  }
+
   function open(cell: MapCell) {
     const homes = cell.worksites;
     if (homes && homes.length > 1) {
@@ -72,8 +83,8 @@ export function CellsLayer({
     <>
       <AreaOutline area={area} />
       {cells.map((cell) => {
-        const level = mostUrgentLevel(cell.levels);
-        const Icon = LEVEL_ICON[level];
+        const state = LEVEL_STATE[mostUrgentLevel(cell.levels)];
+        const Icon = STATE_ICON[state];
         const single = cell.count === 1;
         const selected = single && cell.worksites?.[0]?.id === selectedId;
         return (
@@ -83,23 +94,12 @@ export function CellsLayer({
             anchorLeft="-50%"
             anchorTop="-50%"
             zIndex={selected ? 1 : 0}
-            title={
-              single
-                ? t("marker.home", { level: t(`levels.${level}`) })
-                : t("marker.group", {
-                    count: cell.count,
-                    doNotEnter: cell.levels.do_not_enter,
-                    unattended: cell.levels.unattended,
-                    unconfirmed: cell.levels.unconfirmed,
-                    noRequest: cell.levels.no_request,
-                    inProgress: cell.levels.in_progress,
-                    attended: cell.levels.attended,
-                  })
-            }
+            title={single ? t("marker.home", { state: t(`states.${state}`) }) : groupLabel(cell)}
             onClick={() => open(cell)}
           >
             <MapMarker
-              tone={LEVEL_TONE[level]}
+              tone={STATE_TONE[state]}
+              shape={state === "do_not_enter" ? "sign" : "pill"}
               icon={<Icon />}
               count={single ? undefined : cell.count}
               selected={selected}

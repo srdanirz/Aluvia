@@ -23,6 +23,7 @@ export async function WorksiteContactCard({
     { term: t("name"), value: contact.name },
     { term: t("phone"), value: contact.phone },
     { term: t("notes"), value: contact.notes },
+    { term: t("vulnerable"), value: contact.hasVulnerablePeople ? t("vulnerableYes") : null },
   ].filter((item): item is { term: string; value: string } => item.value !== null);
   return (
     <Card className="gap-3">

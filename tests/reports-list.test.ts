@@ -120,6 +120,19 @@ describe("reported homes list", () => {
     expect(views).toEqual([{ worksiteId: withAddress.id, userId: coordinatorId }]);
   });
 
+  it("carries damage, who is going and the last news, and vulnerability only for coordinators", async () => {
+    const emergencyId = await createEmergency(db, "reports-facts");
+    const vulnerable = home({ damageLevel: "severe", hasVulnerablePeople: true });
+    await createWorksites(db, { emergencyId, source: "neighbor", reports: [vulnerable] });
+
+    const [shown] = (await list(emergencyId)).items;
+    expect(shown).toMatchObject({ damageLevel: "severe", volunteerCount: 0, hasVulnerablePeople: null });
+    expect(shown?.updatedAt).toBeInstanceOf(Date);
+
+    const [forCoordinator] = (await list(emergencyId, null, coordinatorId)).items;
+    expect(forCoordinator?.hasVulnerablePeople).toBe(true);
+  });
+
   it("shows name and phone only for reports that opted in to a public contact", async () => {
     const emergencyId = await createEmergency(db, "reports-public-contact");
     const contact = { name: "Vecina de prueba", phone: "+56900000001", addressText: "Calle Inventada 7" };
