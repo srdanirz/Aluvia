@@ -28,6 +28,11 @@ export const EVENTS = {
     emergencyId: z.uuid(),
     workTypeKey: z.string().min(1).max(64),
   }),
+  // Map (ADR 0011). How a home's link leaves the app, which navigation app volunteers use, and
+  // when the map could not load: a spent Google quota shows up here before anyone reports it.
+  worksite_shared: z.strictObject({ method: z.enum(["share_sheet", "clipboard"]) }),
+  worksite_directions_opened: z.strictObject({ app: z.enum(["googleMaps", "waze", "appleMaps"]) }),
+  map_fallback_shown: z.strictObject({ reason: z.enum(["unavailable", "no_tiles"]) }),
   // Admin (ADR 0009, 0015). Keys and counts only; names and notice text stay in the database.
   disaster_type_created: z.strictObject({
     disasterTypeKey: z.string().min(1).max(64),

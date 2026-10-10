@@ -15,6 +15,8 @@ export const buttonVariants = cva(
         ghost: "text-ink-soft hover:bg-glass-hover hover:text-ink",
       },
       block: { true: "w-full" },
+      // Several short labels side by side in one ButtonGroup on a phone.
+      size: { default: "", compact: "px-3" },
     },
     defaultVariants: { variant: "primary" },
   },
@@ -27,11 +29,11 @@ type ButtonProps = ComponentProps<"button"> &
   };
 
 /** Pill button. One `primary` per view; `secondary` for the rest. */
-export function Button({ className, variant, block, asChild = false, type, ...props }: ButtonProps) {
+export function Button({ className, variant, block, size, asChild = false, type, ...props }: ButtonProps) {
   const Component = asChild ? Slot.Root : "button";
   return (
     <Component
-      className={cn(buttonVariants({ variant, block }), className)}
+      className={cn(buttonVariants({ variant, block, size }), className)}
       type={asChild ? undefined : (type ?? "button")}
       {...props}
     />

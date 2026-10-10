@@ -90,10 +90,10 @@ Dos voluntarios van a tocar "tomar" sobre la misma tarea en el mismo segundo. **
 Reglas completas en [SECURITY.md](../SECURITY.md). En el código:
 
 - Cada Server Action y route handler llama a la `policy` de su feature antes de leer o escribir. Sin excepción por "es solo lectura".
-- **Dos formas de cada casa, en funciones distintas**: la pública (zona aproximada, nivel de daño, tipos de trabajo) y la de coordinador (dirección, teléfono, notas). La pública no tiene forma de devolver campos de contacto: no los selecciona.
-- La ubicación pública se generaliza **en la base** (`ST_SnapToGrid`), nunca se manda la exacta para que el cliente la redondee.
+- **Dos formas de cada casa, en funciones distintas**: la pública (punto, nivel de daño, tipos de trabajo) y la de coordinador (dirección, teléfono, notas). La pública no tiene forma de devolver campos de contacto: no los selecciona.
+- La forma pública lleva el punto exacto y nada de contacto: nombre, teléfono, dirección escrita y vulnerabilidad viven en `worksite_contacts` y en la forma de coordinador (`src/features/map/server/public-worksite.ts`, ADR 0011).
 - Ver un contacto deja registro (`contact_views`: quién, qué casa, cuándo).
-- **Nada público responde "hay una casa a X metros de este punto"**: sería un oráculo que deshace la ubicación generalizada. El aviso de duplicado para el vecino es una marca para el coordinador (`worksites.review_flags`), no una respuesta; solo un coordinador ve los vecinos cercanos (`placeWorksite`).
+- **Nada público responde "hay una casa a X metros de este punto"**: confirmaría que una dirección escrita corresponde a un reporte, y eso liga la dirección privada (en `worksite_contacts`) con la casa del mapa. El aviso de duplicado para el vecino es una marca para el coordinador (`worksites.review_flags`), no una respuesta; solo un coordinador ve los vecinos cercanos (`placeWorksite`).
 - Logs sin PII: ni teléfono, ni dirección, ni RUT. Se loguea el `id`.
 - Endpoints públicos de reporte con límite de tasa por IP.
 
@@ -173,7 +173,7 @@ Un concepto, un nombre, en todas las capas: la tabla `work_items`, la carpeta `f
   - `POST /api/v1/webhooks/<proveedor>` (estado de entrega de un SMS).
   - Una acción que no es CRUD es un subrecurso con verbo, siempre `POST`: `POST /api/v1/notifications/dispatch` (el worker).
   - Query params en `camelCase` (`pageSize`, `cursor`), igual que el JSON.
-- **Respuestas:** JSON en `camelCase`. Éxito: el recurso, o `{ items, nextCursor }` en listas. Error: `{ code, details? }` con el status HTTP que corresponda (`409` para `already_claimed`, `422` para validación). Nunca una frase: el cliente traduce el `code`.
+- **Respuestas:** JSON en `camelCase`. Éxito: el recurso, o `{ items, nextCursor }` en listas. Error: `{ code, details? }` con el status HTTP que corresponda (`400` si el pedido viene mal formado, `409` para `already_claimed`, `422` si es válido pero no se puede atender, por ejemplo `bbox_too_large`). Nunca una frase: el cliente traduce el `code`.
 - Un cambio que rompe el contrato de `/api/v1` va en `/api/v2`; los clientes de afuera no se rompen.
 
 ## Comentarios
@@ -221,6 +221,7 @@ Agregar un idioma a la interfaz tiene que ser **agregar un archivo**, sin tocar 
 ## Tests
 
 - Integración contra **Postgres + PostGIS real** (contenedor), sin mocks de la base de datos. Un mock no detecta un N+1, una carrera ni una consulta geográfica mal hecha.
+- Una función de `server/` recibe la base como último argumento, `database: Executor = db` (`src/shared/db/types.ts`); el test le pasa el handle de `createTestDb()`, que cuenta las consultas (`src/features/map/server/map-cells.ts:45`, `tests/map.test.ts`).
 - Datos de prueba inventados, siempre. Nunca direcciones reales.
 - Tiempo fijo en los tests, nunca `Date.now()` real.
 - Un test nuevo se rompe a propósito una vez para verlo fallar.

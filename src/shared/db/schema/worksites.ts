@@ -46,6 +46,9 @@ export const worksites = pgTable(
     index("worksites_location_idx").using("gist", t.location),
     // Distances in meters (duplicate check) go through geography; on geometry 4326 they are degrees.
     index("worksites_location_geography_idx").using("gist", sql`(${t.location}::geography)`),
+    // The map asks for one emergency's homes in a bbox; leading with emergency_id keeps that one
+    // index scan when several emergencies share a region (needs btree_gist, migration 0006).
+    index("worksites_emergency_id_location_idx").using("gist", t.emergencyId, t.location),
     index("worksites_emergency_id_unclaimed_since_idx")
       .on(t.emergencyId, t.unclaimedSince)
       .where(sql`${t.unclaimedSince} IS NOT NULL`),

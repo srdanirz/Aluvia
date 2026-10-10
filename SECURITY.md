@@ -6,7 +6,7 @@ Aluvia guarda información sensible de familias en un mal momento: dirección, t
 
 - **El repositorio es público.** Secretos y datos reales nunca se commitean. Las credenciales viven en GCP Secret Manager; en local, en `.env` (ignorado por git).
 - **Datos de prueba siempre inventados.** Nada de direcciones reales de Las Condes en tests, seeds o capturas de pantalla.
-- **Ubicación pública aproximada.** El mapa público muestra zonas o manzanas, no la dirección exacta ni el teléfono. El detalle solo lo ve un coordinador autenticado.
+- **Punto exacto público, contacto privado.** El mapa público muestra el punto de cada casa, porque un voluntario tiene que encontrar la puerta (decisión de producto, ADR 0011). Nunca muestra nombre, teléfono, dirección escrita ni si hay personas vulnerables. Tampoco publica si la casa está sin gente. Ese detalle solo lo ve un coordinador autenticado, y cada vista queda registrada.
 - **Mínimo dato necesario.** Si un campo no sirve para decidir a quién ayudar primero, no se pide.
 - **Acceso a contactos.** Solo coordinadores aprobados a mano por un mantenedor ven dirección y teléfono, y cada vista queda registrada (quién, qué casa, cuándo).
 - **Reportes públicos con límite de tasa**, para que nadie llene el mapa de casas falsas. El contador es compartido entre instancias (en la base, no en memoria) y la IP se lee del `X-Forwarded-For` del balanceador. Los umbrales son generosos: las redes móviles en Chile comparten IP entre muchos usuarios (CGNAT) y un límite estricto bloquearía a vecinos reales en el peor momento.

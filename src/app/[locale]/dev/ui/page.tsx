@@ -1,4 +1,16 @@
-import { House, LayoutGrid, MessageCircle, Navigation, Phone, Search, Share2 } from "lucide-react";
+import {
+  Check,
+  CircleHelp,
+  House,
+  LayoutGrid,
+  MessageCircle,
+  Navigation,
+  Phone,
+  Search,
+  Share2,
+  Shovel,
+  TriangleAlert,
+} from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 import {
@@ -19,6 +31,7 @@ import {
   LogoMark,
   Section,
   Select,
+  MapMarker,
   Skeleton,
   Spinner,
   ThemeSwitcher,
@@ -54,6 +67,9 @@ export default async function DesignSystemPage() {
             <Button variant="secondary">{t("secondary")}</Button>
             <Button variant="accent">{t("accent")}</Button>
             <Button variant="ghost">{t("ghost")}</Button>
+            <Button variant="ghost" size="compact">
+              {t("ghost")}
+            </Button>
             <Button disabled>{t("disabled")}</Button>
             <Button variant="secondary" disabled>
               <Spinner label={t("saving")} />
@@ -110,6 +126,20 @@ export default async function DesignSystemPage() {
             <Chip tone="done">{t("done")}</Chip>
             <Chip tone="closed">{t("closed")}</Chip>
             <Chip>{t("neutral")}</Chip>
+            <Chip tone="urgent" icon={<TriangleAlert />}>
+              {t("urgent")}
+            </Chip>
+          </div>
+        </Section>
+
+        <Section title={t("mapMarkers")}>
+          <div className="flex flex-wrap items-center gap-3">
+            <MapMarker tone="urgent" icon={<TriangleAlert />} />
+            <MapMarker tone="pending" icon={<Shovel />} />
+            <MapMarker tone="done" icon={<Check />} />
+            <MapMarker tone="closed" icon={<CircleHelp />} />
+            <MapMarker tone="urgent" icon={<TriangleAlert />} count={128} />
+            <MapMarker tone="pending" icon={<Shovel />} selected />
           </div>
         </Section>
 
@@ -142,6 +172,15 @@ export default async function DesignSystemPage() {
               </div>
               <Button block>{t("primary")}</Button>
             </Card>
+            <div className="flex flex-col gap-2">
+              <Card interactive size="compact">
+                <CardTitle>{t("cardTitle")}</CardTitle>
+              </Card>
+              <Card inset className="flex-row items-center justify-between gap-3">
+                <span className="text-body text-ink">{t("cardTitle")}</span>
+                <Chip tone="done">{t("done")}</Chip>
+              </Card>
+            </div>
           </div>
         </Section>
 

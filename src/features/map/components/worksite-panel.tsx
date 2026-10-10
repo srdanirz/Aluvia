@@ -1,0 +1,123 @@
+import { ArrowLeft, OctagonX } from "lucide-react";
+import { getFormatter, getTranslations } from "next-intl/server";
+import type { ReactNode } from "react";
+
+import { Link } from "@/shared/i18n/navigation";
+import { Button, Card, Chip, GlassPanel, IconButton } from "@/shared/ui";
+
+import { LEVEL_ICON, LEVEL_TONE, WORK_ITEM_STATUS_TONE } from "../attention";
+import type { PublicWorksite } from "../server/public-worksite";
+import { Directions } from "./directions";
+import { FocusWorksite } from "./focus-worksite";
+import { ShareButton } from "./share-button";
+
+/**
+ * A home's public page over the map: level, damage, what it needs and how to share it. Only the
+ * public form reaches it (findPublicWorksite), so there is no contact data to leak.
+ */
+export async function WorksitePanel({
+  slug,
+  home,
+  now,
+  notice,
+}: {
+  slug: string;
+  home: PublicWorksite;
+  now: Date;
+  /** The emergency's official notice (`OfficialNotice` from the admin feature), above everything. */
+  notice: ReactNode;
+}) {
+  const t = await getTranslations("worksite");
+  const tMap = await getTranslations("map");
+  const tStatus = await getTranslations("workItems.status");
+  const tUpdates = await getTranslations("worksiteUpdates.form");
+  const format = await getFormatter();
+  const LevelIcon = LEVEL_ICON[home.level];
+  const position = home.position;
+  const title = t("title", { emergency: home.emergencyName });
+  const tHazard = await getTranslations("worksites.hazard");
+
+  return (
+    <GlassPanel className="flex min-h-0 animate-enter flex-col gap-6 overflow-y-auto">
+      {notice}
+      {position ? <FocusWorksite lat={position.lat} lng={position.lng} /> : null}
+      <header className="flex items-start gap-3">
+        <IconButton variant="ghost" label={t("back")} asChild>
+          <Link href={`/emergencies/${slug}`}>
+            <ArrowLeft aria-hidden />
+          </Link>
+        </IconButton>
+        <div className="flex flex-col gap-2">
+          <h1 className="text-heading-sm text-ink">{title}</h1>
+          <div className="flex flex-wrap items-center gap-2">
+            <Chip tone={LEVEL_TONE[home.level]} icon={<LevelIcon />}>
+              {tMap(`levels.${home.level}`)}
+            </Chip>
+            {home.damageLevel ? (
+              <Chip>{t("damage.chip", { level: t(`damage.${home.damageLevel}`) })}</Chip>
+            ) : null}
+          </div>
+          <p className="text-body-sm text-ink-muted">
+            {t("meta", {
+              date: format.dateTime(home.reportedAt, {
+                dateStyle: "long",
+                timeStyle: "short",
+                timeZone: home.timeZone,
+              }),
+              relative: format.relativeTime(home.updatedAt, now),
+            })}
+          </p>
+          {home.level === "do_not_enter" ? (
+            <div role="alert" className="flex flex-col items-start gap-2">
+              <div className="flex flex-wrap gap-2">
+                {home.hazards.map((hazard) => (
+                  <Chip key={hazard} tone="urgent" icon={<OctagonX />}>
+                    {tHazard(hazard)}
+                  </Chip>
+                ))}
+              </div>
+              <p className="text-body-sm text-ink-soft">{t("hazardsHint")}</p>
+            </div>
+          ) : null}
+          {home.level === "unconfirmed" ? (
+            <p className="text-body-sm text-ink-soft">{t("unconfirmedHint")}</p>
+          ) : null}
+        </div>
+      </header>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="text-subheading font-medium text-ink">{t("work")}</h2>
+        {home.workItems.length > 0 ? (
+          <ul className="flex flex-col gap-2">
+            {home.workItems.map((item, index) => (
+              <li key={index}>
+                <Card inset className="flex-row items-center justify-between gap-3">
+                  <span className="text-body text-ink">{item.workType}</span>
+                  <Chip tone={WORK_ITEM_STATUS_TONE[item.status]}>{tStatus(item.status)}</Chip>
+                </Card>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-body-sm text-ink-soft">{t("noWork")}</p>
+        )}
+      </section>
+
+      {position ? (
+        <section className="flex flex-col gap-3">
+          <h2 className="text-subheading font-medium text-ink">{t("directions")}</h2>
+          <Directions point={position} />
+        </section>
+      ) : (
+        <p className="text-body-sm text-ink-muted">{t("noLocation")}</p>
+      )}
+
+      <div className="flex flex-wrap gap-3">
+        <ShareButton title={title} />
+        <Button variant="secondary" asChild>
+          <Link href={`/emergencies/${slug}/worksites/${home.id}/updates/new`}>{tUpdates("openLink")}</Link>
+        </Button>
+      </div>
+    </GlassPanel>
+  );
+}

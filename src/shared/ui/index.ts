@@ -16,6 +16,7 @@ export { Label } from "./label";
 export { Logo } from "./logo";
 export { LogoMark } from "./logo-mark";
 export { Section } from "./section";
+export { MapMarker } from "./map-marker";
 export { SegmentedControl } from "./segmented-control";
 export { Select } from "./select";
 export { Skeleton } from "./skeleton";

@@ -11,6 +11,8 @@ const publicEnvCheck = z
     NEXT_PUBLIC_SENTRY_DSN: z.url({ protocol: /^https?$/ }).optional(),
     NEXT_PUBLIC_POSTHOG_KEY: z.string().min(1).optional(),
     NEXT_PUBLIC_POSTHOG_HOST: z.url({ protocol: /^https?$/ }),
+    NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: z.string().min(1).optional(),
+    NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID: z.string().min(1).optional(),
   })
   .safeParse(publicEnv);
 if (!publicEnvCheck.success) {
