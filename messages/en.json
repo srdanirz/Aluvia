@@ -839,5 +839,27 @@
       "help": "Help",
       "shifts": "Shifts"
     }
+  },
+  "zones": {
+    "draw": "Draw zone",
+    "drawHint": "{count, plural, =0 {Tap the map to mark the zone's edge.} one {# point. Keep tapping the edge.} other {# points. Save once the edge is closed.}}",
+    "kindLabel": "Zone type",
+    "kinds": {
+      "no_entry": "Do not enter",
+      "restricted": "Restricted access",
+      "meeting_point": "Meeting point"
+    },
+    "noteLabel": "Note (optional)",
+    "toolbar": "Zone drawing",
+    "undo": "Undo",
+    "cancel": "Cancel",
+    "save": "Save",
+    "remove": "Remove zone",
+    "close": "Close",
+    "errors": {
+      "invalid_input": "A zone needs at least 3 points.",
+      "not_found": "That zone no longer exists.",
+      "forbidden": "Only coordinators can draw zones."
+    }
   }
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { Map, type MapEvent } from "@vis.gl/react-google-maps";
-import { useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 
 import { MAP_ID, useGoogleMapsStatus, useMapColorScheme } from "@/shared/maps/google-maps-provider";
 import { Skeleton } from "@/shared/ui";
@@ -66,11 +66,14 @@ export function WorksiteMap({
   bounds,
   area,
   timeZone,
+  overlay,
 }: {
   slug: string;
   bounds: Bbox | null;
   area: AreaPolygon[] | null;
   timeZone: string;
+  /** Drawn inside the map, over the homes: the emergency's zones (features/zones). */
+  overlay?: ReactNode;
 }) {
   const status = useGoogleMapsStatus();
   const colorScheme = useMapColorScheme();
@@ -111,6 +114,7 @@ export function WorksiteMap({
             paused={tiles.timedOut}
           />
         ) : null}
+        {overlay}
       </Map>
       {tiles.timedOut ? (
         <div className="absolute inset-0">

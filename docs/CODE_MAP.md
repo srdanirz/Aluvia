@@ -45,6 +45,7 @@
 | `src/features/work-items/` | Ciclo del voluntario (issues #10, #12, #13): "Dónde ayudar ahora" (`/emergencies/[slug]/work-items`), tomar con aviso de seguridad, reserva que vence, Llegué, avance, cierre, verificado. `server/claims.ts` y `status.ts` son las únicas escrituras de `work_items` después de crearlos; `recomputeUnclaimedSince` mantiene el orden por abandono. `WorksiteJobs` es el bloque de acciones de la página de una casa. Barrido: `POST /api/v1/work-items/release-expired`, solo Cloud Scheduler (`src/shared/scheduler-auth.ts`) |
 | `src/features/shifts/` | Turnos (`/emergencies/[slug]/shifts`): inscribirse y cancelar con cupo decidido por la base, recordatorio por el outbox |
 | `src/features/emergencies/` | `findEmergencyBySlug`: la emergencia detrás de un slug; `findOpenEmergencies`: las abiertas, con la que la portada redirige a la única abierta (caché invalidado al crear o cerrar una) |
+| `src/features/zones/` | Zonas dibujadas sobre el mapa (no entrar, acceso restringido, punto de encuentro): coordinadores las dibujan tocando el mapa; "no entrar" bloquea tomar trabajos dentro (`worksiteAcceptsClaims`) |
 | `src/app/[locale]/emergencies/[slug]/layout.tsx` | Barra común de la emergencia: Mapa, Reportar, Ayudar, Turnos |
 | `src/shared/db/clock.ts` | `dbNow()`: el instante de una escritura es `now()` de Postgres; un `Date` fijo solo en tests |
 | `src/shared/offline/` | Cola de envíos que sobrevive sin señal y a un deploy (`outbox.ts`, `OutboxSync` en el layout), borradores en el teléfono (`usePersistedState`), compartir link |
