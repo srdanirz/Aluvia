@@ -4,7 +4,7 @@ import type { ComponentProps } from "react";
 
 import { cn } from "./cn";
 
-const buttonVariants = cva(
+export const buttonVariants = cva(
   "press inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-6 text-body-sm font-medium whitespace-nowrap disabled:pointer-events-none disabled:opacity-40 [&>svg]:size-icon-sm [&>svg]:stroke-[1.5]",
   {
     variants: {

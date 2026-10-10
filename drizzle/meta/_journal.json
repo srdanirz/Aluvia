@@ -29,6 +29,20 @@
       "when": 1791615210973,
       "tag": "0003_deferred_catalog_fks",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791615824709,
+      "tag": "0004_admin",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791615829259,
+      "tag": "0005_admin_events_append_only",
+      "breakpoints": true
     }
   ]
 }

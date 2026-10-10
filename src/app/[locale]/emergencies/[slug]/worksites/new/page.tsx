@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import { ReportForm, ReportPage } from "@/features/worksites/components";
 import { findReportForm, reportSourceFor } from "@/features/worksites/server";
+import { loadOfficialNotice, OfficialNotice } from "@/features/admin";
 import { getEmergencyAccess } from "@/shared/auth";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -15,7 +16,10 @@ export default async function NewWorksitePage({
   params,
 }: PageProps<"/[locale]/emergencies/[slug]/worksites/new">) {
   const { locale, slug } = await params;
-  const form = await findReportForm({ slug, locale });
+  const [form, notice] = await Promise.all([
+    findReportForm({ slug, locale }),
+    loadOfficialNotice(slug, locale),
+  ]);
   if (!form) notFound();
   const [t, access] = await Promise.all([
     getTranslations("worksites.report"),
@@ -23,7 +27,7 @@ export default async function NewWorksitePage({
   ]);
 
   return (
-    <ReportPage eyebrow={form.emergency.name} title={t("title")}>
+    <ReportPage notice={<OfficialNotice text={notice} />} eyebrow={form.emergency.name} title={t("title")}>
       <ReportForm
         slug={form.emergency.slug}
         workTypes={form.workTypes}

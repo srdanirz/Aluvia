@@ -3,6 +3,7 @@ export * from "./audit";
 export * from "./disaster-types";
 export * from "./emergencies";
 export * from "./emergency-members";
+export * from "./emergency-notices";
 export * from "./enums";
 export * from "./notifications";
 export * from "./rate-limits";
