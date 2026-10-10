@@ -1,4 +1,4 @@
-import { and, eq, sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 import { adminEvents, users } from "@/shared/db/schema";
 import type { Database } from "@/shared/db/types";
@@ -15,14 +15,11 @@ export async function grantPlatformAdmin(db: Database, identity: string): Promis
     const [user] = await tx
       .update(users)
       .set({ platformRole: "admin" })
-      // One identity, one column, and only when it names exactly one person: emails are unique
-      // case-insensitively, phones are not unique in this schema, so a shared phone grants nobody.
+      // One identity, one column: phones are unique (the login identity, ADR 0013) and emails
+      // are unique case-insensitively, so either names at most one person.
       .where(
         identity.startsWith("+")
-          ? and(
-              eq(users.phone, identity),
-              sql`(select count(*) from ${users} where ${users.phone} = ${identity}) = 1`,
-            )
+          ? eq(users.phone, identity)
           : sql`lower(${users.email}) = lower(${identity})`,
       )
       .returning({ id: users.id });

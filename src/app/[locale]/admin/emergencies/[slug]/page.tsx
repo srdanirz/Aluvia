@@ -11,7 +11,8 @@ import {
 } from "@/features/admin";
 import { readLocalizedText } from "@/shared/i18n/localized-text";
 import { DEFAULT_LOCALE } from "@/shared/i18n/locales";
-import { Card, Chip, DescriptionList, Section } from "@/shared/ui";
+import { Link } from "@/shared/i18n/navigation";
+import { Button, Card, Chip, DescriptionList, Section } from "@/shared/ui";
 
 export default async function EmergencyPage({ params }: PageProps<"/[locale]/admin/emergencies/[slug]">) {
   const { slug } = await params;
@@ -69,6 +70,14 @@ export default async function EmergencyPage({ params }: PageProps<"/[locale]/adm
           />
         </Section>
       ) : null}
+
+      <Section title={t("membersTitle")} lead={t("membersLead")}>
+        <div>
+          <Button variant="secondary" asChild>
+            <Link href={`/admin/emergencies/${emergency.slug}/members`}>{t("membersLink")}</Link>
+          </Button>
+        </div>
+      </Section>
 
       <Section title={t("settingsTitle")} lead={t("settingsLead")}>
         <EmergencySettingsForm

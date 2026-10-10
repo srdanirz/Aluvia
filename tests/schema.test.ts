@@ -159,6 +159,10 @@ describe("work items", () => {
   it("lets exactly one of many concurrent claims win", async () => {
     const id = await createWorkItem(emergencyA);
     const racers = await createUsers(RACERS);
+    // Only members can claim (work_items_claimant_fk).
+    await db
+      .insert(emergencyMembers)
+      .values(racers.map((user) => ({ emergencyId: emergencyA, userId: user })));
 
     const claim = (by: string) =>
       db.transaction(async (tx) => {

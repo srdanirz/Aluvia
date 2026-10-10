@@ -6,6 +6,7 @@ import { cache } from "react";
 
 import { loadOfficialNotice, OfficialNotice } from "@/features/admin";
 import { WorksitePanel } from "@/features/map/components/worksite-panel";
+import { WorksiteAssignments } from "@/features/members";
 import { slugSchema, worksiteIdSchema } from "@/features/map/schemas";
 import { findPublicWorksite } from "@/features/map/server/public-worksite";
 
@@ -36,5 +37,13 @@ export default async function WorksitePage({ params }: { params: Params }) {
     loadWorksite(slug, id),
     loadOfficialNotice(slug, await rootParams.locale()),
   ]);
-  return <WorksitePanel slug={slug} home={home} now={now} notice={<OfficialNotice text={notice} />} />;
+  return (
+    <WorksitePanel
+      slug={slug}
+      home={home}
+      now={now}
+      notice={<OfficialNotice text={notice} />}
+      adminTools={<WorksiteAssignments emergencyId={home.emergencyId} worksiteId={home.id} />}
+    />
+  );
 }

@@ -4,6 +4,7 @@ export { Button } from "./button";
 export { ButtonGroup } from "./button-group";
 export { Card, CardBody, CardTitle } from "./card";
 export { Chip } from "./chip";
+export { CopyField } from "./copy-field";
 export { DescriptionList } from "./description-list";
 export { Field } from "./field";
 export { FileButton } from "./file-button";

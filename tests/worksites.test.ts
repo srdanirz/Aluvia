@@ -16,6 +16,7 @@ import {
 } from "@/features/worksites/server";
 import {
   emergencies,
+  emergencyMembers,
   emergencySettings,
   users,
   workItemEvents,
@@ -368,6 +369,8 @@ describe("review flags and hazards", () => {
       .values({ name: "Voluntaria de prueba" })
       .returning({ id: users.id });
     if (!volunteer) throw new Error("no user");
+    // Only members claim work (work_items_claimant_fk, ADR 0013).
+    await db.insert(emergencyMembers).values({ emergencyId: zone, userId: volunteer.id });
 
     const claim = () =>
       db

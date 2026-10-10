@@ -64,6 +64,13 @@
       "when": 1791618928100,
       "tag": "0008_notification_dispatch",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791635620123,
+      "tag": "0009_auth_and_roles",
+      "breakpoints": true
     }
   ]
 }

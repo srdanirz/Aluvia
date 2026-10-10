@@ -3,7 +3,7 @@ import "server-only";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 
-import { getCurrentUser } from "./session";
+import { getCurrentUser } from "@/shared/auth";
 
 /**
  * Who may use the admin: platform admins only (ADR 0009). Being one never grants access to

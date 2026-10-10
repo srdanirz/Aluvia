@@ -13,6 +13,7 @@ import {
 } from "drizzle-orm/pg-core";
 
 import { emergencies } from "./emergencies";
+import { emergencyMembers } from "./emergency-members";
 import { workItemStatus } from "./enums";
 import { users } from "./users";
 import { workTypes } from "./work-types";
@@ -49,6 +50,13 @@ export const workItems = pgTable(
       foreignColumns: [workTypes.emergencyId, workTypes.key],
       // NO ACTION and DEFERRABLE INITIALLY DEFERRED (migration 0003, drizzle cannot say it):
       // a used type still cannot be deleted, but deleting the emergency cascades in any order.
+    }),
+    // Only a member of the emergency can claim its work, so purging an emergency's members
+    // (ADR 0005) reaches every claimant. NO ACTION: the purge clears claimed_by first.
+    foreignKey({
+      name: "work_items_claimant_fk",
+      columns: [t.emergencyId, t.claimedBy],
+      foreignColumns: [emergencyMembers.emergencyId, emergencyMembers.userId],
     }),
     unique("work_items_id_emergency_id_key").on(t.id, t.emergencyId),
     // One direction only: deleting a user sets claimed_by to null and must not be blocked by an
