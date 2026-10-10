@@ -66,6 +66,7 @@ describe("outbox", () => {
       localStorage: {
         getItem: (key: string) => store.get(key) ?? null,
         setItem: (key: string, value: string) => store.set(key, value),
+        removeItem: (key: string) => store.delete(key),
       },
       dispatchEvent: () => true,
     });
@@ -93,6 +94,37 @@ describe("outbox", () => {
     );
     await flushOutbox();
     expect(listOutbox()).toMatchObject([{ id: "b", status: "rejected", code: "emergency_not_found" }]);
+  });
+
+  it("still sends when the phone refuses to store the write", async () => {
+    vi.stubGlobal("window", {
+      localStorage: {
+        getItem: () => null,
+        setItem: () => {
+          throw new DOMException("full", "QuotaExceededError");
+        },
+        removeItem: () => undefined,
+      },
+      dispatchEvent: () => true,
+    });
+    const fetchMock = vi.fn().mockRejectedValue(new TypeError("offline"));
+    vi.stubGlobal("fetch", fetchMock);
+    expect(await enqueue(entry("m"))).toEqual({ status: "queued" });
+    expect(listOutbox().map((e) => e.id)).toEqual(["m"]);
+
+    fetchMock.mockResolvedValue(new Response("{}", { status: 201 }));
+    await flushOutbox();
+    expect(listOutbox()).toEqual([]);
+  });
+
+  it("sets an unreadable queue aside instead of overwriting it", async () => {
+    store.set("aluvia.outbox.v1", "{not json");
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("offline")));
+    await enqueue(entry("n"));
+    const corrupt = [...store.keys()].filter((key) => key.startsWith("aluvia.outbox.v1.corrupt."));
+    expect(corrupt).toHaveLength(1);
+    expect(store.get(corrupt[0] ?? "")).toBe("{not json");
+    expect(listOutbox().map((e) => e.id)).toEqual(["n"]);
   });
 
   it("stops a round at the first failed send", async () => {

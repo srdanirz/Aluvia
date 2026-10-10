@@ -88,7 +88,9 @@
         "missingHelp": "Write the address so people can find the home.",
         "addressLabel": "Address",
         "addressHint": "Street and number, as you would write it on an envelope.",
-        "retry": "Find location again"
+        "retry": "Find location again",
+        "approximate": "Approximate location",
+        "approximateHelp": "The GPS is not sure where you are. Write the address too so people can find the home."
       },
       "needs": {
         "title": "What does it need?",

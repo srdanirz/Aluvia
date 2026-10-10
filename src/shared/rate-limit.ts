@@ -31,6 +31,21 @@ export async function hitRateLimit(
   return (row?.hits ?? Number.POSITIVE_INFINITY) <= limit;
 }
 
+// Longer than any window in use (a day), so a purge never resets a live counter.
+const STALE_AFTER_SECONDS = 2 * 24 * 60 * 60;
+// Small batches keep each purge short; callers run it often enough to keep up.
+const PURGE_BATCH = 500;
+
+/** Deletes counters whose window ended long ago. Bounded, so it is cheap to call on hot paths. */
+export async function purgeStaleRateLimits(db: Executor): Promise<void> {
+  await db.execute(sql`
+    DELETE FROM rate_limits WHERE key IN (
+      SELECT key FROM rate_limits
+      WHERE window_started_at < now() - make_interval(secs => ${STALE_AFTER_SECONDS})
+      LIMIT ${PURGE_BATCH} FOR UPDATE SKIP LOCKED
+    )`);
+}
+
 /**
  * A stable key for the client behind the load balancer, without storing its IP: an HMAC, so the
  * small IPv4 space cannot be brute-forced back from the table. `trustedProxyHops` is how many

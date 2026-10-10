@@ -334,6 +334,8 @@ describe("review flags and hazards", () => {
     await createWorksites(db, { emergencyId: zone, source: "neighbor", reports: [inside, outside] });
     const twin = report({ location: north(5), isPersonInDanger: true });
     await createWorksites(db, { emergencyId: zone, source: "neighbor", reports: [twin] });
+    const coarse = report({ location: { lng: -70.495, lat: -33.395 }, locationAccuracyMeters: 900 });
+    await createWorksites(db, { emergencyId: zone, source: "neighbor", reports: [coarse] });
     const noPoint = report({ location: null, contact: { addressText: "Calle Inventada 3" } });
     await createWorksites(db, { emergencyId: zone, source: "neighbor", reports: [noPoint] });
 
@@ -341,6 +343,7 @@ describe("review flags and hazards", () => {
     expect(await flagsOf(outside.id)).toEqual(["outside_area"]);
     expect(await flagsOf(twin.id)).toEqual(["possible_duplicate", "person_in_danger"]);
     expect(await flagsOf(noPoint.id)).toEqual([]);
+    expect(await flagsOf(coarse.id)).toEqual(["imprecise_location"]);
 
     expect(
       await resolveWorksiteReviewFlag(db, {

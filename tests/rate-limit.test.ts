@@ -2,7 +2,7 @@ import { eq, sql } from "drizzle-orm";
 import { afterAll, describe, expect, it } from "vitest";
 
 import { rateLimits } from "@/shared/db/schema";
-import { clientIpKey, hitRateLimit } from "@/shared/rate-limit";
+import { clientIpKey, hitRateLimit, purgeStaleRateLimits } from "@/shared/rate-limit";
 
 import { createTestDb } from "./setup/db";
 
@@ -32,6 +32,21 @@ describe("hitRateLimit", () => {
       .set({ windowStartedAt: sql`now() - interval '61 seconds'` })
       .where(eq(rateLimits.key, key));
     expect(await hitRateLimit(db, { key, limit: 1, windowSeconds: 60 })).toBe(true);
+  });
+});
+
+describe("purgeStaleRateLimits", () => {
+  it("removes counters idle for days and keeps live ones", async () => {
+    await hitRateLimit(db, { key: "test:stale", limit: 10, windowSeconds: 60 });
+    await hitRateLimit(db, { key: "test:live", limit: 10, windowSeconds: 60 });
+    await db
+      .update(rateLimits)
+      .set({ windowStartedAt: sql`now() - interval '3 days'` })
+      .where(eq(rateLimits.key, "test:stale"));
+    await purgeStaleRateLimits(db);
+    const keys = await db.select({ key: rateLimits.key }).from(rateLimits);
+    expect(keys.map((row) => row.key)).toContain("test:live");
+    expect(keys.map((row) => row.key)).not.toContain("test:stale");
   });
 });
 

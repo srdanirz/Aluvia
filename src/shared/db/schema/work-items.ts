@@ -47,7 +47,9 @@ export const workItems = pgTable(
       name: "work_items_work_type_fk",
       columns: [t.emergencyId, t.workTypeKey],
       foreignColumns: [workTypes.emergencyId, workTypes.key],
-    }).onDelete("restrict"),
+      // NO ACTION and DEFERRABLE INITIALLY DEFERRED (migration 0003, drizzle cannot say it):
+      // a used type still cannot be deleted, but deleting the emergency cascades in any order.
+    }),
     unique("work_items_id_emergency_id_key").on(t.id, t.emergencyId),
     // One direction only: deleting a user sets claimed_by to null and must not be blocked by an
     // open_claimed row; the claim action is what keeps open_claimed paired with a claimant.

@@ -27,6 +27,7 @@ export const notificationLevel = pgEnum("notification_level", [
 // Why a home waits for a coordinator's look (docs/investigacion/04-casos-borde.md). None blocks the report.
 export const worksiteReviewFlag = pgEnum("worksite_review_flag", [
   "outside_area",
+  "imprecise_location",
   "possible_duplicate",
   "person_in_danger",
 ]);

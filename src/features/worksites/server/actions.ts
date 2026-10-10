@@ -10,6 +10,7 @@ import { db } from "@/shared/db/client";
 import { env } from "@/shared/env";
 import { LOCALES } from "@/shared/i18n/locales";
 import { logError } from "@/shared/observability/logger";
+import { hitRateLimit } from "@/shared/rate-limit";
 
 import { pointSchema, worksiteReportSchema } from "../schemas";
 import { createWorksites } from "./create-worksites";
@@ -34,6 +35,9 @@ import { worksiteReviewFlag } from "@/shared/db/schema/enums";
 
 type Denied = { ok: false; code: "invalid_input" | "emergency_not_found" | "forbidden" };
 
+// A coordinator pasting story after story in a busy hour stays far below this.
+const EXTRACTIONS_PER_HOUR = 60;
+
 const extractInputSchema = z.object({
   slug: z.string().min(1).max(100),
   locale: z.enum(LOCALES),
@@ -43,7 +47,7 @@ const extractInputSchema = z.object({
 /** Batch import, step 1: turns a pasted post into drafts. Writes nothing; the text is not kept. */
 export async function extractDrafts(
   input: z.input<typeof extractInputSchema>,
-): Promise<ExtractDraftsResult | Denied | { ok: false; code: "extraction_unavailable" }> {
+): Promise<ExtractDraftsResult | Denied | { ok: false; code: "extraction_unavailable" | "rate_limited" }> {
   const parsed = extractInputSchema.safeParse(input);
   if (!parsed.success) return { ok: false, code: "invalid_input" };
   const form = await findReportForm({ slug: parsed.data.slug, locale: parsed.data.locale });
@@ -51,6 +55,13 @@ export async function extractDrafts(
   const access = await getEmergencyAccess(form.emergency.id);
   if (!canImportWorksites(access)) return { ok: false, code: "forbidden" };
   if (!env.ANTHROPIC_API_KEY) return { ok: false, code: "extraction_unavailable" };
+  // Each paste is a paid model call: a stolen or careless coordinator session cannot run it unbounded.
+  const allowed = await hitRateLimit(db, {
+    key: `worksite_extract:${access?.userId ?? "none"}`,
+    limit: EXTRACTIONS_PER_HOUR,
+    windowSeconds: 3600,
+  });
+  if (!allowed) return { ok: false, code: "rate_limited" };
 
   const started = performance.now();
   try {
@@ -93,10 +104,10 @@ export async function importWorksites(
   const access = await getEmergencyAccess(emergencyId);
   if (!canImportWorksites(access)) return { ok: false, code: "forbidden" };
 
-  // Residents never consented to a post being forwarded: no contact beyond the written address.
+  // Residents never consented to a post being forwarded: nothing beyond the written address.
   const reports = parsed.data.reports.map((report) => ({
     ...report,
-    contact: { ...report.contact, name: null, phone: null, notifyChannel: null },
+    contact: { ...report.contact, name: null, phone: null, notes: null, notifyChannel: null },
   }));
   const result = await createWorksites(db, { emergencyId, source: "social", reports });
   if (!result.ok) {

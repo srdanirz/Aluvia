@@ -39,7 +39,9 @@ export const shifts = pgTable(
       name: "shifts_work_type_fk",
       columns: [t.emergencyId, t.workTypeKey],
       foreignColumns: [workTypes.emergencyId, workTypes.key],
-    }).onDelete("restrict"),
+      // NO ACTION and DEFERRABLE INITIALLY DEFERRED (migration 0003, drizzle cannot say it):
+      // a used type still cannot be deleted, but deleting the emergency cascades in any order.
+    }),
     check("shifts_filled_check", sql`${t.filled} >= 0 AND ${t.filled} <= ${t.capacity}`),
     check("shifts_time_check", sql`${t.endsAt} > ${t.startsAt}`),
     index("shifts_emergency_id_starts_at_idx").on(t.emergencyId, t.startsAt),

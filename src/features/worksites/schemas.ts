@@ -48,10 +48,18 @@ const workTypeKeysSchema = (min: number) =>
     .max(MAX_WORK_TYPES)
     .refine((keys) => new Set(keys).size === keys.length, "duplicate_work_type");
 
+/**
+ * A GPS fix less precise than this (indoors, a phone without GPS falling back to wifi or cell
+ * towers) can sit on the wrong block: the form asks for the address too and the home is flagged.
+ */
+export const PRECISE_LOCATION_METERS = 100;
+
 const worksiteFields = {
   id: z.uuid(),
   locale: z.enum(LOCALES),
   location: pointSchema.nullable(),
+  // What the phone said about its fix; null for a pin placed by hand.
+  locationAccuracyMeters: z.number().int().min(0).max(100_000).nullable().default(null),
   damageLevel: z.enum(damageLevel.enumValues).nullable().default(null),
   hasVulnerablePeople: z.boolean().default(false),
   // Marks the home for a coordinator; the form has already shown the emergency numbers.

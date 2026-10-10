@@ -47,9 +47,10 @@ export async function placeWorksite(
       .set({
         location: { x: location.lng, y: location.lat },
         // The pin is new, so "outside the area" is decided again; "possible duplicate" goes away
-        // because the nearby homes were just checked (none, or the caller confirmed).
+        // because the nearby homes were just checked (none, or the caller confirmed), and a pin
+        // placed by hand is not an imprecise GPS fix.
         reviewFlags: sql`array_remove(
-          array_remove(array_remove(${worksites.reviewFlags}, 'outside_area'), 'possible_duplicate')
+          array_remove(array_remove(array_remove(${worksites.reviewFlags}, 'outside_area'), 'possible_duplicate'), 'imprecise_location')
             || ARRAY[(SELECT 'outside_area' FROM emergencies e
                       WHERE e.id = ${emergencyId} AND e.area IS NOT NULL
                         AND NOT ST_Intersects(e.area, ST_SetSRID(ST_MakePoint(${location.lng}, ${location.lat}), 4326)))]::worksite_review_flag[],

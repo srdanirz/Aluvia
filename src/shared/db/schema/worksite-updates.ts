@@ -75,6 +75,8 @@ export const worksiteUpdateSupplies = pgTable(
       name: "worksite_update_supplies_supply_type_fk",
       columns: [t.emergencyId, t.supplyTypeKey],
       foreignColumns: [supplyTypes.emergencyId, supplyTypes.key],
-    }).onDelete("restrict"),
+      // NO ACTION and DEFERRABLE INITIALLY DEFERRED (migration 0003, drizzle cannot say it):
+      // a used type still cannot be deleted, but deleting the emergency cascades in any order.
+    }),
   ],
 );

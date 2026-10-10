@@ -1,10 +1,12 @@
 import "server-only";
 
+import { after } from "next/server";
+
 import { getEmergencyAccess } from "@/shared/auth";
 import { db } from "@/shared/db/client";
 import { env } from "@/shared/env";
 import { errorResponse, parseJsonBody } from "@/shared/http";
-import { clientIpKey, hitRateLimit } from "@/shared/rate-limit";
+import { clientIpKey, hitRateLimit, purgeStaleRateLimits } from "@/shared/rate-limit";
 
 import { worksiteReportSchema } from "../schemas";
 import { createWorksites } from "./create-worksites";
@@ -16,6 +18,9 @@ import { findOpenEmergencyId } from "./queries";
 // coordinator on a shelter's wifi can report dozens of homes in an hour (SECURITY.md).
 const REPORTS_PER_WINDOW = 60;
 const WINDOW_SECONDS = 600;
+// About one report in a hundred also clears old counters, after the response; each purge is a
+// bounded batch, so the table stays near the number of recent clients without a cron.
+const PURGE_EVERY = 100;
 
 /**
  * POST /api/v1/emergencies/[slug]/worksites: reports a home, no account needed. Idempotent by
@@ -32,6 +37,7 @@ export async function reportWorksite(request: Request, slug: string): Promise<Re
     limit: REPORTS_PER_WINDOW,
     windowSeconds: WINDOW_SECONDS,
   });
+  if (Math.random() < 1 / PURGE_EVERY) after(() => purgeStaleRateLimits(db));
   if (!allowed) {
     reportsCounter.add(1, { source: "unknown", outcome: "rate_limited" });
     return errorResponse(429, "rate_limited");

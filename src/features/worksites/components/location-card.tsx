@@ -18,6 +18,7 @@ type LocationCardProps = {
 export function LocationCard({ location, onRetry, addressText, onAddressChange }: LocationCardProps) {
   const t = useTranslations("worksites.report.location");
   const missing = location.status === "denied" || location.status === "unavailable";
+  const approximate = location.status === "approximate";
 
   return (
     <Card className="gap-4">
@@ -29,18 +30,22 @@ export function LocationCard({ location, onRetry, addressText, onAddressChange }
           </Chip>
         ) : location.status === "ready" ? (
           <Chip tone="done">{t("ready")}</Chip>
+        ) : approximate ? (
+          <Chip tone="pending">{t("approximate")}</Chip>
         ) : (
           <Chip tone="urgent">{t("missing")}</Chip>
         )}
-        {location.status === "ready" ? (
+        {location.status === "ready" || approximate ? (
           <span className="text-caption text-ink-muted">
             {t("accuracy", { meters: location.accuracyMeters })}
           </span>
         ) : null}
       </div>
-      {missing ? (
+      {missing || approximate ? (
         <>
-          <p className="text-body-sm text-ink-soft">{t("missingHelp")}</p>
+          <p className="text-body-sm text-ink-soft">
+            {approximate ? t("approximateHelp") : t("missingHelp")}
+          </p>
           <Field id="report-address" label={t("addressLabel")} hint={t("addressHint")}>
             <Input
               autoComplete="street-address"

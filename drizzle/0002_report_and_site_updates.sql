@@ -1,5 +1,5 @@
 CREATE TYPE "public"."worksite_hazard" AS ENUM('electricity', 'gas', 'structure');--> statement-breakpoint
-CREATE TYPE "public"."worksite_review_flag" AS ENUM('outside_area', 'possible_duplicate', 'person_in_danger');--> statement-breakpoint
+CREATE TYPE "public"."worksite_review_flag" AS ENUM('outside_area', 'imprecise_location', 'possible_duplicate', 'person_in_danger');--> statement-breakpoint
 ALTER TYPE "public"."report_source" ADD VALUE 'official';--> statement-breakpoint
 CREATE TABLE "disaster_type_supply_types" (
 	"disaster_type_key" text NOT NULL,
@@ -48,6 +48,10 @@ CREATE TABLE "worksite_updates" (
 	CONSTRAINT "worksite_updates_cancelled_check" CHECK ("worksite_updates"."cancelled_by" IS NULL OR "worksite_updates"."cancelled_at" IS NOT NULL)
 );
 --> statement-breakpoint
+ALTER TABLE "shifts" DROP CONSTRAINT "shifts_work_type_fk";
+--> statement-breakpoint
+ALTER TABLE "work_items" DROP CONSTRAINT "work_items_work_type_fk";
+--> statement-breakpoint
 ALTER TABLE "worksites" ALTER COLUMN "location" DROP NOT NULL;--> statement-breakpoint
 ALTER TABLE "emergency_settings" ADD COLUMN "emergency_numbers" jsonb DEFAULT '[]'::jsonb NOT NULL;--> statement-breakpoint
 ALTER TABLE "worksites" ADD COLUMN "review_flags" "worksite_review_flag"[] DEFAULT '{}' NOT NULL;--> statement-breakpoint
@@ -57,12 +61,15 @@ ALTER TABLE "worksites" ADD COLUMN "hazards_reviewed_by" uuid;--> statement-brea
 ALTER TABLE "disaster_type_supply_types" ADD CONSTRAINT "disaster_type_supply_types_disaster_type_fk" FOREIGN KEY ("disaster_type_key") REFERENCES "public"."disaster_types"("key") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "supply_types" ADD CONSTRAINT "supply_types_emergency_id_emergencies_id_fk" FOREIGN KEY ("emergency_id") REFERENCES "public"."emergencies"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "worksite_update_supplies" ADD CONSTRAINT "worksite_update_supplies_update_fk" FOREIGN KEY ("update_id","emergency_id") REFERENCES "public"."worksite_updates"("id","emergency_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "worksite_update_supplies" ADD CONSTRAINT "worksite_update_supplies_supply_type_fk" FOREIGN KEY ("emergency_id","supply_type_key") REFERENCES "public"."supply_types"("emergency_id","key") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "worksite_update_supplies" ADD CONSTRAINT "worksite_update_supplies_supply_type_fk" FOREIGN KEY ("emergency_id","supply_type_key") REFERENCES "public"."supply_types"("emergency_id","key") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "worksite_updates" ADD CONSTRAINT "worksite_updates_emergency_id_emergencies_id_fk" FOREIGN KEY ("emergency_id") REFERENCES "public"."emergencies"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "worksite_updates" ADD CONSTRAINT "worksite_updates_reported_by_users_id_fk" FOREIGN KEY ("reported_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "worksite_updates" ADD CONSTRAINT "worksite_updates_cancelled_by_users_id_fk" FOREIGN KEY ("cancelled_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "worksite_updates" ADD CONSTRAINT "worksite_updates_worksite_fk" FOREIGN KEY ("worksite_id","emergency_id") REFERENCES "public"."worksites"("id","emergency_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX "rate_limits_window_started_at_idx" ON "rate_limits" USING btree ("window_started_at");--> statement-breakpoint
 CREATE INDEX "worksite_updates_worksite_id_created_at_idx" ON "worksite_updates" USING btree ("worksite_id","created_at" DESC NULLS LAST) WHERE "worksite_updates"."cancelled_at" IS NULL;--> statement-breakpoint
+ALTER TABLE "shifts" ADD CONSTRAINT "shifts_work_type_fk" FOREIGN KEY ("emergency_id","work_type_key") REFERENCES "public"."work_types"("emergency_id","key") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "work_items" ADD CONSTRAINT "work_items_work_type_fk" FOREIGN KEY ("emergency_id","work_type_key") REFERENCES "public"."work_types"("emergency_id","key") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "worksites" ADD CONSTRAINT "worksites_hazards_reviewed_by_users_id_fk" FOREIGN KEY ("hazards_reviewed_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "worksites_location_geography_idx" ON "worksites" USING gist (("location"::geography));--> statement-breakpoint
 CREATE INDEX "worksites_emergency_id_review_idx" ON "worksites" USING btree ("emergency_id","created_at") WHERE cardinality("worksites"."review_flags") > 0;--> statement-breakpoint

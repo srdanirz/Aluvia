@@ -2,9 +2,13 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { PRECISE_LOCATION_METERS } from "../schemas";
+
 export type LocationState =
   | { status: "locating" }
   | { status: "ready"; lng: number; lat: number; accuracyMeters: number }
+  /** A fix too coarse to find the home by (PRECISE_LOCATION_METERS): kept, but the address is asked too. */
+  | { status: "approximate"; lng: number; lat: number; accuracyMeters: number }
   | { status: "denied" }
   | { status: "unavailable" };
 
@@ -24,13 +28,15 @@ export function useCurrentLocation(): { location: LocationState; retry: () => vo
       return;
     }
     navigator.geolocation.getCurrentPosition(
-      (position) =>
+      (position) => {
+        const accuracyMeters = Math.round(position.coords.accuracy);
         setLocation({
-          status: "ready",
+          status: accuracyMeters > PRECISE_LOCATION_METERS ? "approximate" : "ready",
           lng: position.coords.longitude,
           lat: position.coords.latitude,
-          accuracyMeters: Math.round(position.coords.accuracy),
-        }),
+          accuracyMeters,
+        });
+      },
       (error) => setLocation({ status: error.code === error.PERMISSION_DENIED ? "denied" : "unavailable" }),
       { enableHighAccuracy: true, timeout: TIMEOUT_MS, maximumAge: MAX_AGE_MS },
     );

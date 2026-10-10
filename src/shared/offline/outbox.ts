@@ -25,12 +25,29 @@ export type OutboxEntry = {
 
 export type DeliveryResult = { status: "sent" } | { status: "queued" } | { status: "rejected"; code: string };
 
+// The queue this tab works from when localStorage is blocked or full. It is lost with the tab,
+// so the form still shows the entry as waiting and keeps it sending while the tab lives.
+let memory: OutboxEntry[] | null = null;
+
 function read(): OutboxEntry[] {
+  if (memory) return memory;
+  let raw: string | null;
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as OutboxEntry[]) : [];
+    raw = window.localStorage.getItem(STORAGE_KEY);
   } catch {
-    // Private mode or corrupted JSON: an empty queue is the only safe reading.
+    return [];
+  }
+  if (!raw) return [];
+  try {
+    return JSON.parse(raw) as OutboxEntry[];
+  } catch {
+    // Keep the unreadable queue aside instead of overwriting it with the next write.
+    try {
+      window.localStorage.setItem(`${STORAGE_KEY}.corrupt.${Date.now()}`, raw);
+      window.localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // Storage refuses even that: nothing more can be saved on this device.
+    }
     return [];
   }
 }
@@ -38,9 +55,12 @@ function read(): OutboxEntry[] {
 function write(entries: OutboxEntry[]) {
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-  } finally {
-    window.dispatchEvent(new Event(CHANGE_EVENT));
+    memory = null;
+  } catch {
+    // Quota full or storage blocked: the write still goes out from memory.
+    memory = entries.length > 0 ? entries : null;
   }
+  window.dispatchEvent(new Event(CHANGE_EVENT));
 }
 
 function upsert(entry: OutboxEntry) {

@@ -49,7 +49,8 @@ export function ReportForm({ slug, workTypes, emergencyNumbers, source }: Report
 
   const phone = toE164(draft.phone, typeof navigator === "undefined" ? [] : navigator.languages);
   const phoneError = draft.phone.trim() !== "" && phone === null;
-  const point = location.status === "ready" ? { lng: location.lng, lat: location.lat } : null;
+  const hasFix = location.status === "ready" || location.status === "approximate";
+  const point = hasFix ? { lng: location.lng, lat: location.lat } : null;
   const hasPlace = point !== null || draft.addressText.trim() !== "";
   const missing = draft.workTypeKeys.length === 0 ? "needs" : !hasPlace ? "location" : null;
 
@@ -70,6 +71,7 @@ export function ReportForm({ slug, workTypes, emergencyNumbers, source }: Report
       id,
       locale,
       location: point,
+      locationAccuracyMeters: hasFix ? location.accuracyMeters : null,
       workTypeKeys: draft.workTypeKeys,
       damageLevel: draft.damageLevel,
       hasVulnerablePeople: draft.hasVulnerablePeople,
@@ -182,7 +184,7 @@ export function ReportForm({ slug, workTypes, emergencyNumbers, source }: Report
             <ReportDetails
               draft={draft}
               onChange={setDraft}
-              hasLocation={point !== null}
+              hasLocation={location.status === "ready"}
               phoneError={phoneError}
               phoneIsValid={phone !== null}
             />

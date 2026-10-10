@@ -1,5 +1,5 @@
 {
-  "id": "ccbadbd9-d52e-4b0e-a6fe-fa15c91548c6",
+  "id": "f98f0003-6306-4e98-99e1-037339f8bc5c",
   "prevId": "d6b30d1a-4092-4947-8051-2d46d655123d",
   "version": "7",
   "dialect": "postgresql",
@@ -1074,7 +1074,23 @@
           "notNull": true
         }
       },
-      "indexes": {},
+      "indexes": {
+        "rate_limits_window_started_at_idx": {
+          "name": "rate_limits_window_started_at_idx",
+          "columns": [
+            {
+              "expression": "window_started_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
@@ -1324,7 +1340,7 @@
             "emergency_id",
             "key"
           ],
-          "onDelete": "restrict",
+          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
@@ -1810,7 +1826,7 @@
             "emergency_id",
             "key"
           ],
-          "onDelete": "restrict",
+          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
@@ -1957,7 +1973,7 @@
             "emergency_id",
             "key"
           ],
-          "onDelete": "restrict",
+          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
@@ -2545,6 +2561,7 @@
       "schema": "public",
       "values": [
         "outside_area",
+        "imprecise_location",
         "possible_duplicate",
         "person_in_danger"
       ]

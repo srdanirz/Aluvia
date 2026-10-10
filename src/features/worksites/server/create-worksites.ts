@@ -6,7 +6,7 @@ import { workItemEvents, worksiteContacts, worksites } from "@/shared/db/schema"
 import { sqlArray } from "@/shared/db/sql-array";
 import type { Executor } from "@/shared/db/types";
 
-import type { NewWorksite, WorksiteSource } from "../schemas";
+import { type NewWorksite, PRECISE_LOCATION_METERS, type WorksiteSource } from "../schemas";
 import { DUPLICATE_RADIUS_METERS } from "./queries";
 
 export type CreateWorksitesResult =
@@ -16,12 +16,16 @@ class InvalidWorkType extends Error {}
 
 /**
  * The review flags of a new home, decided by the database in the same INSERT: a point outside
- * the emergency's area (a GPS error, swapped coordinates), another home of the emergency within
- * DUPLICATE_RADIUS_METERS, or someone in danger. Homes of the same batch do not see each other.
+ * the emergency's area (a GPS error, swapped coordinates), a fix less precise than
+ * PRECISE_LOCATION_METERS, another home of the emergency within DUPLICATE_RADIUS_METERS, or
+ * someone in danger. Homes of the same batch do not see each other.
  */
 function reviewFlagsFor(emergencyId: string, report: NewWorksite) {
   const danger = report.isPersonInDanger ? sql`'person_in_danger'` : sql`NULL`;
+  const imprecise =
+    (report.locationAccuracyMeters ?? 0) > PRECISE_LOCATION_METERS ? sql`'imprecise_location'` : sql`NULL`;
   if (!report.location) return sql`array_remove(ARRAY[${danger}]::worksite_review_flag[], NULL)`;
+
   const point = sql`ST_SetSRID(ST_MakePoint(${report.location.lng}, ${report.location.lat}), 4326)`;
   return sql`array_remove(ARRAY[
     (SELECT 'outside_area' FROM emergencies e
@@ -30,6 +34,7 @@ function reviewFlagsFor(emergencyId: string, report: NewWorksite) {
       SELECT 1 FROM worksites w
       WHERE w.emergency_id = ${emergencyId}
         AND ST_DWithin(w.location::geography, ${point}::geography, ${DUPLICATE_RADIUS_METERS}))),
+    ${imprecise},
     ${danger}
   ]::worksite_review_flag[], NULL)`;
 }
