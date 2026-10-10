@@ -23,7 +23,9 @@ export type OutboxEntry = {
   code?: string;
 };
 
-export type DeliveryResult = { status: "sent" } | { status: "queued" } | { status: "rejected"; code: string };
+/** `response` is the server's JSON answer to a sent entry, or null when it had none. */
+export type DeliveryResult =
+  { status: "sent"; response: unknown } | { status: "queued" } | { status: "rejected"; code: string };
 
 // The queue this tab works from when localStorage is blocked or full. It is lost with the tab,
 // so the form still shows the entry as waiting and keeps it sending while the tab lives.
@@ -110,7 +112,9 @@ async function deliver(entry: OutboxEntry): Promise<DeliveryResult> {
   }
   if (response.ok) {
     remove(entry.id);
-    return { status: "sent" };
+    // The write is done whatever the body says; an unreadable one only loses the answer.
+    const json: unknown = await response.json().catch(() => null);
+    return { status: "sent", response: json };
   }
   if (response.status >= 500 || RETRYABLE_STATUS.has(response.status)) return { status: "queued" };
   const code = await response

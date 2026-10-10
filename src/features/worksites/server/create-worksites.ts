@@ -12,7 +12,7 @@ import { DUPLICATE_RADIUS_METERS } from "./queries";
 export type CreateWorksitesResult =
   { ok: true; created: string[] } | { ok: false; code: "invalid_work_type" };
 
-class InvalidWorkType extends Error {}
+export class InvalidWorkType extends Error {}
 
 /**
  * The review flags of a new home, decided by the database in the same INSERT: a point outside
@@ -46,8 +46,18 @@ function reviewFlagsFor(emergencyId: string, report: NewWorksite, source: Worksi
 // Postgres caps a statement at 65535 parameters; a home takes about 20 with its flags.
 export const MAX_WORKSITES_PER_CALL = 500;
 
-async function insertWorkItems(tx: Executor, emergencyId: string, pairs: { id: string; key: string }[]) {
-  return tx.execute<{ id: string }>(sql`
+/**
+ * Opens one unclaimed work item per (home, type) pair, with its first event. Only active types of
+ * this emergency's own catalog: one missing pair throws InvalidWorkType, so the caller's
+ * transaction rolls back whole. Two statements for any number of pairs.
+ */
+export async function insertOpenWorkItems(
+  tx: Executor,
+  emergencyId: string,
+  pairs: readonly { id: string; key: string }[],
+): Promise<void> {
+  if (pairs.length === 0) return;
+  const items = await tx.execute<{ id: string }>(sql`
     INSERT INTO work_items (id, emergency_id, worksite_id, work_type_key)
     SELECT gen_random_uuid(), ${emergencyId}, pair.worksite_id, pair.key
     FROM unnest(${sqlArray(
@@ -62,6 +72,10 @@ async function insertWorkItems(tx: Executor, emergencyId: string, pairs: { id: s
       ON wt.emergency_id = ${emergencyId} AND wt.key = pair.key AND wt.is_active
     RETURNING id
   `);
+  if (items.length !== pairs.length) throw new InvalidWorkType();
+  await tx
+    .insert(workItemEvents)
+    .values(items.map((item) => ({ workItemId: item.id, emergencyId, toStatus: "open_unclaimed" as const })));
 }
 
 /**
@@ -114,17 +128,7 @@ export async function createWorksites(
       const pending = reports.filter((report) => fresh.has(report.id));
       const pairs = pending.flatMap((report) => report.workTypeKeys.map((key) => ({ id: report.id, key })));
 
-      // Only active types of this emergency's own catalog; one missing pair rejects the batch.
-      const items = pairs.length === 0 ? [] : await insertWorkItems(tx, emergencyId, pairs);
-      if (items.length !== pairs.length) throw new InvalidWorkType();
-
-      if (items.length > 0) {
-        await tx
-          .insert(workItemEvents)
-          .values(
-            items.map((item) => ({ workItemId: item.id, emergencyId, toStatus: "open_unclaimed" as const })),
-          );
-      }
+      await insertOpenWorkItems(tx, emergencyId, pairs);
 
       const contacts = pending.filter(({ contact }) =>
         Object.values(contact).some((value) => value !== null),

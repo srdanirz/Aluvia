@@ -10,6 +10,7 @@ export * from "./enums";
 export * from "./invitations";
 export * from "./notifications";
 export * from "./rate-limits";
+export * from "./report-receipts";
 export * from "./shifts";
 export * from "./supply-types";
 export * from "./users";
