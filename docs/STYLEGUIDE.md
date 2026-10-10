@@ -101,9 +101,11 @@ Reglas completas en [SECURITY.md](../SECURITY.md). En el código:
 Detalle en [ADR 0008](adr/0008-observabilidad.md). **Una feature no está terminada si no se puede ver funcionando en producción.**
 
 - Cada feature nueva trae en el mismo PR sus **métricas** (OpenTelemetry), sus **eventos** de producto y, si su falla deja a alguien sin ayuda, su **alerta**.
-- Los eventos salen solo del catálogo `src/shared/analytics/events.ts`: nombre en `snake_case` y en pasado (`work_item_claimed`), con schema zod. Nada de `track("cualquier cosa")` suelto.
-- Ningún evento, métrica, log ni error lleva datos personales. Las etiquetas de una métrica nunca son ids de usuario ni de casa (además de exponer datos, disparan la cardinalidad): se usan ruta, zona, tipo de trabajo, estado.
-- Logs en JSON estructurado con el trace id. Un error se registra una vez, donde se maneja, no en cada capa que lo propaga.
+- Los eventos salen solo del catálogo `src/shared/analytics/events.ts:11`: nombre en `snake_case` y en pasado (`work_item_claimed`), con `z.strictObject` de propiedades en `camelCase` (ids, enums, conteos, booleanos). Un test rechaza propiedades con nombre de dato personal. Desde el navegador, `track()` (`src/shared/analytics/client.ts:53`); desde una Server Action o route handler, después del commit, `trackServerEvent()` (`src/shared/analytics/server.ts:17`).
+- Métricas con `meter` (`src/shared/observability/metrics.ts:10`), instrumentos creados a nivel de módulo. Duración y consultas por request ya salen solas por patrón de ruta (`aluvia.http.server.duration`, `aluvia.http.server.db_queries`): un route handler no se mide a mano.
+- Ningún evento, métrica, log ni error lleva datos personales. Las etiquetas de una métrica nunca son ids de usuario ni de casa (además de exponer datos, disparan la cardinalidad): se usan ruta, zona, tipo de trabajo, estado. Todo lo que sale pasa por `src/shared/observability/redact.ts`, que es una red y no un permiso.
+- Logs con `logInfo`/`logWarn`/`logError` (`src/shared/observability/logger.ts:33`): el mensaje es un código estable en `snake_case` (`login_code_send_failed`) y los detalles van en campos, como ids y enums. Salen en JSON con el trace. Un error se registra una vez, donde se maneja, no en cada capa que lo propaga; un error que se relanza lo registra Next.js y llega a Sentry solo.
+- `src/instrumentation-client.ts` va en el primer bundle de cada visita: no importa zod ni SDKs. Sentry y PostHog se cargan en chunk aparte y solo si su variable está puesta (`src/instrumentation-client.ts:7`).
 - Grafana (propio, en Cloud Run) lee la base solo a través de vistas agregadas y con un usuario de solo lectura.
 
 ## Nombres
@@ -153,7 +155,7 @@ Un concepto, un nombre, en todas las capas: la tabla `work_items`, la carpeta `f
 | Claves de traducción | `feature.pantalla.elemento`, en `camelCase`. Excepción: `errors.<code>` conserva el `snake_case` del código, para traducirlo directo | `workItems.detail.claimButton`, `errors.already_claimed` |
 | Códigos de error | `snake_case`, describen el qué | `already_claimed`, `shift_full` |
 | Eventos de producto | `snake_case`, entidad + verbo en pasado | `work_item_claimed` |
-| Métricas | En código (OpenTelemetry): puntos, prefijo `aluvia.`, unidad aparte. El exportador a Prometheus agrega `_seconds`/`_total`; no se escriben a mano | Código: `aluvia.map.bbox.duration` (unidad `s`). PromQL: `aluvia_map_bbox_duration_seconds` |
+| Métricas | En código (OpenTelemetry): puntos, prefijo `aluvia.`, unidad aparte. El exportador cambia puntos por `_` y agrega `_total` a los contadores; la unidad no entra al nombre | Código: `aluvia.map.bbox.duration` (unidad `s`). PromQL: `aluvia_map_bbox_duration_bucket` |
 | Ramas | `tipo/descripcion-en-kebab` | `feat/claim-work-item` |
 
 ### Rutas y endpoints

@@ -2,6 +2,10 @@ import "server-only";
 
 import { z } from "zod";
 
+// An empty value in .env means "off", same as leaving the line out.
+const optional = <T extends z.ZodType>(type: T) =>
+  z.preprocess((value) => (value === "" ? undefined : value), type.optional());
+
 // Server configuration, validated once at import. A missing or malformed value fails at
 // startup with the variable's name, never mid-request.
 
@@ -30,6 +34,10 @@ const schema = z.object({
     .string()
     .optional()
     .transform((value) => value || undefined),
+  // Port for the Prometheus scrape endpoint (ADR 0008). Unset: no metrics server.
+  METRICS_PORT: optional(z.coerce.number().int().min(1).max(65_535)),
+  // Lets Cloud Logging join each log line to its trace. Unset: logs carry the bare trace id.
+  GOOGLE_CLOUD_PROJECT: optional(z.string().min(1)),
 });
 
 const parsed = schema.safeParse(process.env);
