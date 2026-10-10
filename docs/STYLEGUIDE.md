@@ -40,7 +40,7 @@ Decisiones de base: [stack](adr/0002-stack.md) · [mapa](adr/0006-google-maps.md
 - **Migraciones con `drizzle-kit generate`, commiteadas y revisadas en el PR.** `drizzle-kit push` nunca toca un ambiente compartido.
 - Solo migraciones aditivas en un deploy: renombrar o cambiar un tipo se hace en tres PRs (agregar, copiar datos, borrar). (origen: sur, `strong_migrations`)
 - Cada FK y cada columna que aparece en un `WHERE` u `ORDER BY` de un listado lleva índice **en la misma migración** que crea la consulta.
-- Ubicación como `geometry(Point, 4326)` con índice GiST. Las consultas por zona usan `ST_Intersects` en la base, nunca se filtra en JS. **Para distancias en metros**, `ST_DWithin(geom::geography, …)` con índice GiST sobre la expresión `(geom::geography)`: sobre `geometry` en 4326, la distancia se mide en grados.
+- Ubicación como `geometry(Point, 4326)` con el tipo `wgs84Point()` (`src/shared/db/schema/types.ts:16`) y índice GiST. Las consultas por zona usan `ST_Intersects` en la base, nunca se filtra en JS. **Para distancias en metros**, `ST_DWithin(geom::geography, …)` con índice GiST sobre la expresión `(geom::geography)`: sobre `geometry` en 4326, la distancia se mide en grados.
 - Instantes en `timestamptz` (UTC). Se muestran en la zona horaria de la emergencia (`emergencies.time_zone`) con `Intl`; los horarios silenciosos de avisos (ADR 0007) también se cuentan en esa zona.
 - Los nombres guardados (tablas, columnas, valores de enums) están en inglés desde el día uno: renombrarlos después deja atrás los datos ya escritos. (origen: sonda, `test_persisted_schema.py`)
 - Nada se borra en duro mientras dura una emergencia: un trabajo resuelto cambia de estado. Los datos personales se borran al cerrar la emergencia (SECURITY.md).
@@ -183,7 +183,7 @@ El criterio es el nivel de detalle, no la cantidad.
 Detalle y razones en [ADR 0004](adr/0004-design-system.md). La regla corta: **si no existe en `src/shared/ui/`, no existe.**
 
 - **Toda pieza visual sale de `src/shared/ui/`** (shadcn/ui sobre Tailwind v4). Las features componen esas primitivas; no las reimplementan ni las "ajustan" por fuera.
-- **Si falta una primitiva, se agrega a `shared/ui/` en su propio PR**, con sus variantes, antes de usarla. Nunca se crea una versión local en la feature.
+- **Si falta una primitiva, se agrega a `shared/ui/` en el mismo PR de la feature que la necesita**, con sus variantes, en `/dev/ui` y en CODE_MAP. Nunca se crea una versión local en la feature.
 - **Variantes, no overrides.** Un botón distinto es una variante nueva en `button.tsx` (`cva`), no un `className` que lo sobrescribe desde afuera.
 - **Prohibido fuera de `shared/ui/`:** `<table>`, `<button>`, `<input>`, `<select>`, `<dialog>` crudos; el prop `style`; valores arbitrarios de Tailwind (`w-[37px]`, `bg-[#f00]`); el modificador `!` y `!important`; colores, radios o sombras que no sean tokens.
 - **Tablas = `DataTable` del design system** (se agrega a `shared/ui` cuando la primera pantalla la necesite). Nada de tablas armadas a mano por feature.

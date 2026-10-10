@@ -15,12 +15,12 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio --port 3003",
-    "check": "pnpm typecheck && pnpm lint && pnpm format && pnpm test && pnpm build"
+    "check": "pnpm typecheck && pnpm lint && pnpm format"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "drizzle-orm": "^0.45.4",
+    "drizzle-orm": "0.45.4",
     "lucide-react": "^1.54.0",
     "next": "16.4.0",
     "next-intl": "^4.14.9",

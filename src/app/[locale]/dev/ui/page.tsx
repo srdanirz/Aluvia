@@ -14,6 +14,7 @@ import {
   GlassPanel,
   IconButton,
   Input,
+  LogoMark,
   Skeleton,
   Spinner,
   ThemeSwitcher,
@@ -166,6 +167,13 @@ export default async function DesignSystemPage() {
             <Field id="phone" label={t("phoneLabel")} error={t("phoneError")}>
               <Input type="tel" inputMode="tel" autoComplete="tel" />
             </Field>
+          </div>
+        </Section>
+
+        <Section title={t("logoMark")}>
+          <div className="flex flex-wrap items-center gap-8">
+            <LogoMark label={t("logoMarkAnimated")} />
+            <LogoMark label={t("logoMarkStatic")} animated={false} />
           </div>
         </Section>
 
