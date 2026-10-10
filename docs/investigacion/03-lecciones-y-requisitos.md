@@ -25,7 +25,7 @@ Modelo tomado de Crisis Cleanup: **casa (*worksite*) → trabajos (*work items*)
 
 1. **Ficha de casa:** ubicación, nivel de daño (leve / moderado / grave / inhabitable), personas vulnerables (sí/no), FIBE aplicada (sí/no).
 2. **Trabajos por casa**, cada uno de un tipo del catálogo (barro, agua, comida, ropa, techo, medicamentos, mano de obra), con estado. Abiertos: sin tomar, tomado, parcialmente hecho, necesita seguimiento. Cerrados: hecho, hecho por otros, no quiere ayuda, duplicado. Aparte, cada trabajo lleva una marca de **verificado** en terreno (lección de #Verificado19S).
-3. **Mapa** de casas por prioridad, con ubicación aproximada en la vista pública (ADR 0003).
+3. **Mapa** de casas por prioridad, con ubicación aproximada en la vista pública (ADR 0006).
 4. **Turnos de voluntarios** por zona y tipo de tarea, con cupo.
 5. **Panel de coordinador** con filtros y exportación para el municipio.
 
