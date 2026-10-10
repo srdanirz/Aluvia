@@ -5,7 +5,8 @@ export const emergencyStatus = pgEnum("emergency_status", ["open", "closed"]);
 export const platformRole = pgEnum("platform_role", ["admin"]);
 export const memberRole = pgEnum("member_role", ["volunteer", "coordinator"]);
 export const damageLevel = pgEnum("damage_level", ["minor", "moderate", "severe", "uninhabitable"]);
-export const reportSource = pgEnum("report_source", ["neighbor", "coordinator", "social"]);
+// `official`: imported from a government survey layer (ADR 0009, admin import).
+export const reportSource = pgEnum("report_source", ["neighbor", "coordinator", "social", "official"]);
 export const workItemStatus = pgEnum("work_item_status", [
   "open_unclaimed",
   "open_claimed",
@@ -23,3 +24,11 @@ export const notificationLevel = pgEnum("notification_level", [
   "normal",
   "digest",
 ]);
+// Why a home waits for a coordinator's look (docs/investigacion/04-casos-borde.md). None blocks the report.
+export const worksiteReviewFlag = pgEnum("worksite_review_flag", [
+  "outside_area",
+  "possible_duplicate",
+  "person_in_danger",
+]);
+// "Do not enter" risks: a home with any of them cannot be claimed until a coordinator reviews it.
+export const worksiteHazard = pgEnum("worksite_hazard", ["electricity", "gas", "structure"]);

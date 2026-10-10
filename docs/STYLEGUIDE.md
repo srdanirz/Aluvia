@@ -71,6 +71,7 @@ Dos voluntarios van a tocar "tomar" sobre la misma tarea en el mismo segundo. **
 - **Si de verdad hay que leer antes de escribir**, va en una transacción con `SELECT … FOR UPDATE` sobre la fila. Para repartir trabajo en cola: `FOR UPDATE SKIP LOCKED`.
 - **Escrituras de varias filas, en una transacción.** Una casa con sus trabajos se crea completa o no se crea.
 - **Reintentos seguros**: el cliente genera el `id` (UUID) de lo que crea y el insert usa `ON CONFLICT (id) DO NOTHING`. Con señal mala, el reintento no duplica la casa. Si el insert no devolvió fila, es un reintento y se responde éxito **sin releer la fila por ese `id`**: un `id` es visible en el mapa público, y releerlo le entregaría a cualquiera los datos de otra casa.
+- **Una función que recibe valores de confianza (`source`, autor) no vive en un archivo `"use server"`**: todo lo que exporta ese archivo se puede llamar desde el navegador con cualquier argumento. La escritura va en su propio módulo `server-only` y la acción solo parsea, aplica la `policy` y deriva esos valores (`src/features/worksites/server/create-worksites.ts` y `actions.ts`).
 - **Toda operación de "tomar" o "inscribirse" tiene un test de concurrencia**: N requests en paralelo, exactamente uno (o exactamente `capacity`) gana.
 - Desactivar el botón tras el clic es UX, no garantía.
 
@@ -91,6 +92,7 @@ Reglas completas en [SECURITY.md](../SECURITY.md). En el código:
 - **Dos formas de cada casa, en funciones distintas**: la pública (zona aproximada, nivel de daño, tipos de trabajo) y la de coordinador (dirección, teléfono, notas). La pública no tiene forma de devolver campos de contacto: no los selecciona.
 - La ubicación pública se generaliza **en la base** (`ST_SnapToGrid`), nunca se manda la exacta para que el cliente la redondee.
 - Ver un contacto deja registro (`contact_views`: quién, qué casa, cuándo).
+- **Nada público responde "hay una casa a X metros de este punto"**: sería un oráculo que deshace la ubicación generalizada. El aviso de duplicado para el vecino es una marca para el coordinador (`worksites.review_flags`), no una respuesta; solo un coordinador ve los vecinos cercanos (`placeWorksite`).
 - Logs sin PII: ni teléfono, ni dirección, ni RUT. Se loguea el `id`.
 - Endpoints públicos de reporte con límite de tasa por IP.
 
@@ -158,7 +160,8 @@ Un concepto, un nombre, en todas las capas: la tabla `work_items`, la carpeta `f
 
 - **Páginas:** segmentos en inglés, `kebab-case`, sustantivos en plural, sin verbos, colgando de la emergencia (ADR 0009): `/emergencies/[slug]/worksites/[id]`, `/emergencies/[slug]/shifts/[id]`. Si un idioma necesita URLs traducidas, se hace con los *pathnames* localizados de next-intl, sin renombrar carpetas.
 - **Quién usa qué:**
-  - **Mutaciones de la app → Server Actions** (`claimWorkItem`, `createWorksite`, `subscribeToPush`). No hay endpoint para eso.
+  - **Mutaciones de la app → Server Actions** (`claimWorkItem`, `subscribeToPush`). No hay endpoint para eso.
+  - **Excepción: escrituras que pasan por la cola offline → route handler `POST /api/v1`.** El id de una Server Action cambia en cada deploy, y un reporte guardado sin señal ayer llegaría hoy a una acción que ya no existe. Ejemplo: `src/features/worksites/server/report-worksite.ts`, que la cola de `src/shared/offline/outbox.ts` reintenta hasta recibir 2xx.
   - **Lecturas del cliente → route handler `GET`**, para lo que el navegador pide solo (el mapa por bbox con TanStack Query). Lo que se lee al renderizar lo hace el Server Component directo con `queries.ts`.
   - **Terceros y procesos → route handlers**: webhooks de proveedores, exportación para el municipio, el worker de notificaciones.
 - **Route handlers:** versionados y REST, `/api/v1/<recurso-en-plural>`. Ejemplos de cada categoría:

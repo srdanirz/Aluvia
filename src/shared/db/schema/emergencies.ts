@@ -46,6 +46,12 @@ export const emergencySettings = pgTable(
     neighborReserve: integer("neighbor_reserve").notNull().default(0),
     officialContact: text("official_contact"),
     officialSurveyName: text("official_survey_name"),
+    // Numbers shown before anything else when someone is in danger (131, 132, 133 in Chile).
+    // Configuration of the emergency, never written in code (ADR 0009).
+    emergencyNumbers: jsonb("emergency_numbers")
+      .$type<{ label: LocalizedText; phone: string }[]>()
+      .notNull()
+      .default([]),
   },
   (t) => [
     check(

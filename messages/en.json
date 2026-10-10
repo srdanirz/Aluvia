@@ -61,11 +61,171 @@
     "groups": "Action groups",
     "groupLabel": "Home actions",
     "directions": "Directions",
-    "share": "Share"
+    "share": "Share",
+    "tiles": "One-tap selection",
+    "tileMud": "Mud",
+    "tileWater": "Water",
+    "tileFood": "Food",
+    "tileRoof": "Roof",
+    "stepperLabel": "People working",
+    "stepperLess": "One less",
+    "stepperMore": "One more",
+    "notesLabel": "Notes"
   },
   "notFound": {
     "title": "We could not find this page",
     "body": "The link may be mistyped, or the page no longer exists.",
     "back": "Back to home"
+  },
+  "worksites": {
+    "report": {
+      "title": "Report a home",
+      "location": {
+        "locating": "Finding your location",
+        "ready": "Location ready",
+        "accuracy": "Accurate to {meters} m",
+        "missing": "No location",
+        "missingHelp": "Write the address so people can find the home.",
+        "addressLabel": "Address",
+        "addressHint": "Street and number, as you would write it on an envelope.",
+        "retry": "Find location again"
+      },
+      "needs": {
+        "title": "What does it need?",
+        "empty": "This emergency has no work types set up yet."
+      },
+      "details": {
+        "toggle": "Add details (optional)",
+        "vulnerable": "Elderly people, children or people with disabilities live here",
+        "damage": "Damage to the home",
+        "addressLabel": "Address",
+        "addressHint": "Helps people get there if the GPS is off.",
+        "nameLabel": "Contact name",
+        "phoneLabel": "Phone",
+        "phoneHint": "Only coordinators see it.",
+        "phoneError": "Check the number. If it is from another country, start with + and the code.",
+        "notifyLabel": "Let me know when someone takes the job",
+        "notifyNone": "No",
+        "notifySms": "SMS",
+        "notifyWhatsapp": "WhatsApp",
+        "notifyHint": "We only write to you about this home. Reply STOP to stop the messages.",
+        "notesLabel": "Notes",
+        "notesHint": "Anything that helps find the home or come prepared.",
+        "hazards": "Do not enter: there is a risk of",
+        "hazardsHint": "Nobody can take work at this home until a coordinator reviews it."
+      },
+      "submit": "Send report",
+      "sending": "Sending",
+      "missing": {
+        "needs": "Pick at least one need.",
+        "location": "The location or the address is missing."
+      },
+      "done": {
+        "sentChip": "Received",
+        "sentTitle": "The home is reported",
+        "sentBody": "Volunteers can see it now. Share the link so help gets there.",
+        "queuedChip": "Waiting for signal",
+        "queuedTitle": "Saved on your phone",
+        "queuedBody": "There is no signal. It will send on its own as soon as it comes back, even if you close the page.",
+        "actions": "What to do now",
+        "view": "View the home",
+        "share": "Share",
+        "shareTitle": "Home that needs help",
+        "copied": "Link copied",
+        "shareFailed": "We could not share the link. Open it with View the home and copy it from there.",
+        "another": "Report another home"
+      },
+      "danger": {
+        "toggle": "Someone is in danger right now",
+        "chip": "Emergency",
+        "callFirst": "Call first. Aluvia coordinates cleanup and does not replace emergency services.",
+        "callLocal": "Call your country's emergency number first. Aluvia coordinates cleanup and does not replace emergency services.",
+        "call": "{label} · {phone}",
+        "thenContinue": "Then you can go on with the report: a coordinator will see it first."
+      }
+    },
+    "damage": {
+      "minor": "Minor",
+      "moderate": "Moderate",
+      "severe": "Severe",
+      "uninhabitable": "Uninhabitable"
+    },
+    "batch": {
+      "title": "Add several homes",
+      "lead": "Paste the text of a story or a message. Review each home before creating it.",
+      "textLabel": "Pasted text",
+      "textHint": "It is not saved. Any names and phone numbers in it are ignored.",
+      "extract": "Find homes",
+      "extracting": "Reading the text",
+      "draftsTitle": "{count, plural, one {# home to review} other {# homes to review}}",
+      "draftChip": "Home {number}",
+      "remove": "Remove this home",
+      "addressLabel": "Address",
+      "vulnerable": "Elderly people, children or people with disabilities live here",
+      "needsMissing": "Pick at least one need.",
+      "create": "{count, plural, one {Create # home} other {Create # homes}}",
+      "creating": "Creating",
+      "createHint": "They are marked as from social media and unverified, without a location until you place their pin on the map.",
+      "createdChip": "Created",
+      "created": "{count, plural, =0 {Those homes already existed.} one {# home was created.} other {# homes were created.}}",
+      "forbidden": "Only approved coordinators of this emergency can add homes in bulk.",
+      "dangerChip": "Person in danger: call emergency services"
+    },
+    "hazard": {
+      "electricity": "Electricity",
+      "gas": "Gas",
+      "structure": "Damaged structure"
+    },
+    "trust": {
+      "noMoney": "Aluvia never asks for money. If someone charges you in its name, it is a scam."
+    }
+  },
+  "worksiteUpdates": {
+    "form": {
+      "title": "People and supplies",
+      "lead": "Count who is working now and mark what is missing.",
+      "openLink": "Update people and supplies",
+      "people": "People working now",
+      "decrement": "One person less",
+      "increment": "One person more",
+      "lastUpdate": "Last count {time}",
+      "supplies": "What is missing?",
+      "suppliesEmpty": "This emergency has no supplies set up yet.",
+      "submit": "Send",
+      "sending": "Sending",
+      "sentChip": "Sent",
+      "sentBody": "The count is recorded for this home.",
+      "queuedChip": "Waiting for signal",
+      "queuedBody": "There is no signal. It will send on its own as soon as it comes back, even if you close the page.",
+      "actions": "What to do now",
+      "viewHome": "View the home",
+      "again": "Count again",
+      "signIn": "To update this home, sign in with the link your coordinator sent you."
+    }
+  },
+  "outbox": {
+    "waitingChip": "Waiting for signal",
+    "waiting": "{count, plural, one {# send is waiting for signal on this phone.} other {# sends are waiting for signal on this phone.}}",
+    "rejectedChip": "Could not send",
+    "discard": "Discard"
+  },
+  "errors": {
+    "unknown": "Something went wrong. Try again.",
+    "network_error": "No connection. What you wrote is still here; try again when the signal is back.",
+    "invalid_body": "Some data is missing or invalid. Check the form.",
+    "invalid_input": "Some data is missing or invalid. Check the form.",
+    "invalid_work_type": "One of the needs is no longer available. Check the list and send again.",
+    "invalid_supply_type": "One of the supplies is no longer available. Check the list and send again.",
+    "emergency_not_found": "This emergency no longer takes reports.",
+    "worksite_not_found": "This home is no longer in the emergency.",
+    "rate_limited": "Many reports came from this network. Wait a few minutes and it will send on its own.",
+    "sign_in_required": "Sign in with the link your coordinator sent you to send this.",
+    "not_assigned": "This home is not assigned to you.",
+    "forbidden": "You are not allowed to do this in this emergency.",
+    "extraction_unavailable": "Bulk import is not enabled on this server.",
+    "extraction_refused": "We could not read that text. Try another one or create the homes one by one.",
+    "extraction_failed": "We could not read the text right now. Try again in a moment.",
+    "stale_version": "Someone changed this home while you were editing. Reload to see the latest.",
+    "possible_duplicate": "There is another home less than 15 m away. Check it is not the same one."
   }
 }
