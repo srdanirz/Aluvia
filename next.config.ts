@@ -24,6 +24,8 @@ const nextConfig: NextConfig = {
   // The generated AGENTS.md block breaks our no-em-dash rule; AGENTS.md carries the same advice.
   agentRules: false,
   cacheComponents: true,
+  // The Docker image ships .next/standalone: server.js plus only the node_modules it traces.
+  output: "standalone",
   // The root layout sits under [locale], so unmatched URLs need their own document.
   experimental: { globalNotFound: true },
   partialPrefetching: true,
