@@ -1,0 +1,2 @@
+ALTER TABLE "worksite_contacts" ADD COLUMN "address_key" text GENERATED ALWAYS AS (address_key(address_text)) STORED;--> statement-breakpoint
+CREATE INDEX "worksite_contacts_address_key_idx" ON "worksite_contacts" USING btree ("address_key") WHERE "worksite_contacts"."address_key" IS NOT NULL;

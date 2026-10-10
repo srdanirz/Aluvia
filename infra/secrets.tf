@@ -11,6 +11,7 @@ locals {
     "TWILIO_ACCOUNT_SID", "TWILIO_AUTH_TOKEN", "TWILIO_FROM",
     "WHATSAPP_ACCESS_TOKEN", "WHATSAPP_PHONE_NUMBER_ID",
     "RESEND_API_KEY", "VAPID_PRIVATE_KEY", "ANTHROPIC_API_KEY",
+    "GOOGLE_MAPS_SERVER_KEY",
   ]
   mounted_secrets = toset(concat(local.generated_secrets, tolist(var.provider_secrets)))
 }

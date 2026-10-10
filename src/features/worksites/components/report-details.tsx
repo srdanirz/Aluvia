@@ -9,20 +9,12 @@ import { DAMAGE_LEVELS, HAZARDS, type ReportDraft } from "./report-draft";
 type ReportDetailsProps = {
   draft: ReportDraft;
   onChange: (update: (draft: ReportDraft) => ReportDraft) => void;
-  /** Whether the GPS fix exists; without it the address lives in the location card instead. */
-  hasLocation: boolean;
   phoneError: boolean;
   phoneIsValid: boolean;
 };
 
 /** Everything optional in a report, hidden until asked for (DESIGN.md: one thing per screen). */
-export function ReportDetails({
-  draft,
-  onChange,
-  hasLocation,
-  phoneError,
-  phoneIsValid,
-}: ReportDetailsProps) {
+export function ReportDetails({ draft, onChange, phoneError, phoneIsValid }: ReportDetailsProps) {
   const t = useTranslations("worksites.report.details");
   const tDamage = useTranslations("worksites.damage");
   const tHazard = useTranslations("worksites.hazard");
@@ -77,16 +69,6 @@ export function ReportDetails({
         </div>
         <p className="text-caption text-ink-muted">{t("hazardsHint")}</p>
       </div>
-
-      {hasLocation ? (
-        <Field id="report-details-address" label={t("addressLabel")} hint={t("addressHint")}>
-          <Input
-            autoComplete="street-address"
-            value={draft.addressText}
-            onChange={(event) => set("addressText", event.target.value)}
-          />
-        </Field>
-      ) : null}
 
       <Field id="report-name" label={t("nameLabel")}>
         <Input autoComplete="name" value={draft.name} onChange={(event) => set("name", event.target.value)} />

@@ -11,7 +11,7 @@ import { LOCALES } from "@/shared/i18n/locales";
 import { logError } from "@/shared/observability/logger";
 import { hitRateLimit } from "@/shared/rate-limit";
 
-import { pointSchema, worksiteReportSchema } from "../schemas";
+import { pointSchema, worksiteDraftSchema } from "../schemas";
 import { createWorksites } from "./create-worksites";
 import {
   type ExtractDraftsResult,
@@ -90,7 +90,7 @@ export async function extractDrafts(
 
 const importInputSchema = z.object({
   slug: z.string().min(1).max(100),
-  reports: z.array(worksiteReportSchema).min(1).max(MAX_DRAFTS),
+  reports: z.array(worksiteDraftSchema).min(1).max(MAX_DRAFTS),
 });
 
 /**

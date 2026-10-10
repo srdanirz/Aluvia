@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import * as rootParams from "next/root-params";
 import { cache } from "react";
 
@@ -16,6 +17,8 @@ type Params = PageProps<"/[locale]/emergencies/[slug]/worksites/[id]">["params"]
 // One read per request: generateMetadata and the page share it (React cache), with one clock.
 const loadWorksite = cache(async (slug: string, id: string) => {
   if (!slugSchema.safeParse(slug).success || !worksiteIdSchema.safeParse(id).success) notFound();
+  // A home's level depends on the time of the request; without this Next tries to prerender it.
+  await connection();
   const now = new Date();
   const home = await findPublicWorksite({ slug, id, locale: await rootParams.locale(), now });
   if (!home) notFound();

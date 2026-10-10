@@ -8,6 +8,7 @@ import type { Executor } from "@/shared/db/types";
 
 import { type NewWorksite, PRECISE_LOCATION_METERS, type WorksiteSource } from "../schemas";
 import { createWorksites, insertOpenWorkItems, InvalidWorkType } from "./create-worksites";
+import { locateReport, lockParcelByAddress } from "./locate-report";
 import { DUPLICATE_RADIUS_METERS } from "./queries";
 
 // An official parcel is a lot of the survey layer; a phone standing at the door of a ~10 m wide
@@ -38,9 +39,9 @@ async function findReceipt(database: Executor, emergencyId: string, reportId: st
  * passed over, so two reports never both attach. The guard after that one commits is the
  * `source = 'official'` column, not the work_items subquery: a row locked right after a commit is
  * rechecked on its own columns, while the subquery keeps the old snapshot. That is why a report
- * can never carry the `official` source (ReportSource). Imprecise fixes do not attach: the point may sit
- * on another block. Neither does a report whose id is already a home (a send from before
- * receipts existed): it is a retry of a report that created its own home.
+ * can never carry the `official` source (ReportSource). Only a phone's own fix attaches, and only a
+ * precise one: an imprecise fix or a geocoded address may sit on the next lot. Neither does a
+ * report whose id is already a home (a send from before receipts existed).
  */
 async function lockNearbyParcel(tx: Executor, emergencyId: string, report: NewWorksite) {
   if (!report.location || (report.locationAccuracyMeters ?? 0) > PRECISE_LOCATION_METERS) return null;
@@ -135,8 +136,10 @@ async function attachReport(
 }
 
 /**
- * One report from the form or the outbox. Near an official parcel nobody asked help for yet, the
- * report attaches to it; otherwise it creates its own home (createWorksites). Idempotent by the
+ * One report from the form or the outbox. When its written address names an official parcel
+ * nobody asked help for yet (same street and number), or a phone's precise fix stands at one, the
+ * report attaches to that parcel; otherwise it creates its own home (createWorksites), placed by
+ * the geocoder when it came without a point (locateReport). Idempotent by the
  * report's client-generated id: report_receipts records where it ended, so every later send of
  * the same id answers the same home and writes nothing. The receipt's primary key decides between
  * two sends in flight at once: the second waits for the first and rolls back its own writes.
@@ -149,16 +152,20 @@ export async function submitWorksiteReport(
   database: Executor,
   { emergencyId, source, report }: { emergencyId: string; source: ReportSource; report: NewWorksite },
 ): Promise<SubmitReportResult> {
+  const located = await locateReport(database, emergencyId, report);
   try {
     return await database.transaction(async (tx): Promise<SubmitReportResult> => {
       const recorded = await findReceipt(tx, emergencyId, report.id);
       if (recorded) return { ok: true, worksiteId: recorded, outcome: "retry" };
 
-      const parcelId = await lockNearbyParcel(tx, emergencyId, report);
+      // The address first: it is what the reporter wrote down; a point only came from the device.
+      const parcelId =
+        (await lockParcelByAddress(tx, emergencyId, report)) ??
+        (await lockNearbyParcel(tx, emergencyId, report));
       if (parcelId) {
         await attachReport(tx, { emergencyId, source, parcelId, report });
       } else {
-        const created = await createWorksites(tx, { emergencyId, source, reports: [report] });
+        const created = await createWorksites(tx, { emergencyId, source, reports: [located] });
         if (!created.ok) throw new InvalidWorkType();
         if (created.created.length === 0) return { ok: true, worksiteId: report.id, outcome: "retry" };
       }

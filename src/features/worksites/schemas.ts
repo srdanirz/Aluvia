@@ -50,7 +50,7 @@ const workTypeKeysSchema = (min: number) =>
 
 /**
  * A GPS fix less precise than this (indoors, a phone without GPS falling back to wifi or cell
- * towers) can sit on the wrong block: the form asks for the address too and the home is flagged.
+ * towers) can sit on the wrong block: the home is flagged and never attaches to a parcel by it.
  */
 export const PRECISE_LOCATION_METERS = 100;
 
@@ -89,17 +89,41 @@ export const newWorksiteSchema = z
   .object({ ...worksiteFields, workTypeKeys: workTypeKeysSchema(0) })
   .refine(hasPlace.check, hasPlace.params);
 
+// At least one need or a few words of what happened, whichever the reporter finds easier; a
+// coordinator turns the words into work later.
+const isDescribed = {
+  check: (home: { workTypeKeys: string[]; contact: { notes: string | null } }) =>
+    home.workTypeKeys.length > 0 || home.contact.notes !== null,
+  params: { path: ["workTypeKeys"], message: "need_or_description_required" },
+};
+
 /**
- * A report from the form or the batch import: at least one need or a few words of what happened,
- * whichever the reporter finds easier; a coordinator turns the words into work later.
+ * A report from the form: the written address is required, because it is how people get there;
+ * the server places it on the map (submitWorksiteReport). The form sends no `location`. One with
+ * a location and no address can only be a report queued offline by the form that used the GPS;
+ * it is still taken, because the outbox would otherwise keep it rejected forever and the home
+ * would be lost.
  */
 export const worksiteReportSchema = z
+  .object({
+    ...worksiteFields,
+    location: pointSchema.nullable().default(null),
+    workTypeKeys: workTypeKeysSchema(0),
+  })
+  .refine((home) => home.contact.addressText !== null || home.location !== null, {
+    path: ["contact", "addressText"],
+    message: "address_required",
+  })
+  .refine(isDescribed.check, isDescribed.params);
+
+/**
+ * A draft of the coordinators' batch import (a social-media post): a post may give a pin or only
+ * a written address, and a coordinator places the rest from the review queue.
+ */
+export const worksiteDraftSchema = z
   .object({ ...worksiteFields, workTypeKeys: workTypeKeysSchema(0) })
   .refine(hasPlace.check, hasPlace.params)
-  .refine((home) => home.workTypeKeys.length > 0 || home.contact.notes !== null, {
-    path: ["workTypeKeys"],
-    message: "need_or_description_required",
-  });
+  .refine(isDescribed.check, isDescribed.params);
 
 /** Who a home report came from; decided by the server from the session, never by the body. */
 export type WorksiteSource = (typeof reportSource.enumValues)[number];
