@@ -58,14 +58,3 @@ export function levelRank(levels: Record<AttentionLevel, number>): number {
 }
 
 export type WorkItemStatus = (typeof workItemStatus.enumValues)[number];
-
-export const WORK_ITEM_STATUS_TONE = {
-  open_unclaimed: "urgent",
-  open_claimed: "pending",
-  open_partially_done: "pending",
-  open_needs_follow_up: "urgent",
-  closed_done: "done",
-  closed_done_by_others: "done",
-  closed_no_help_wanted: "closed",
-  closed_duplicate: "closed",
-} as const satisfies Record<WorkItemStatus, StatusTone>;

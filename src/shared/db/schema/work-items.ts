@@ -14,7 +14,7 @@ import {
 
 import { emergencies } from "./emergencies";
 import { emergencyMembers } from "./emergency-members";
-import { workItemStatus } from "./enums";
+import { workItemEventKind, workItemStatus } from "./enums";
 import { users } from "./users";
 import { workTypes } from "./work-types";
 import { worksites } from "./worksites";
@@ -31,6 +31,11 @@ export const workItems = pgTable(
     workTypeKey: text("work_type_key").notNull(),
     status: workItemStatus("status").notNull().default("open_unclaimed"),
     claimedBy: uuid("claimed_by").references(() => users.id, { onDelete: "set null" }),
+    claimedAt: timestamp("claimed_at", { withTimezone: true }),
+    // A "Voy para allá" reservation lapses here unless the volunteer arrives or renews it (issue #12);
+    // null once they arrive. Only open work has one.
+    claimExpiresAt: timestamp("claim_expires_at", { withTimezone: true }),
+    arrivedAt: timestamp("arrived_at", { withTimezone: true }),
     verifiedAt: timestamp("verified_at", { withTimezone: true }),
     verifiedBy: uuid("verified_by").references(() => users.id, { onDelete: "set null" }),
     version: integer("version").notNull().default(0),
@@ -63,9 +68,18 @@ export const workItems = pgTable(
     // open_claimed row; the claim action is what keeps open_claimed paired with a claimant.
     check("work_items_unclaimed_check", sql`${t.status} <> 'open_unclaimed' OR ${t.claimedBy} IS NULL`),
     check("work_items_verified_check", sql`${t.verifiedBy} IS NULL OR ${t.verifiedAt} IS NOT NULL`),
+    check(
+      "work_items_claim_expires_check",
+      // Not tied to claimed_by: deleting a user nulls it (SET NULL) and must not be blocked here.
+      sql`${t.claimExpiresAt} IS NULL OR ${t.status} IN ('open_claimed', 'open_partially_done', 'open_needs_follow_up')`,
+    ),
     index("work_items_emergency_id_status_idx").on(t.emergencyId, t.status),
     index("work_items_worksite_id_idx").on(t.worksiteId),
     index("work_items_claimed_by_idx").on(t.claimedBy),
+    // The expiry sweeper reads only live reservations, oldest first.
+    index("work_items_claim_expires_at_idx")
+      .on(t.claimExpiresAt)
+      .where(sql`${t.claimExpiresAt} IS NOT NULL`),
   ],
 );
 
@@ -78,6 +92,7 @@ export const workItemEvents = pgTable(
     emergencyId: uuid("emergency_id")
       .notNull()
       .references(() => emergencies.id, { onDelete: "cascade" }),
+    kind: workItemEventKind("kind").notNull().default("status_changed"),
     fromStatus: workItemStatus("from_status"),
     toStatus: workItemStatus("to_status").notNull(),
     actorId: uuid("actor_id").references(() => users.id, { onDelete: "set null" }),

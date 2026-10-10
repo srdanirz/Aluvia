@@ -20,6 +20,7 @@ type EmergencySettingsFormProps = {
     smsDailyCap: number;
     whatsappDailyCap: number;
     neighborReserve: number;
+    claimHoldMinutes: number;
     officialContact: string | null;
     officialSurveyName: string | null;
     emergencyNumbers: { label: Record<string, string>; phone: string }[];
@@ -27,7 +28,7 @@ type EmergencySettingsFormProps = {
   defaultLocale: string;
 };
 
-const NUMBER_FIELDS = ["smsDailyCap", "whatsappDailyCap", "neighborReserve"] as const;
+const NUMBER_FIELDS = ["smsDailyCap", "whatsappDailyCap", "neighborReserve", "claimHoldMinutes"] as const;
 
 /**
  * Message caps, notice parameters (ADR 0007) and emergency numbers. Saving checks nobody else
@@ -70,6 +71,11 @@ export function EmergencySettingsForm({
     smsDailyCap: t("smsLabel"),
     whatsappDailyCap: t("whatsappLabel"),
     neighborReserve: t("reserveLabel"),
+    claimHoldMinutes: t("claimHoldLabel"),
+  };
+  const hints: Partial<Record<(typeof NUMBER_FIELDS)[number], string>> = {
+    neighborReserve: t("reserveHint"),
+    claimHoldMinutes: t("claimHoldHint"),
   };
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -85,6 +91,7 @@ export function EmergencySettingsForm({
         smsDailyCap: number("smsDailyCap"),
         whatsappDailyCap: number("whatsappDailyCap"),
         neighborReserve: number("neighborReserve"),
+        claimHoldMinutes: number("claimHoldMinutes"),
         officialContact: text("officialContact"),
         officialSurveyName: text("officialSurveyName"),
         emergencyNumbers: numbers.map(({ label, phone }) => ({ label, phone })),
@@ -102,18 +109,19 @@ export function EmergencySettingsForm({
         <fieldset key={settings.version} disabled={disabled} className="flex flex-col gap-4">
           <div className="grid items-start gap-4 md:grid-cols-2">
             {NUMBER_FIELDS.map((field) => (
-              <div key={field} className={field === "neighborReserve" ? "md:col-span-2" : undefined}>
+              <div key={field}>
                 <Field
                   id={`settings-${field}`}
                   label={labels[field]}
-                  hint={field === "neighborReserve" ? t("reserveHint") : undefined}
+                  hint={hints[field]}
                   error={fieldError(field)}
                 >
                   <Input
                     name={field}
                     type="number"
                     inputMode="numeric"
-                    min={0}
+                    min={field === "claimHoldMinutes" ? 1 : 0}
+                    max={field === "claimHoldMinutes" ? 1440 : undefined}
                     step={1}
                     defaultValue={settings[field]}
                   />

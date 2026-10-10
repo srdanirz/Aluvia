@@ -71,6 +71,20 @@
       "when": 1791635620123,
       "tag": "0009_auth_and_roles",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1791635970933,
+      "tag": "0010_work_cycle",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1791635971393,
+      "tag": "0011_work_item_events_append_only",
+      "breakpoints": true
     }
   ]
 }

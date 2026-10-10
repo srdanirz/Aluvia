@@ -83,6 +83,33 @@ export const EVENTS = {
   invitation_accepted: z.strictObject({ emergencyId: z.uuid() }),
   worksite_assigned: z.strictObject({ emergencyId: z.uuid() }),
   worksite_unassigned: z.strictObject({ emergencyId: z.uuid() }),
+  work_item_claim_rejected: z.strictObject({
+    emergencyId: z.uuid(),
+    code: z.enum(["already_claimed", "not_member", "hazard_unreviewed", "not_open"]),
+  }),
+  work_item_claim_renewed: z.strictObject({ emergencyId: z.uuid() }),
+  work_item_released: z.strictObject({ emergencyId: z.uuid() }),
+  work_item_arrived: z.strictObject({ emergencyId: z.uuid(), workTypeKey: z.string().min(1).max(64) }),
+  work_item_status_marked: z.strictObject({
+    emergencyId: z.uuid(),
+    workTypeKey: z.string().min(1).max(64),
+    status: z.enum([
+      "open_partially_done",
+      "open_needs_follow_up",
+      "closed_done",
+      "closed_done_by_others",
+      "closed_no_help_wanted",
+      "closed_duplicate",
+    ]),
+    isCoordinator: z.boolean(),
+  }),
+  work_item_verified: z.strictObject({ emergencyId: z.uuid() }),
+  shift_signed_up: z.strictObject({ emergencyId: z.uuid() }),
+  shift_signup_rejected: z.strictObject({
+    emergencyId: z.uuid(),
+    code: z.enum(["shift_full", "already_signed_up", "not_member", "shift_started", "emergency_closed"]),
+  }),
+  shift_signup_cancelled: z.strictObject({ emergencyId: z.uuid() }),
 };
 
 export type EventName = keyof typeof EVENTS;

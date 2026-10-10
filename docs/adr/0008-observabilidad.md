@@ -39,6 +39,7 @@ Avisan a los dos mantenedores (email y push al celular). Cada alerta vive en la 
 | Latencia del mapa (bbox) | p95 sobre 800 ms en 10 min | Grafana (Prometheus) |
 | Outbox de notificaciones atrasado | `aluvia_notifications_backlog_age` sobre 120 (s), o `aluvia_notifications_dispatch_runs_total` sin aumentar en 5 min | Grafana (Prometheus) |
 | Credenciales de un proveedor de avisos | algún `aluvia_notifications_retried_total{code="provider_auth"}` en 5 min | Grafana (Prometheus) |
+| Reservas vencidas sin soltar | trabajos con `claim_expires_at` pasada hace más de 10 min (el barrido no corre) | Grafana (Postgres) |
 | Conexiones de Cloud SQL | 80 % del máximo | Grafana (Prometheus) |
 | **Zona sin atender** | trabajos sin tomar hace más de 24 h en una zona | Grafana (Postgres) |
 | App caída | falla el chequeo de disponibilidad 2 veces seguidas | Cloud Monitoring |

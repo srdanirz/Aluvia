@@ -98,6 +98,11 @@ export const emergencySettingsSchema = z.object({
   smsDailyCap: cap,
   whatsappDailyCap: cap,
   neighborReserve: cap,
+  // Minutes a "Voy para allá" reservation holds (issue #12); the column's CHECK has the same range.
+  claimHoldMinutes: z
+    .int({ error: "invalid_number" })
+    .min(1, { error: "invalid_number" })
+    .max(1440, { error: "invalid_number" }),
   officialContact: optionalText(200),
   officialSurveyName: optionalText(NAME_MAX),
   emergencyNumbers: z

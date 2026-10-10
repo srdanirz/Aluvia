@@ -288,7 +288,17 @@
     "own_invitation": "Es tu propia invitación: tiene que aceptarla otra persona.",
     "not_field_volunteer": "Esa persona no es voluntario de terreno en esta emergencia.",
     "assignment_not_found": "Esa asignación ya no existe.",
-    "no_whatsapp": "Ese número no tiene WhatsApp. Por ahora el código llega solo por WhatsApp: usa un número que lo tenga."
+    "no_whatsapp": "Ese número no tiene WhatsApp. Por ahora el código llega solo por WhatsApp: usa un número que lo tenga.",
+    "unauthenticated": "Entra para continuar.",
+    "not_member": "Primero súmate a esta emergencia.",
+    "not_open": "Este trabajo ya está cerrado.",
+    "already_claimed": "Otra persona lo tomó recién. Elige otra casa.",
+    "hazard_unreviewed": "Esta casa tiene un riesgo sin revisar: no se puede tomar todavía.",
+    "claim_lost": "Este trabajo ya no está a tu nombre. Revisa la lista.",
+    "shift_full": "Se llenaron los cupos de este turno.",
+    "shift_started": "Este turno ya empezó.",
+    "already_signed_up": "Ya estás inscrito en este turno.",
+    "not_signed_up": "No tienes inscripción en este turno."
   },
   "admin": {
     "meta": {
@@ -386,7 +396,9 @@
       "supplyTypeCount": "{count, plural, one {# insumo} other {# insumos}}",
       "membersTitle": "Miembros",
       "membersLead": "Aprueba coordinadores y voluntarios de terreno, e invita por WhatsApp.",
-      "membersLink": "Ver miembros"
+      "membersLink": "Ver miembros",
+      "claimHoldLabel": "Minutos que dura una reserva",
+      "claimHoldHint": "Si quien tocó Voy para allá no llega ni renueva en este tiempo, el trabajo vuelve a quedar libre. De 1 a 1440."
     },
     "disasterTypes": {
       "title": "Tipos de desastre",
@@ -657,5 +669,95 @@
       "inviteHere": "Invitar a esta casa",
       "inviteHint": "Link de un uso que vence en 3 días."
     }
+  },
+  "work": {
+    "help": {
+      "title": "Dónde ayudar ahora",
+      "lead": "Casas sin nadie, partiendo por las que esperan hace más tiempo.",
+      "waiting": "Esperando {relative}",
+      "distance": "A {distance}",
+      "showDistance": "Ver a qué distancia está cada casa",
+      "locating": "Buscando tu ubicación",
+      "locationDenied": "No pudimos ver tu ubicación. La lista sigue ordenada por espera.",
+      "more": "Ver más casas",
+      "openHome": "Ver la casa",
+      "claim": "Voy para allá: {workType}",
+      "signIn": "Entra para tomar un trabajo",
+      "join": "Súmate a esta emergencia para tomar trabajos",
+      "shifts": "Ver turnos",
+      "emptyTitle": "Ninguna casa espera ahora",
+      "emptyBody": "Todas tienen a alguien. Vuelve más tarde o revisa los turnos.",
+      "peoplePresent": "{count, plural, =0 {Nadie trabajando ahora} one {# persona trabajando ahora} other {# personas trabajando ahora}}",
+      "missing": "Falta: {supplies}"
+    },
+    "intro": {
+      "title": "Ve primero a las casas que esperan hace más tiempo",
+      "body": "Toca Voy para allá y el trabajo queda reservado para ti un rato. Cuando llegues, marca Llegué; si no alcanzas a ir, suéltalo para que vaya otra persona.",
+      "dismiss": "Entendido"
+    },
+    "damage": {
+      "minor": "Daño leve",
+      "moderate": "Daño moderado",
+      "severe": "Daño grave",
+      "uninhabitable": "Inhabitable"
+    },
+    "mine": {
+      "title": "Lo que tomaste",
+      "expiresIn": "Tu reserva vence {relative}",
+      "expired": "Tu reserva venció. Si nadie más la tomó, sigue siendo tuya al marcar Llegué.",
+      "arrived": "Llegaste {relative}",
+      "arrive": "Llegué",
+      "renew": "Sigo en camino",
+      "release": "Ya no voy",
+      "done": "Terminé",
+      "partial": "Avancé",
+      "followUp": "Necesita más ayuda",
+      "doneByOthers": "Ya estaba hecho",
+      "noHelpWanted": "No quieren ayuda",
+      "otherClosings": "Otros cierres",
+      "actions": "Acciones del trabajo",
+      "openHome": "Ver la casa"
+    },
+    "safety": {
+      "title": "Antes de ir",
+      "boots": "Botas de seguridad o de goma",
+      "gloves": "Guantes gruesos",
+      "tetanus": "Vacuna antitetánica al día",
+      "danger": "Si ves cables caídos, olor a gas o grietas, no entres y avisa.",
+      "confirm": "Entendido, voy",
+      "cancel": "Volver"
+    },
+    "hazard": {
+      "chip": "No entrar: riesgo",
+      "body": "Un coordinador tiene que revisar esta casa antes de que alguien entre."
+    },
+    "jobs": {
+      "title": "Trabajos de esta casa",
+      "yours": "Tuyo",
+      "taken": "Alguien va en camino",
+      "verify": "Marcar verificado",
+      "verified": "Verificado",
+      "duplicate": "Es duplicado",
+      "coordinatorActions": "Acciones de coordinación",
+      "claim": "Voy para allá"
+    },
+    "saving": "Guardando"
+  },
+  "shifts": {
+    "title": "Turnos",
+    "lead": "Elige un turno y te recordamos antes de que empiece.",
+    "seats": "{filled} de {capacity} cupos",
+    "full": "Sin cupos",
+    "signUp": "Inscribirme",
+    "cancel": "Cancelar inscripción",
+    "signedUp": "Inscrito",
+    "when": "{start} a {end}",
+    "meetingPoint": "Punto de encuentro: {place}",
+    "emptyTitle": "No hay turnos próximos",
+    "emptyBody": "Cuando un coordinador publique uno, aparece aquí.",
+    "more": "Ver más turnos",
+    "signIn": "Entra para inscribirte",
+    "join": "Súmate a esta emergencia para inscribirte",
+    "help": "Dónde ayudar ahora"
   }
 }
