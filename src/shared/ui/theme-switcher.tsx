@@ -67,7 +67,7 @@ export function ThemeSwitcher({ className }: { className?: string }) {
             title={t(option)}
             onClick={() => applyTheme(option)}
             className={cn(
-              "press inline-flex size-11 items-center justify-center rounded-full text-ink-soft hover:text-ink",
+              "press inline-flex size-11 items-center justify-center rounded-full text-ink-soft hover:bg-glass-hover hover:text-ink",
               indicatorItemClassName,
             )}
           >

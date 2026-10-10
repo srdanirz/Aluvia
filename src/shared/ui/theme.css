@@ -44,6 +44,7 @@
   --status-closed: #8b8ea3;
   --status-closed-tint: #eef0f5;
   --glass-fill: rgb(255 255 255 / 0.62);
+  --glass-hover-fill: rgb(255 255 255 / 0.75);
   /* Apple Intelligence glow hues, tuned to the brand; only the ambient background uses them. */
   --aurora-1: #8d9fff;
   --aurora-2: #f5b9ea;
@@ -82,6 +83,7 @@
     --status-closed: #9a9db2;
     --status-closed-tint: #23252f;
     --glass-fill: rgb(22 23 31 / 0.6);
+    --glass-hover-fill: rgb(255 255 255 / 0.08);
     --aurora-opacity: 0.22;
     --iridescent-mid: #c686ff;
     --shadow-card-value: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.35);
@@ -115,6 +117,7 @@
   --status-closed: #9a9db2;
   --status-closed-tint: #23252f;
   --glass-fill: rgb(22 23 31 / 0.6);
+  --glass-hover-fill: rgb(255 255 255 / 0.08);
   --aurora-opacity: 0.22;
   --iridescent-mid: #c686ff;
   --shadow-card-value: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.35);
@@ -150,6 +153,8 @@
   --color-status-closed: var(--status-closed);
   --color-status-closed-tint: var(--status-closed-tint);
   --color-glass: var(--glass-fill);
+  /* Hover on see-through pieces: a brighter pane of glass, never a grey fill. */
+  --color-glass-hover: var(--glass-hover-fill);
 
   --font-*: initial;
   /* Helvetica Neue on Apple devices (the reference face); Inter everywhere else. */

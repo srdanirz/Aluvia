@@ -58,7 +58,7 @@ export function SegmentedControl<T extends string>({
               )
             }
             className={cn(
-              "press min-h-11 rounded-full px-4 text-body-sm font-medium text-ink-soft hover:text-ink",
+              "press min-h-11 rounded-full px-4 text-body-sm font-medium text-ink-soft hover:bg-glass-hover hover:text-ink",
               indicatorItemClassName,
             )}
           >

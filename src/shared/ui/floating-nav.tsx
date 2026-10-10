@@ -46,7 +46,7 @@ export function FloatingNav({ items, label }: { items: FloatingNavItem[]; label:
                 aria-current={active ? "page" : undefined}
                 data-active={active}
                 className={cn(
-                  "press flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-full px-3 text-body-sm text-ink-soft hover:text-ink md:px-4",
+                  "press flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-full px-3 text-body-sm text-ink-soft hover:bg-glass-hover hover:text-ink md:px-4",
                   indicatorItemClassName,
                 )}
               >

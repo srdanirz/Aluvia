@@ -4,15 +4,15 @@ import type { ComponentProps } from "react";
 import { cn } from "./cn";
 
 const chipVariants = cva(
-  "inline-flex items-center gap-chip-gap rounded-full px-chip-x py-chip-y text-caption font-medium whitespace-nowrap text-ink",
+  "glass-wash inline-flex items-center gap-chip-gap rounded-full px-chip-x py-chip-y text-caption font-medium whitespace-nowrap text-ink shadow-[inset_0_1px_0_rgb(255_255_255/0.18)] backdrop-blur-glass",
   {
     variants: {
       tone: {
-        urgent: "bg-status-urgent-tint [--dot:var(--status-urgent)]",
-        pending: "bg-status-pending-tint [--dot:var(--status-pending)]",
-        done: "bg-status-done-tint [--dot:var(--status-done)]",
-        closed: "bg-status-closed-tint [--dot:var(--status-closed)]",
-        neutral: "bg-surface-muted [--dot:var(--ink-muted)]",
+        urgent: "bg-status-urgent-tint/75 [--dot:var(--status-urgent)]",
+        pending: "bg-status-pending-tint/75 [--dot:var(--status-pending)]",
+        done: "bg-status-done-tint/75 [--dot:var(--status-done)]",
+        closed: "bg-status-closed-tint/75 [--dot:var(--status-closed)]",
+        neutral: "bg-glass [--dot:var(--ink-muted)]",
       },
     },
     defaultVariants: { tone: "neutral" },
@@ -28,7 +28,7 @@ type ChipProps = ComponentProps<"span"> & VariantProps<typeof chipVariants>;
 export function Chip({ className, tone, children, ...props }: ChipProps) {
   return (
     <span className={cn(chipVariants({ tone }), className)} {...props}>
-      <span aria-hidden className="size-dot rounded-full bg-[var(--dot)]" />
+      <span aria-hidden className="size-dot rounded-full bg-[var(--dot)] shadow-[0_0_8px_var(--dot)]" />
       {children}
     </span>
   );

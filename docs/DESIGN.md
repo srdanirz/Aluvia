@@ -35,6 +35,7 @@ Marca: **negro, blanco, rosado `#EF318C` e índigo `#3334E6`**. El rosado marca 
 | `status-done` / `-tint` | `#0F9D58` / `#DDF4E8` | `#4AD295` / `#143326` | Hecho. |
 | `status-closed` / `-tint` | `#8B8EA3` / `#EEF0F5` | `#9A9DB2` / `#23252F` | Cerrado sin hacer. |
 | `glass` | blanco al 62 % | `#16171F` al 60 % | Relleno de lo que flota. |
+| `glass-hover` | blanco al 75 % | blanco al 8 % | Hover de piezas discretas o translúcidas: un vidrio más claro, nunca un gris sólido. |
 | `aurora-1/2/3` | `#8D9FFF`, `#F5B9EA`, `#C686FF` | los mismos, más tenues | Fondo ambiental y luces. Son los tonos del brillo de Apple Intelligence. |
 
 Contraste medido: todo texto cumple AA (4,5:1) sobre `canvas` y `surface` en los dos temas; `text-iridescent` usa un tono medio más oscuro en claro (`#7C3AED`) para no bajar de 3:1 en tamaño grande. El rosado de marca da 3,8:1 sobre blanco, así que un chip lleva **texto en tinta y punto de color**, nunca texto rosado.
@@ -85,7 +86,7 @@ Espaciado base 4 px: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, más los tokens d
 |---|---|
 | `Button` | Pastilla. `primary` negro sólido (uno por vista), `secondary` de vidrio, `accent` índigo, `ghost` sin relleno. `block` ocupa el ancho. |
 | `IconButton` | Círculo de 44 px de vidrio con `glass-wash`: `surface`, `urgent` y `pending` (vidrio teñido del estado), `solid` (negro), `ghost`. Siempre con `label`. |
-| `Chip` | Pastilla de estado: tinte, punto y texto en tinta. `urgent`, `pending`, `done`, `closed`, `neutral`. |
+| `Chip` | Pastilla de vidrio teñido con `glass-wash`, punto que brilla con su color y texto en tinta. `urgent`, `pending`, `done`, `closed`, `neutral`. |
 | `ButtonGroup` | Tres o más acciones relacionadas en fila van en **una sola pastilla de vidrio**, nunca como botones sueltos. Adentro, botones `ghost`; como mucho uno `primary`/`solid` marca la acción principal. |
 | `SegmentedControl` | Vistas excluyentes: la elegida en negro, las demás en `surface-muted`. |
 | `Card` | Blanca con `glass-wash`, radio 20, sombra suave. `selected` pasa a `accent-tint`; `interactive` se eleva y atrapa la luz al pasar el mouse. |

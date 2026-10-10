@@ -51,4 +51,4 @@ export const indicatorClassName =
 
 /** Classes for an item: it paints its own active background only until the indicator takes over. */
 export const indicatorItemClassName =
-  "relative z-10 data-[active=true]:bg-action data-[active=true]:text-on-action data-[active=true]:hover:text-on-action group-data-[ready]:data-[active=true]:bg-transparent";
+  "relative z-10 data-[active=true]:bg-action data-[active=true]:text-on-action data-[active=true]:hover:text-on-action data-[active=true]:hover:bg-action group-data-[ready]:data-[active=true]:bg-transparent group-data-[ready]:data-[active=true]:hover:bg-transparent";

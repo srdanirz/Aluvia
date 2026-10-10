@@ -14,7 +14,7 @@ const iconButtonVariants = cva(
           "glass-wash bg-status-urgent-tint/80 text-ink shadow-card backdrop-blur-glass hover:bg-status-urgent-tint",
         pending:
           "glass-wash bg-status-pending-tint/80 text-ink shadow-card backdrop-blur-glass hover:bg-status-pending-tint",
-        ghost: "text-ink-soft hover:bg-surface-muted hover:text-ink",
+        ghost: "text-ink-soft hover:bg-glass-hover hover:text-ink",
       },
     },
     defaultVariants: { variant: "surface" },
