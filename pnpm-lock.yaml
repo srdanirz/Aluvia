@@ -15,7 +15,7 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       drizzle-orm:
-        specifier: ^0.45.4
+        specifier: 0.45.4
         version: 0.45.4(postgres@3.4.9)
       lucide-react:
         specifier: ^1.54.0

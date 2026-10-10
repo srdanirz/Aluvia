@@ -49,7 +49,7 @@ Visual language and tokens: `docs/DESIGN.md` (pills, glass with iridescent light
 **If it is not in `src/shared/ui/`, it does not exist.** Consistency beats speed here; there are no exceptions "just for this screen".
 
 - Every visual piece comes from `src/shared/ui/`. Features compose primitives; they never restyle them.
-- A missing primitive or variant is added to `src/shared/ui/` first (with a `cva` variant), in its own PR. Never a local one-off inside a feature.
+- A missing primitive or variant is added to `src/shared/ui/` (with a `cva` variant, in `/dev/ui` and CODE_MAP) in the PR of the feature that needs it: one PR per feature. Never a local one-off inside a feature.
 - Forbidden outside `src/shared/ui/`: raw `<table>`, `<button>`, `<input>`, `<select>`, `<dialog>`; the `style` prop; Tailwind arbitrary values (`w-[37px]`, `bg-[#f00]`); the `!` modifier and `!important`; any color, radius, shadow or spacing that is not a token from `src/shared/ui/theme.css`.
 - Three or more related actions in a row go in one `ButtonGroup` pill, never as loose buttons.
 - Status colors come only from `Chip`. No borders, outlines or rings, and one color per piece (lint enforces it).
