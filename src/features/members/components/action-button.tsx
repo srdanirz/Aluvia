@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { type ComponentProps, useActionState } from "react";
 
-import { Button, Spinner } from "@/shared/ui";
+import { Button, FormError, Spinner } from "@/shared/ui";
 
 import type { MemberActionState } from "../schemas";
 
@@ -27,11 +27,7 @@ export function ActionButton({ action, label, variant = "secondary", block }: Ac
         {pending ? <Spinner label={t("pending")} /> : null}
         {label}
       </Button>
-      {state && !state.ok ? (
-        <p role="alert" className="text-caption text-status-urgent-text">
-          {tErrors(state.code)}
-        </p>
-      ) : null}
+      {state && !state.ok ? <FormError size="field">{tErrors(state.code)}</FormError> : null}
     </form>
   );
 }

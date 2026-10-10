@@ -84,7 +84,10 @@
     "factZoneValue": "UTC",
     "factStatus": "Estado",
     "factStatusValue": "Abierta",
-    "mapMarkers": "Marcadores del mapa"
+    "mapMarkers": "Marcadores del mapa",
+    "copyValue": "https://aluvia.example/es/invitations/ejemplo",
+    "copy": "Copiar",
+    "copied": "Copiado"
   },
   "notFound": {
     "title": "No encontramos esta página",

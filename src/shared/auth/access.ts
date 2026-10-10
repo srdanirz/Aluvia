@@ -32,8 +32,9 @@ export async function findEmergencyAccess(
   return { userId, emergencyId, isPlatformAdmin: row?.platform_role === "admin", role: row?.role ?? null };
 }
 
-export const isMember = (access: EmergencyAccess) => access.role !== null;
-export const isCoordinator = (access: EmergencyAccess) => access.role === "coordinator";
+// Predicates take null (no session) so callers pass getEmergencyAccess's result as is.
+export const isMember = (access: EmergencyAccess | null) => Boolean(access?.role);
+export const isCoordinator = (access: EmergencyAccess | null) => access?.role === "coordinator";
 // Membership is also enforced by the work_items_claimant_fk key; this is the friendly check.
 export const canClaimWorkItems = isMember;
 // SECURITY.md: only approved coordinators read contacts, and every read goes to contact_views.
@@ -45,9 +46,10 @@ export const canViewContacts = isCoordinator;
  */
 export async function canUpdateWorksite(
   db: Executor,
-  access: EmergencyAccess,
+  access: EmergencyAccess | null,
   worksiteId: string,
 ): Promise<boolean> {
+  if (!access) return false;
   if (access.role === "coordinator") {
     const rows = await db.execute(sql`
       SELECT 1 FROM worksites WHERE id = ${worksiteId} AND emergency_id = ${access.emergencyId}`);

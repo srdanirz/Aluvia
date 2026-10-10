@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 
-import { Button } from "@/shared/ui";
+import { Button, FormError } from "@/shared/ui";
 
 import type { MemberActionState } from "../schemas";
 
@@ -32,11 +32,7 @@ export function RoleRequestForm({
           </Button>
         ))}
       </div>
-      {state && !state.ok ? (
-        <p role="alert" className="text-caption text-status-urgent-text">
-          {tErrors(state.code)}
-        </p>
-      ) : null}
+      {state && !state.ok ? <FormError size="field">{tErrors(state.code)}</FormError> : null}
     </form>
   );
 }

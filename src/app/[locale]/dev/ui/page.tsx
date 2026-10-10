@@ -20,6 +20,7 @@ import {
   CardBody,
   CardTitle,
   Chip,
+  CopyField,
   DescriptionList,
   Field,
   FileButton,
@@ -211,6 +212,7 @@ export default async function DesignSystemPage() {
             <Field id="file" label={t("fileLabel")} hint={t("fileHint")}>
               <FileButton label={t("filePick")} className="self-start" />
             </Field>
+            <CopyField value={t("copyValue")} copyLabel={t("copy")} copiedLabel={t("copied")} />
             <FormError>{t("formError")}</FormError>
           </div>
         </Section>

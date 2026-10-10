@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 
-import { Button, Spinner } from "@/shared/ui";
+import { Button, FormError, Spinner } from "@/shared/ui";
 
 import type { InvitationActionState } from "../schemas";
 import { createInvitationAction } from "../server/actions";
@@ -43,11 +43,7 @@ export function WorksiteInviteButton({
         </Button>
         <p className="text-caption text-ink-muted">{t("inviteHint")}</p>
       </div>
-      {state && !state.ok ? (
-        <p role="alert" className="text-caption text-status-urgent-text">
-          {tErrors(state.code)}
-        </p>
-      ) : null}
+      {state && !state.ok ? <FormError size="field">{tErrors(state.code)}</FormError> : null}
       {state?.ok ? <InvitationLink key={state.path} path={state.path} /> : null}
     </form>
   );
