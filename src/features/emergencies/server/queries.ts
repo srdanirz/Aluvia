@@ -13,3 +13,15 @@ export async function findEmergencyBySlug(db: Executor, slug: string): Promise<E
   );
   return row ? { id: row.id, slug: row.slug, timeZone: row.time_zone, isOpen: row.status === "open" } : null;
 }
+
+export type OpenEmergency = { slug: string; name: string };
+
+/** Open emergencies, newest first, with the name in `locale` or the emergency's default. One query. */
+export async function listOpenEmergencies(db: Executor, locale: string): Promise<OpenEmergency[]> {
+  return db.execute<OpenEmergency>(sql`
+    SELECT slug, coalesce(name ->> ${locale}, name ->> default_locale) AS name
+    FROM emergencies
+    WHERE status = 'open'
+    ORDER BY started_at DESC
+  `);
+}

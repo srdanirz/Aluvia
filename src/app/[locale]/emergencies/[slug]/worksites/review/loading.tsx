@@ -1,8 +1,8 @@
-import { Card, Skeleton } from "@/shared/ui";
+import { Card, Page, Skeleton } from "@/shared/ui";
 
 export default function Loading() {
   return (
-    <main className="mx-auto flex min-h-dvh max-w-narrow flex-col gap-8 px-4 py-8 md:py-16">
+    <Page>
       <div className="flex flex-col gap-3">
         <Skeleton className="h-4 w-1/3" />
         <Skeleton className="h-10 w-3/4" />
@@ -17,6 +17,6 @@ export default function Loading() {
           </Card>
         ))}
       </div>
-    </main>
+    </Page>
   );
 }
