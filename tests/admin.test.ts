@@ -8,6 +8,7 @@ import { createDisasterType, updateDisasterType } from "@/features/admin/server/
 import {
   closeEmergency,
   createEmergency,
+  purgeEmergency,
   updateEmergencyArea,
   updateEmergencySettings,
 } from "@/features/admin/server/emergencies";
@@ -396,6 +397,26 @@ describe("closing an emergency", () => {
       .from(adminEvents)
       .where(sql`${adminEvents.emergencyId} = ${id} and ${adminEvents.action} = 'emergency_closed'`);
     expect(closed).toHaveLength(1);
+  });
+});
+
+describe("purging personal data", () => {
+  it("refuses an open emergency and logs who purged a closed one", async () => {
+    const { id } = await newEmergency();
+    expect(await purgeEmergency(db, actorId, { emergencyId: id })).toEqual({
+      ok: false,
+      code: "emergency_open",
+    });
+    await closeEmergency(db, actorId, { emergencyId: id });
+    const purged = await purgeEmergency(db, actorId, { emergencyId: id });
+    expect(purged.ok).toBe(true);
+    const [event] = await db
+      .select({ actorId: adminEvents.actorId })
+      .from(adminEvents)
+      .where(
+        sql`${adminEvents.emergencyId} = ${id} and ${adminEvents.action} = 'emergency_personal_data_purged'`,
+      );
+    expect(event?.actorId).toBe(actorId);
   });
 });
 

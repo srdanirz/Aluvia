@@ -59,6 +59,10 @@ export const EVENTS = {
   emergency_notice_published: z.strictObject({ emergencyId: z.uuid(), replaced: z.boolean() }),
   emergency_notice_withdrawn: z.strictObject({ emergencyId: z.uuid() }),
   emergency_closed: z.strictObject({ emergencyId: z.uuid() }),
+  emergency_personal_data_purged: z.strictObject({
+    emergencyId: z.uuid(),
+    usersDeleted: z.number().int().nonnegative(),
+  }),
   // Login and membership (ADR 0013). Never the phone or the code.
   login_code_requested: z.strictObject({
     result: z.enum(["sent", "rate_limited", "code_not_sent", "no_whatsapp", "invalid_phone"]),

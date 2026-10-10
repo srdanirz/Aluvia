@@ -4,6 +4,7 @@ import { and, eq, isNull, sql } from "drizzle-orm";
 import { TransactionRollbackError } from "drizzle-orm/errors";
 
 import { copySupplyTypeTemplates, copyWorkTypeTemplates } from "@/shared/db/catalog";
+import { purgeEmergencyPersonalData } from "@/shared/db/purge";
 import {
   CHECK_VIOLATION,
   FOREIGN_KEY_VIOLATION,
@@ -208,4 +209,28 @@ export async function closeEmergency(
     });
     return { ok: true, data: null };
   });
+}
+
+/**
+ * Deletes the personal data of a closed emergency (ADR 0005, 0009) through the shared purge, then
+ * logs who ran it. The purge is its own transaction and safe to repeat, so the log entry follows
+ * it: if that insert failed, running the purge again would only log it.
+ */
+export async function purgeEmergency(
+  db: Database,
+  actorId: string,
+  { emergencyId }: { emergencyId: string },
+): Promise<Result<{ usersDeleted: number }>> {
+  const purged = await purgeEmergencyPersonalData(db, emergencyId);
+  if (!purged.ok)
+    return { ok: false, code: purged.code === "emergency_open" ? "emergency_open" : "not_found" };
+  await db.insert(adminEvents).values({
+    actorId,
+    action: "emergency_personal_data_purged",
+    targetType: "emergency",
+    targetId: emergencyId,
+    emergencyId,
+    payload: { usersDeleted: purged.usersDeleted },
+  });
+  return { ok: true, data: { usersDeleted: purged.usersDeleted } };
 }

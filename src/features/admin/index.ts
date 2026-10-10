@@ -10,6 +10,7 @@ export { NoticeForm } from "./components/notice-form";
 export { OfficialLayerForm } from "./components/official-layer-form";
 export { OfficialNotice } from "./components/official-notice";
 export { PageHeader } from "./components/page-header";
+export { PurgeEmergency } from "./components/purge-emergency";
 export { FormSkeleton, ListSkeleton } from "./components/skeletons";
 export {
   requireAdminView,

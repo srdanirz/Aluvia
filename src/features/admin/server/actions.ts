@@ -9,6 +9,7 @@ import { meter } from "@/shared/observability/metrics";
 import type { Result } from "../result";
 import {
   closeEmergencySchema,
+  purgeEmergencySchema,
   disasterTypeSchema,
   disasterTypeUpdateSchema,
   emergencyAreaSchema,
@@ -20,7 +21,13 @@ import {
   officialLayerSchema,
 } from "../schemas";
 import { createDisasterType, updateDisasterType } from "./disaster-types";
-import { closeEmergency, createEmergency, updateEmergencyArea, updateEmergencySettings } from "./emergencies";
+import {
+  closeEmergency,
+  createEmergency,
+  purgeEmergency,
+  updateEmergencyArea,
+  updateEmergencySettings,
+} from "./emergencies";
 import { publishNotice, withdrawNotice } from "./notices";
 import { importOfficialLayer } from "./official-import";
 import { findPlatformAdminId } from "./policy";
@@ -191,6 +198,21 @@ export async function importOfficialLayerAction(input: unknown) {
       trackServerEvent(
         "official_layer_imported",
         { emergencyId: data.emergencyId, kind: data.kind, ...summary },
+        { distinctId },
+      ),
+  );
+}
+
+export async function purgeEmergencyAction(input: unknown) {
+  return run(
+    "purge_emergency",
+    purgeEmergencySchema,
+    input,
+    (actorId, data) => purgeEmergency(db, actorId, data),
+    (data, result, distinctId) =>
+      trackServerEvent(
+        "emergency_personal_data_purged",
+        { emergencyId: data.emergencyId, usersDeleted: result.usersDeleted },
         { distinctId },
       ),
   );
