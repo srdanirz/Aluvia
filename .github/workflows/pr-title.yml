@@ -1,0 +1,45 @@
+name: PR title
+
+on:
+  pull_request_target:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  conventional:
+    runs-on: ubuntu-latest
+    steps:
+      # The PR title becomes the squash commit on main, so it is the one place
+      # the commit convention is enforced. Pinned by SHA (v6.1.1).
+      - uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            refactor
+            perf
+            test
+            docs
+            ui
+            build
+            ci
+            chore
+          requireScope: false
+          subjectPattern: ^[a-z].*[^.]$
+          subjectPatternError: |
+            El subject "{subject}" no cumple la convención: empieza en minúscula,
+            en inglés e imperativo, sin punto final.
+            Ejemplo: feat(work-items): claim a work item from the map
+      - name: Title length
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+          LC_ALL: C.UTF-8
+        run: |
+          if [ "${#TITLE}" -ge 72 ]; then
+            echo "::error::El título tiene ${#TITLE} caracteres; el máximo es 71."
+            exit 1
+          fi

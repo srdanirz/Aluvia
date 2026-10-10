@@ -203,7 +203,7 @@ Agregar un idioma tiene que ser **agregar un archivo**, sin tocar código.
 - Los layouts aguantan un texto un 40 % más largo que el español: nada de anchos fijos para texto, nada de texto dentro de imágenes.
 - Propiedades lógicas en vez de izquierda/derecha, para que un idioma de derecha a izquierda no obligue a rehacer pantallas: `ms-`/`me-`, `ps-`/`pe-`, `start-`/`end-` (no `inset-s-`/`inset-e-`: una sola forma), `text-start`/`text-end`, `rounded-s`/`rounded-e`, `border-s`/`border-e`, `scroll-ms-`/`scroll-ps-`, `float-start`/`float-end`.
 - Un test verifica que todos los archivos de `messages/` tengan exactamente las mismas claves.
-- Español neutro LATAM. Sin emojis y sin guion largo (`—`) en textos de usuario: usar `·`, dos puntos o punto.
+- Español neutro LATAM. Sin emojis y sin guion largo (U+2014) en ningún texto del repo: se usan conectores ("porque", "así que", "pero"), dos puntos, punto o `·`. El CI lo rechaza.
 - Íconos Lucide, monolínea, sin contenedor de fondo.
 - Un estado siempre lleva etiqueta escrita además del color: con sol, en la calle, el color solo no se distingue.
 - Pensado primero para celular, con una mano: objetivos táctiles de 44 px o más.

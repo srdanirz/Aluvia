@@ -16,7 +16,7 @@ Tablas en `src/shared/db/schema/`, un archivo por entidad. Todas las de dominio 
 | `emergencies` | Cada desastre: nombre, comunas, área (`geometry(MultiPolygon, 4326)`), estado, fecha de borrado de datos personales. | |
 | `users` | Una persona: nombre, email, teléfono. Cruza emergencias. | email único |
 | `emergency_members` | Qué hace una persona en una emergencia: rol (voluntario, coordinador) y fecha de aprobación. Un coordinador en Las Condes no lo es en otra emergencia. | PK (`emergency_id`, `user_id`) |
-| `worksites` | Una casa afectada: ubicación (`geometry(Point, 4326)`), nivel de daño, personas vulnerables sí/no, FIBE aplicada sí/no, `version`. **Sin datos de contacto.** | GiST en ubicación |
+| `worksites` | Una casa afectada: ubicación (`geometry(Point, 4326)`), nivel de daño, personas vulnerables sí/no, FIBE aplicada sí/no, `source` (vecino, coordinador, redes), `unclaimed_since` (desde cuándo tiene trabajos abiertos y ninguno tomado; null si no tiene abiertos o si alguno está tomado), `version`. **Sin datos de contacto.** | GiST en ubicación; índice por (`emergency_id`, `unclaimed_since`) |
 | `worksite_contacts` | Nombre, teléfono, dirección escrita, notas y consentimiento de avisos (`notify_channel`, `notify_consent_at`) de la casa. Separado a propósito: una consulta pública no puede traer contacto por descuido porque está en otra tabla. | PK = `worksite_id` |
 | `work_types` | Catálogo de tipos de trabajo (barro, agua, techo, comida…): clave, clave de traducción, orden. Agregar un tipo es una fila, no código. | clave |
 | `work_items` | Un trabajo de una casa: tipo, estado, `claimed_by`, verificado por/cuándo, `version`. | índice por (`emergency_id`, `status`) |
@@ -30,7 +30,7 @@ Tablas en `src/shared/db/schema/`, un archivo por entidad. Todas las de dominio 
 
 ## Reglas que el modelo garantiza
 
-- **Tomar un trabajo** es un `UPDATE` condicional sobre `work_items` (`claimed_by IS NULL`), con su evento en la misma transacción.
+- **Tomar un trabajo** es un `UPDATE` condicional sobre `work_items` (`claimed_by IS NULL`), con su evento y la actualización de `worksites.unclaimed_since` en la misma transacción. Lo mismo al soltar, cerrar o crear un trabajo: toda escritura en `work_items` recalcula `unclaimed_since` de su casa en la misma transacción. Así la prioridad por abandono se ordena con un índice, sin subconsultas por casa.
 - **Inscribirse a un turno** sigue el orden del STYLEGUIDE (inscripción primero, cupo después, rollback si está lleno).
 - **Ids generados por el cliente** (UUID) en `worksites` y `work_items`, para que el reintento no duplique.
 - **Borrado de datos personales** al cerrar la emergencia, en una transacción: se borran sus filas de `worksite_contacts`, `contact_views`, `shift_signups`, `emergency_members` y `notifications`, y se anonimizan `claimed_by` y el autor en `work_items` y `work_item_events`. Después se borra todo `user` que ya no pertenezca a ninguna emergencia abierta, junto con sus `notification_preferences` y `push_subscriptions`. Lo agregado (cuántas casas, cuántos trabajos, `shifts.filled`) se conserva.

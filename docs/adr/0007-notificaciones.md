@@ -1,6 +1,6 @@
 # 0007 · Notificaciones
 
-- **Estado:** aceptada. Los proveedores de SMS y WhatsApp se eligen en su propio ADR cuando se implementen.
+- **Estado:** aceptada. Los proveedores de SMS y WhatsApp se eligen en un ADR propio antes de implementar notificaciones.
 - **Fecha:** 2026-10-10
 
 ## Contexto
@@ -44,7 +44,7 @@ El nivel lo define el **tipo de evento** en el código, no quien lo envía: nadi
 ### Destinatarios
 
 - **Voluntarios y coordinadores** son `users`: tienen preferencias y suscripción push.
-- **El vecino de una casa** no es un `user`: su contacto vive en `worksite_contacts`. Al reportar, marca si quiere recibir avisos sobre su casa y por qué canal (`notify_channel`, `notify_consent_at`). Sin esa marca no recibe nada. Como no tiene cuenta ni push, sus avisos llegan recién con la etapa 3 (SMS o WhatsApp).
+- **El vecino de una casa** no es un `user`: su contacto vive en `worksite_contacts`. Al reportar, marca si quiere recibir avisos sobre su casa y por qué canal (`notify_channel`, `notify_consent_at`). Sin esa marca no recibe nada. Como no tiene cuenta ni push, sus avisos van por SMS o WhatsApp.
 - `notifications` apunta a un `user_id` o a un `worksite_id`, nunca a los dos (`CHECK`).
 
 ### Consentimiento y datos personales
@@ -56,16 +56,14 @@ El nivel lo define el **tipo de evento** en el código, no quien lo envía: nadi
 
 ### Costos
 
-- Tope diario de SMS y WhatsApp por emergencia, configurable. Al llegar al tope, lo importante sigue por push y email, y el panel del coordinador lo muestra.
+- Tope diario de SMS y WhatsApp por emergencia, configurable, con una **reserva para vecinos sin app** (que no tienen otro canal). Al llegar al tope, voluntarios y coordinadores siguen por push y email; los vecinos usan la reserva, y si también se agota, el panel del coordinador lista sus avisos pendientes para llamarlos por teléfono.
 - Un solo SMS por evento y persona, aunque el evento se repita.
 
-## Por etapas
+## Canales
 
-1. **Primero:** push web y avisos dentro de la app. Cubre a voluntarios y coordinadores, que tienen la app instalada.
-2. **Después:** email para los resúmenes.
-3. **Cuando haya vecinos sin app reportados:** SMS o WhatsApp para lo importante, con su ADR de proveedor.
+Los cuatro canales (push, email, SMS y WhatsApp) entran juntos: el vecino sin app es justamente quien más necesita el aviso. Las plantillas de WhatsApp se envían a aprobación antes del primer deploy.
 
 ## Consecuencias
 
-- La primera versión no le avisa al vecino que no instaló la app. Hasta la etapa 3, eso lo cubre el coordinador por teléfono, como hoy.
+- SMS y WhatsApp tienen costo desde el primer aviso; el tope diario (Costos) lo acota.
 - El outbox en la misma transacción obliga a que las acciones que notifican pasen por `features/<x>/server/actions.ts`, que es lo que ya pide el STYLEGUIDE.
