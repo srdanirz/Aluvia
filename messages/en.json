@@ -754,10 +754,12 @@
       "signIn": "Sign in to take a job",
       "join": "Join this emergency to take jobs",
       "shifts": "See shifts",
-      "emptyTitle": "No home is waiting right now",
-      "emptyBody": "Every home has someone. Check back later or look at the shifts.",
+      "emptyTitle": "Nobody is waiting for help right now",
+      "emptyBody": "No home has asked for help, or every one already has someone. If you know an affected home, report it; to go out in the field, join a shift.",
       "peoplePresent": "{count, plural, =0 {Nobody working now} one {# person working now} other {# people working now}}",
-      "missing": "Missing: {supplies}"
+      "missing": "Missing: {supplies}",
+      "emptyReport": "Report a home",
+      "emptyShifts": "See shifts"
     },
     "intro": {
       "title": "Go first to the homes that have waited longest",

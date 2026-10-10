@@ -754,10 +754,12 @@
       "signIn": "Entra para tomar un trabajo",
       "join": "Súmate a esta emergencia para tomar trabajos",
       "shifts": "Ver turnos",
-      "emptyTitle": "Ninguna casa espera ahora",
-      "emptyBody": "Todas tienen a alguien. Vuelve más tarde o revisa los turnos.",
+      "emptyTitle": "Nadie está esperando ayuda ahora",
+      "emptyBody": "Ninguna casa ha pedido ayuda o todas ya tienen a alguien. Si conoces una casa afectada, repórtala; si quieres ir a terreno, súmate a un turno.",
       "peoplePresent": "{count, plural, =0 {Nadie trabajando ahora} one {# persona trabajando ahora} other {# personas trabajando ahora}}",
-      "missing": "Falta: {supplies}"
+      "missing": "Falta: {supplies}",
+      "emptyReport": "Reportar una casa",
+      "emptyShifts": "Ver turnos"
     },
     "intro": {
       "title": "Ve primero a las casas que esperan hace más tiempo",
