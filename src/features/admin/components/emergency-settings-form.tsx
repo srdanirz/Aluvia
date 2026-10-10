@@ -21,6 +21,7 @@ type EmergencySettingsFormProps = {
     whatsappDailyCap: number;
     neighborReserve: number;
     claimHoldMinutes: number;
+    staleAfterHours: number;
     officialContact: string | null;
     officialSurveyName: string | null;
     emergencyNumbers: { label: Record<string, string>; phone: string }[];
@@ -28,7 +29,16 @@ type EmergencySettingsFormProps = {
   defaultLocale: string;
 };
 
-const NUMBER_FIELDS = ["smsDailyCap", "whatsappDailyCap", "neighborReserve", "claimHoldMinutes"] as const;
+// Upper bounds the schema enforces; the rest are caps with only a typo guard.
+const MAX_BY_FIELD: Partial<Record<string, number>> = { claimHoldMinutes: 1440, staleAfterHours: 168 };
+
+const NUMBER_FIELDS = [
+  "smsDailyCap",
+  "whatsappDailyCap",
+  "neighborReserve",
+  "claimHoldMinutes",
+  "staleAfterHours",
+] as const;
 
 /**
  * Message caps, notice parameters (ADR 0007) and emergency numbers. Saving checks nobody else
@@ -72,10 +82,12 @@ export function EmergencySettingsForm({
     whatsappDailyCap: t("whatsappLabel"),
     neighborReserve: t("reserveLabel"),
     claimHoldMinutes: t("claimHoldLabel"),
+    staleAfterHours: t("staleAfterLabel"),
   };
   const hints: Partial<Record<(typeof NUMBER_FIELDS)[number], string>> = {
     neighborReserve: t("reserveHint"),
     claimHoldMinutes: t("claimHoldHint"),
+    staleAfterHours: t("staleAfterHint"),
   };
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -92,6 +104,7 @@ export function EmergencySettingsForm({
         whatsappDailyCap: number("whatsappDailyCap"),
         neighborReserve: number("neighborReserve"),
         claimHoldMinutes: number("claimHoldMinutes"),
+        staleAfterHours: number("staleAfterHours"),
         officialContact: text("officialContact"),
         officialSurveyName: text("officialSurveyName"),
         emergencyNumbers: numbers.map(({ label, phone }) => ({ label, phone })),
@@ -120,8 +133,8 @@ export function EmergencySettingsForm({
                     name={field}
                     type="number"
                     inputMode="numeric"
-                    min={field === "claimHoldMinutes" ? 1 : 0}
-                    max={field === "claimHoldMinutes" ? 1440 : undefined}
+                    min={field === "claimHoldMinutes" || field === "staleAfterHours" ? 1 : 0}
+                    max={MAX_BY_FIELD[field]}
                     step={1}
                     defaultValue={settings[field]}
                   />

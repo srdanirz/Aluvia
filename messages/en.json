@@ -467,7 +467,9 @@
       "layerNotesLabel": "Fields for notes",
       "layerNotesHint": "Optional. Stored with the home's contact, which only coordinators see.",
       "layerSubmit": "Import",
-      "layerImported": "{features, plural, one {# feature read} other {# features read}} · {created, plural, one {# new home} other {# new homes}}"
+      "layerImported": "{features, plural, one {# feature read} other {# features read}} · {created, plural, one {# new home} other {# new homes}}",
+      "staleAfterLabel": "Hours until \"to confirm\"",
+      "staleAfterHint": "A home with open work and no activity for this long shows as to confirm on the map: it may already be done. From 1 to 168."
     },
     "disasterTypes": {
       "title": "Disaster types",

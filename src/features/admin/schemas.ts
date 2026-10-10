@@ -103,6 +103,12 @@ export const emergencySettingsSchema = z.object({
     .int({ error: "invalid_number" })
     .min(1, { error: "invalid_number" })
     .max(1440, { error: "invalid_number" }),
+  // Hours without activity before an open home reads "to confirm" on the map (ADR 0011). A week at
+  // most: past that the signal says nothing a coordinator can act on.
+  staleAfterHours: z
+    .int({ error: "invalid_number" })
+    .min(1, { error: "invalid_number" })
+    .max(168, { error: "invalid_number" }),
   officialContact: optionalText(200),
   officialSurveyName: optionalText(NAME_MAX),
   emergencyNumbers: z

@@ -145,6 +145,7 @@ export type EmergencyDetail = {
     whatsappDailyCap: number;
     neighborReserve: number;
     claimHoldMinutes: number;
+    staleAfterHours: number;
     officialContact: string | null;
     officialSurveyName: string | null;
     emergencyNumbers: { label: LocalizedText; phone: string }[];
@@ -178,6 +179,7 @@ export async function findEmergency(db: Executor, slug: string): Promise<Emergen
         whatsappDailyCap: emergencySettings.whatsappDailyCap,
         neighborReserve: emergencySettings.neighborReserve,
         claimHoldMinutes: emergencySettings.claimHoldMinutes,
+        staleAfterHours: emergencySettings.staleAfterHours,
         officialContact: emergencySettings.officialContact,
         officialSurveyName: emergencySettings.officialSurveyName,
         emergencyNumbers: emergencySettings.emergencyNumbers,
