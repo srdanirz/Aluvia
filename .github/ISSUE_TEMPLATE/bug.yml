@@ -1,0 +1,51 @@
+name: Error
+description: Algo no funciona como debería
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: "No pegues direcciones, teléfonos ni nombres reales. Usa datos inventados o el id de la casa."
+  - type: textarea
+    id: what
+    attributes:
+      label: Qué pasó
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Qué esperabas
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Pasos para reproducirlo
+      value: "1. "
+    validations:
+      required: true
+  - type: dropdown
+    id: device
+    attributes:
+      label: Dispositivo
+      multiple: true
+      options:
+        - Celular Android
+        - iPhone
+        - iPad o tablet
+        - Escritorio
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impacto
+      options:
+        - Alguien no puede pedir o recibir ayuda
+        - Molesto, pero hay forma de hacerlo
+        - Visual o menor
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidencia
+      description: Captura, link al error en Sentry o logs, sin datos personales.

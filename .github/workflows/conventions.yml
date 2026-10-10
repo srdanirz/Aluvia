@@ -1,0 +1,37 @@
+name: Conventions
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  text:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: No em-dash
+        # U+2014 reads as AI-generated copy; the rule lives in AGENTS.md.
+        run: |
+          dash=$(printf '\xe2\x80\x94')
+          if git grep -nIF "$dash" -- . ':!pnpm-lock.yaml'; then
+            echo "::error::Guion largo (U+2014) encontrado. Usa un conector, dos puntos o punto."
+            exit 1
+          fi
+      - name: No AI co-author
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          pattern='^co-authored-by:.*(claude|anthropic|openai|copilot|gpt|cursor|gemini|codex|devin)|generated with \[?claude code'
+          if git log --format=%B "$BASE..$HEAD" | grep -Ei "$pattern" >/dev/null || printf '%s' "$BODY" | grep -Ei "$pattern" >/dev/null; then
+            echo "::error::Commit o descripción del PR con atribución a una IA."
+            exit 1
+          fi

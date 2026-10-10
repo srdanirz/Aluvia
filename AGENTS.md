@@ -12,6 +12,7 @@ When you adopt a convention, hit a mistake twice, add a module or make a long-ta
 
 ## Hard rules
 
+- **No AI attribution.** Never add `Co-Authored-By` for Claude or any AI, nor mention AI authorship, in commits or PR bodies. CI rejects it.
 - **Never commit to `main`.** Before creating a branch: `git switch main && git pull --ff-only`, then branch. Before asking for review: `git fetch origin main && git rebase origin/main`, rerun the checks, `git push --force-with-lease --force-if-includes`. A rebase after approval dismisses it (`main` requires branches up to date), so rebase right before review and merge right after approval. Never merge `main` into a branch. Workflow: `CONTRIBUTING.md`.
 - **Public repo, personal data.** No data of affected people or volunteers (addresses, phones, names, RUTs) anywhere in the repo, including tests and fixtures. Public views never select contact fields. `SECURITY.md`.
 - **No N+1.** No database `await` inside a loop or `Promise.all(rows.map(...))`. Every list query has a query-count test.
@@ -36,6 +37,12 @@ Visual language and tokens: `docs/DESIGN.md` (adapted from General Intelligence 
 - **Translation-ready:** adding a language is adding `messages/<code>.json` plus one line in the locale registry. No concatenated sentences, no hardcoded locale in `Intl`, logical properties (`ms-`/`me-`) instead of left/right.
 - If lint flags one of these, fix the design, never disable the rule.
 - User-facing text through next-intl, neutral LATAM Spanish, no emojis, no em-dashes. Lucide icons.
+
+## Writing
+
+Precise and concise: fewer words, more information. No em-dash (U+2014) anywhere in the repo; join ideas with connectors, a colon or a period. CI rejects it. Applies to docs, ADRs, PRs, issues, comments and replies. Lead with the decision or the fact; cut restatement, preamble and filler. A table or a list beats a paragraph when the content is a list.
+
+No "MVP" or "for later" scoping: what is in scope ships complete and production-grade. Out-of-scope items are named once, with the reason.
 
 ## Language
 

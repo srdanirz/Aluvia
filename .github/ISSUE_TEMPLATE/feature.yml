@@ -1,0 +1,37 @@
+name: Feature o tarea
+description: Algo que hay que construir o mejorar
+labels: ["feature"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: Qué
+      description: Qué puede hacer alguien cuando esto esté listo.
+    validations:
+      required: true
+  - type: dropdown
+    id: who
+    attributes:
+      label: Para quién
+      multiple: true
+      options:
+        - Vecino afectado
+        - Voluntario
+        - Coordinador
+        - Municipio
+        - Mantenedores
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Por qué ahora
+      description: Qué problema real de la emergencia resuelve.
+  - type: textarea
+    id: done
+    attributes:
+      label: Listo cuando
+      description: Criterios verificables, uno por línea.
+      value: "- [ ] "
+    validations:
+      required: true
