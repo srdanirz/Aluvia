@@ -20,9 +20,9 @@ export function DangerCard({ numbers }: { numbers: EmergencyNumber[] }) {
       </Chip>
       <p className="text-body text-ink">{numbers.length > 0 ? t("callFirst") : t("callLocal")}</p>
       {numbers.length > 0 ? (
-        <div className="grid gap-3 md:grid-cols-3">
+        <div className="flex flex-col gap-3">
           {numbers.map((number) => (
-            <Button key={number.phone} variant="primary" asChild>
+            <Button key={number.phone} variant="secondary" block asChild>
               <a href={`tel:${number.phone.replace(/\s/g, "")}`}>
                 <Phone aria-hidden />
                 {t("call", { label: number.label, phone: number.phone })}
