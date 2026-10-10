@@ -1,0 +1,76 @@
+# Secrets: this repo is public. Nothing below may ever be committed.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*-sa.json
+*service-account*.json
+credentials.json
+application_default_credentials.json
+.secrets/
+
+# GCP / Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+crash.log
+.gcloudignore.local
+
+# Firebase
+.firebase/
+firebase-debug.log*
+firestore-debug.log*
+ui-debug.log*
+
+# Node
+node_modules/
+.pnpm-store/
+npm-debug.log*
+yarn-error.log*
+.next/
+.nuxt/
+dist/
+build/
+out/
+.turbo/
+.vercel/
+coverage/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Mobile
+.expo/
+ios/Pods/
+android/.gradle/
+*.keystore
+*.jks
+
+# Data exports with personal information of affected households
+data/
+exports/
+*.csv
+*.xlsx
+*.sqlite
+*.db
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# Local agent state
+.claude/settings.local.json
