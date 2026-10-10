@@ -29,6 +29,8 @@ export type PublicWorksite = {
   /** Last time anyone touched the home or its work. */
   updatedAt: Date;
   workItems: { workType: string; status: WorkItemStatus }[];
+  /** The street, without number: enough for a volunteer to find the block, not the door. */
+  street: string | null;
 };
 
 type WorksiteRow = {
@@ -44,11 +46,13 @@ type WorksiteRow = {
   created_at: Date | string;
   updated_at: Date | string;
   work_items: { workType: string; status: WorkItemStatus }[] | null;
+  street: string | null;
 };
 
 /**
- * The public form of a home (STYLEGUIDE, Datos personales): point, attention level, damage and
- * work. Never contact data (name, phone, written address), vulnerability or who claimed what. Null
+ * The public form of a home (STYLEGUIDE, Datos personales): point, attention level, damage, work
+ * and the street name with every digit and what follows cut off. Never the house number, name,
+ * phone, notes, vulnerability or who claimed what. Null
  * if the id is not a home
  * of this emergency.
  */
@@ -75,14 +79,16 @@ export async function findPublicWorksite(
           'status', wi.status
         )
         ORDER BY wt.sort_order, wt.key, wi.id
-      ) FILTER (WHERE wi.id IS NOT NULL) AS work_items
+      ) FILTER (WHERE wi.id IS NOT NULL) AS work_items,
+      initcap(nullif(btrim(regexp_replace(c.address_text, '\s*[0-9].*$', '')), '')) AS street
     FROM worksites w
+    LEFT JOIN worksite_contacts c ON c.worksite_id = w.id
     JOIN emergencies e ON e.id = w.emergency_id
     LEFT JOIN emergency_settings es ON es.emergency_id = e.id
     LEFT JOIN work_items wi ON wi.worksite_id = w.id AND wi.emergency_id = w.emergency_id
     LEFT JOIN work_types wt ON wt.emergency_id = wi.emergency_id AND wt.key = wi.work_type_key
     WHERE e.slug = ${slug} AND w.id = ${id}
-    GROUP BY w.id, e.id, es.emergency_id
+    GROUP BY w.id, e.id, es.emergency_id, c.worksite_id
   `);
   if (!row) return null;
   return {
@@ -97,5 +103,6 @@ export async function findPublicWorksite(
     reportedAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
     workItems: row.work_items ?? [],
+    street: row.street,
   };
 }

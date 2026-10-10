@@ -566,7 +566,15 @@
     "shareFailed": "Could not share. Copy the link from the browser.",
     "meta": "Reported on {date} · updated {relative}",
     "noLocation": "This home has no point on the map yet.",
-    "hazardsHint": "Do not go in. A coordinator has to review the risk before anyone claims work."
+    "hazardsHint": "Do not go in. A coordinator has to review the risk before anyone claims work.",
+    "contact": {
+      "title": "Address and contact",
+      "address": "Address",
+      "name": "Name",
+      "phone": "Phone",
+      "notes": "What happened",
+      "logged": "Coordinators only. Your view is logged."
+    }
   },
   "workItems": {
     "status": {
