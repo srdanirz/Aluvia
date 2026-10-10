@@ -252,6 +252,18 @@
       "mapUnavailable": "El mapa no cargó. Sin mapa no se puede poner el pin; vuelve a intentarlo en un rato.",
       "forbidden": "Solo los coordinadores aprobados de esta emergencia pueden poner el pin.",
       "reload": "Recargar"
+    },
+    "reports": {
+      "title": "Dónde más se necesita ayuda",
+      "lead": "Primero las casas con alguien en peligro o un riesgo sin revisar, después las que más vecinos reportaron, las que tienen más trabajos sin tomar y las que llevan más tiempo esperando.",
+      "reportedBy": "{count, plural, one {Reportada por # vecino} other {Reportada por # vecinos}}",
+      "needs": "Necesita: {needs}",
+      "waiting": "Pidió ayuda {relative} · {date}",
+      "noStreet": "Casa sin calle escrita",
+      "more": "Ver más casas",
+      "emptyTitle": "Nadie ha reportado una casa todavía",
+      "emptyBody": "Si conoces una casa que necesita ayuda, repórtala: toma menos de un minuto y no necesitas cuenta.",
+      "emptyReport": "Reportar una casa"
     }
   },
   "worksiteUpdates": {
@@ -847,6 +859,7 @@
       "label": "Emergencia",
       "map": "Mapa",
       "report": "Reportar",
+      "reports": "Reportes",
       "help": "Ayudar",
       "shifts": "Turnos"
     }

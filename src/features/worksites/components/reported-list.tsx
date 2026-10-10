@@ -1,0 +1,80 @@
+import { getFormatter, getTranslations } from "next-intl/server";
+
+import { Link } from "@/shared/i18n/navigation";
+import { Button, Card, CardBody, CardTitle, Chip } from "@/shared/ui";
+
+import { LEVEL_ICON, LEVEL_TONE } from "@/features/map/attention";
+
+import type { ReportedWorksite } from "../server";
+
+/**
+ * The reported homes in the order the server decided, each a card that opens the home on the map.
+ * No positions or numbers: it says where help is needed, it does not rank neighbors.
+ */
+export async function ReportedList({
+  slug,
+  homes,
+  timeZone,
+  now,
+}: {
+  slug: string;
+  homes: ReportedWorksite[];
+  timeZone: string;
+  now: Date;
+}) {
+  const t = await getTranslations("worksites.reports");
+  const tLevels = await getTranslations("map.levels");
+  const format = await getFormatter();
+
+  if (homes.length === 0) {
+    return (
+      <Card>
+        <CardTitle>{t("emptyTitle")}</CardTitle>
+        <CardBody>{t("emptyBody")}</CardBody>
+        <Button variant="primary" className="mt-2 self-start" asChild>
+          <Link href={`/emergencies/${slug}/worksites/new`}>{t("emptyReport")}</Link>
+        </Button>
+      </Card>
+    );
+  }
+
+  return (
+    <ul className="flex flex-col gap-3">
+      {homes.map((home) => {
+        const LevelIcon = LEVEL_ICON[home.level];
+        return (
+          <li key={home.id}>
+            <Card interactive className="gap-3" asChild>
+              <Link href={`/emergencies/${slug}/worksites/${home.id}`}>
+                <CardTitle>{home.addressText ?? home.street ?? t("noStreet")}</CardTitle>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Chip tone={LEVEL_TONE[home.level]} icon={<LevelIcon />}>
+                    {tLevels(home.level)}
+                  </Chip>
+                  {home.reportCount > 1 ? <Chip>{t("reportedBy", { count: home.reportCount })}</Chip> : null}
+                </div>
+                {home.needs.length > 0 ? (
+                  <CardBody>{t("needs", { needs: format.list(home.needs, { type: "unit" }) })}</CardBody>
+                ) : null}
+                <p className="text-caption text-ink-muted">
+                  <time dateTime={home.waitingSince.toISOString()}>
+                    {t("waiting", {
+                      relative: format.relativeTime(home.waitingSince, now),
+                      date: format.dateTime(home.waitingSince, {
+                        day: "numeric",
+                        month: "short",
+                        hour: "numeric",
+                        minute: "2-digit",
+                        timeZone,
+                      }),
+                    })}
+                  </time>
+                </p>
+              </Link>
+            </Card>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
