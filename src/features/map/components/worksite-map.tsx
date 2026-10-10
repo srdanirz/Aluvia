@@ -99,6 +99,8 @@ export function WorksiteMap({
         draggingCursor="default"
         disableDefaultUI
         clickableIcons={false}
+        // Drops Google's "Keyboard shortcuts" link; the data and terms credits must stay (Maps Platform terms).
+        keyboardShortcuts={false}
         reuseMaps
         className="size-full"
         onTilesLoaded={tiles.loaded}
