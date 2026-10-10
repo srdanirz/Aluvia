@@ -43,7 +43,7 @@ openssl rand -base64 32 | tr -d '\n' | gcloud secrets versions add AUTH_SECRET -
 printf '%s' "$VALOR" | gcloud secrets versions add TWILIO_AUTH_TOKEN --project aluvia-app --data-file=-
 ```
 
-Los secretos de proveedores (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM`, `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `RESEND_API_KEY`, `VAPID_PRIVATE_KEY`, `ANTHROPIC_API_KEY`) los crea Terraform vacíos. Con la versión agregada, el nombre va a `provider_secrets` en `terraform.tfvars` y se aplica: Cloud Run lo recibe como variable de entorno del mismo nombre. El deploy falla si faltan `AUTH_SECRET`, `RATE_LIMIT_SECRET` o los tres de Twilio, que el login necesita para arrancar. Una versión nueva de un secreto existente llega con el próximo deploy.
+Los secretos de proveedores (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM`, `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `RESEND_API_KEY`, `VAPID_PRIVATE_KEY`, `ANTHROPIC_API_KEY`) los crea Terraform vacíos. Con la versión agregada, el nombre va a `provider_secrets` en `terraform.tfvars` y se aplica: Cloud Run lo recibe como variable de entorno del mismo nombre. El deploy falla si faltan `AUTH_SECRET`, `RATE_LIMIT_SECRET` o los dos de WhatsApp, que es el canal del código de login; Twilio es el respaldo por SMS y se monta cuando tenga versión. Una versión nueva de un secreto existente llega con el próximo deploy.
 
 ## Variables del repositorio (deploy)
 

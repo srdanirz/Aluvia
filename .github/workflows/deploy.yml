@@ -73,7 +73,7 @@ jobs:
           mounted=$(gcloud run services describe aluvia --region "$REGION" \
             --format 'value(spec.template.spec.containers[0].env[].name)' | tr ';' '\n')
           missing=0
-          for name in AUTH_SECRET RATE_LIMIT_SECRET TWILIO_ACCOUNT_SID TWILIO_AUTH_TOKEN TWILIO_FROM; do
+          for name in AUTH_SECRET RATE_LIMIT_SECRET WHATSAPP_ACCESS_TOKEN WHATSAPP_PHONE_NUMBER_ID; do
             if ! grep -qx "$name" <<<"$mounted"; then
               echo "::error::Cloud Run no tiene $name: agrega su versión en Secret Manager y el nombre a provider_secrets (infra/README.md)."
               missing=1
