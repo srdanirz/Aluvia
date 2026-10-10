@@ -8,6 +8,7 @@ import type { Executor } from "@/shared/db/types";
 import { type AttentionLevel, levelRank } from "../attention";
 import { type Bbox, cellRangeForBbox, clusterFactorForZoom, CELL_DEGREES } from "../grid";
 import { attentionLevelSql, levelRankSql, staleBeforeSql } from "./attention-level";
+import { publicAddressSql } from "./public-address";
 
 // A block that cannot be split further lists its homes so the map can offer them one by one. A
 // flooded block can hold more than this; the panel says how many are left out.
@@ -22,6 +23,9 @@ const STREET_POINTS_MAX = 2000;
 // list, instead of stacking markers nobody can tap apart: about 10 cm.
 const SAME_POINT_DECIMALS = 6;
 
+/** A home inside a listed block: its written address tells it apart from its neighbors (ADR 0017). */
+export type MapCellHome = { id: string; level: AttentionLevel; address: string | null };
+
 export type MapCell = {
   position: { lat: number; lng: number };
   count: number;
@@ -30,7 +34,7 @@ export type MapCell = {
    * The homes in the cell, most urgent first; present when the group sits in one block (and above
    * street zoom, while the response's id budget lasts).
    */
-  worksites: { id: string; level: AttentionLevel }[] | null;
+  worksites: MapCellHome[] | null;
   /** Area to zoom to when the cell is tapped; it hugs its homes' grid cells. */
   bounds: Bbox;
 };
@@ -42,7 +46,7 @@ type CellRow = Record<AttentionLevel, number> & {
   lat: number;
   lng: number;
   count: number;
-  members: { id: string; level: AttentionLevel }[] | null;
+  members: MapCellHome[] | null;
   min_x: number;
   min_y: number;
   max_x: number;
@@ -79,11 +83,13 @@ export async function listMapCells(
         floor(ST_X(w.location) / ${cell})::int AS gx,
         floor(ST_Y(w.location) / ${cell})::int AS gy,
         w.source,
-        ${attentionLevelSql(staleBeforeSql(now))} AS level
+        ${attentionLevelSql(staleBeforeSql(now))} AS level,
+        ${publicAddressSql(sql`c.address_text`)} AS address
       FROM worksites w
       JOIN emergencies e ON e.id = w.emergency_id
       LEFT JOIN emergency_settings es ON es.emergency_id = e.id
       LEFT JOIN work_items wi ON wi.worksite_id = w.id AND wi.emergency_id = w.emergency_id
+      LEFT JOIN worksite_contacts c ON c.worksite_id = w.id
       WHERE e.slug = ${slug}
         AND ST_Intersects(
           w.location,
@@ -93,7 +99,7 @@ export async function listMapCells(
             4326
           )
         )
-      GROUP BY w.id, e.id, es.emergency_id
+      GROUP BY w.id, e.id, es.emergency_id, c.worksite_id
     ),
     visible AS (
       SELECT * FROM site
@@ -116,7 +122,7 @@ export async function listMapCells(
       CASE WHEN min(gx) = max(gx) AND min(gy) = max(gy) THEN
         -- to_json: the driver parses json, not json[].
         to_json((array_agg(
-          json_build_object('id', id, 'level', level)
+          json_build_object('id', id, 'level', level, 'address', address)
           ORDER BY ${levelRankSql(sql`level`)}, id
         ))[1:${CELL_MEMBERS_MAX}::int])
       END AS members,

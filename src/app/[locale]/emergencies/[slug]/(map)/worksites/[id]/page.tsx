@@ -6,6 +6,7 @@ import * as rootParams from "next/root-params";
 import { cache } from "react";
 
 import { loadOfficialNotice, OfficialNotice } from "@/features/admin";
+import { LEVEL_STATE } from "@/features/map/attention";
 import { WorksitePanel } from "@/features/map/components/worksite-panel";
 import { WorksiteAssignments } from "@/features/members";
 import { WorksiteContactCard } from "@/features/worksites/components";
@@ -31,7 +32,10 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const { home } = await loadWorksite(slug, id);
   const t = await getTranslations();
   return {
-    title: t("worksite.metaTitle", { emergency: home.emergencyName, level: t(`map.levels.${home.level}`) }),
+    title: t("worksite.metaTitle", {
+      emergency: home.emergencyName,
+      state: t(`map.states.${LEVEL_STATE[home.level]}`),
+    }),
   };
 }
 

@@ -11,6 +11,8 @@ export type WorksiteContactView = {
   name: string | null;
   phone: string | null;
   notes: string | null;
+  /** Someone vulnerable lives there: coordinators only, never public (ADR 0011). */
+  hasVulnerablePeople: boolean;
 };
 
 /**
@@ -37,17 +39,26 @@ export async function readAndLogContact(
       name: string | null;
       phone: string | null;
       notes: string | null;
+      has_vulnerable_people: boolean;
     }>(sql`
-      SELECT c.address_text, c.name, c.phone, c.notes
-      FROM worksite_contacts c
-      JOIN worksites w ON w.id = c.worksite_id
-      WHERE c.worksite_id = ${worksiteId} AND w.emergency_id = ${emergencyId}
+      SELECT c.address_text, c.name, c.phone, c.notes, w.has_vulnerable_people
+      FROM worksites w
+      LEFT JOIN worksite_contacts c ON c.worksite_id = w.id
+      WHERE w.id = ${worksiteId} AND w.emergency_id = ${emergencyId}
     `);
-    if (!row || (row.address_text ?? row.name ?? row.phone ?? row.notes) === null) return null;
+    if (!row) return null;
+    if ((row.address_text ?? row.name ?? row.phone ?? row.notes) === null && !row.has_vulnerable_people)
+      return null;
     await tx.execute(sql`
       INSERT INTO contact_views (emergency_id, user_id, worksite_id)
       VALUES (${emergencyId}, ${viewerId}, ${worksiteId})
     `);
-    return { addressText: row.address_text, name: row.name, phone: row.phone, notes: row.notes };
+    return {
+      addressText: row.address_text,
+      name: row.name,
+      phone: row.phone,
+      notes: row.notes,
+      hasVulnerablePeople: row.has_vulnerable_people,
+    };
   });
 }

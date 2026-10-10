@@ -4,16 +4,19 @@ import type { ReactNode } from "react";
 
 import { Link } from "@/shared/i18n/navigation";
 import { WorksiteJobs } from "@/features/work-items/components";
-import { Button, Card, Chip, GlassPanel, IconButton, WorkStatusChip } from "@/shared/ui";
+import { Button, Card, Chip, DescriptionList, GlassPanel, IconButton, WorkStatusChip } from "@/shared/ui";
 
-import { LEVEL_ICON, LEVEL_TONE } from "../attention";
+import { isOpenWorkStatus, LEVEL_DETAIL, LEVEL_STATE } from "../attention";
 import type { PublicWorksite } from "../server/public-worksite";
 import { Directions } from "./directions";
 import { FocusWorksite } from "./focus-worksite";
+import { HomeStateChip } from "./home-state-chip";
 import { ShareButton } from "./share-button";
 
 /**
- * A home's public page over the map: address, level, damage, what it needs and how to share it.
+ * A home's public page over the map. Key facts first, in the order a volunteer decides by:
+ * address, state, what it needs, who is going, how long it waits and the last news; then the work,
+ * how to get there and how to share it.
  * Only the public form reaches it (findPublicWorksite): name and phone appear only when the
  * reporter chose to show them (ADR 0017).
  */
@@ -40,7 +43,32 @@ export async function WorksitePanel({
   const tStatus = await getTranslations("workItems.status");
   const tUpdates = await getTranslations("worksiteUpdates.form");
   const format = await getFormatter();
-  const LevelIcon = LEVEL_ICON[home.level];
+  const tFacts = await getTranslations("worksite.facts");
+  const state = LEVEL_STATE[home.level];
+  const detail = LEVEL_DETAIL[home.level];
+  const needs = [
+    ...new Set(home.workItems.filter((item) => isOpenWorkStatus(item.status)).map((item) => item.workType)),
+  ];
+  const facts = [
+    {
+      term: tFacts("needs"),
+      value: needs.length > 0 ? format.list(needs, { type: "unit" }) : tFacts("needsNothing"),
+    },
+    {
+      term: tFacts("going"),
+      value:
+        home.volunteerCount > 0
+          ? tFacts("goingCount", { count: home.volunteerCount })
+          : tFacts("goingNobody"),
+    },
+    ...(home.peoplePresent !== null
+      ? [{ term: tFacts("present"), value: tFacts("presentCount", { count: home.peoplePresent }) }]
+      : []),
+    ...(state === "needs_help"
+      ? [{ term: tFacts("waiting"), value: format.relativeTime(home.waitingSince, now) }]
+      : []),
+    { term: tFacts("updated"), value: format.relativeTime(home.updatedAt, now) },
+  ];
   const position = home.position;
   const title = home.address ?? t("title", { emergency: home.emergencyName });
   // A coordinator's contact card already shows both, with its access logged.
@@ -60,21 +88,18 @@ export async function WorksitePanel({
         <div className="flex flex-col gap-2">
           <h1 className="text-heading-sm text-ink">{title}</h1>
           <div className="flex flex-wrap items-center gap-2">
-            <Chip tone={LEVEL_TONE[home.level]} icon={<LevelIcon />}>
-              {tMap(`levels.${home.level}`)}
-            </Chip>
+            <HomeStateChip level={home.level} />
             {home.damageLevel ? (
               <Chip>{t("damage.chip", { level: t(`damage.${home.damageLevel}`) })}</Chip>
             ) : null}
           </div>
           <p className="text-body-sm text-ink-muted">
-            {t("meta", {
+            {t("reported", {
               date: format.dateTime(home.reportedAt, {
                 dateStyle: "long",
                 timeStyle: "short",
                 timeZone: home.timeZone,
               }),
-              relative: format.relativeTime(home.updatedAt, now),
             })}
           </p>
           {home.level === "do_not_enter" ? (
@@ -89,11 +114,10 @@ export async function WorksitePanel({
               <p className="text-body-sm text-ink-soft">{t("hazardsHint")}</p>
             </div>
           ) : null}
-          {home.level === "unconfirmed" ? (
-            <p className="text-body-sm text-ink-soft">{t("unconfirmedHint")}</p>
-          ) : null}
+          {detail ? <p className="text-body-sm text-ink-soft">{tMap(`detail.${detail}`)}</p> : null}
         </div>
       </header>
+      <DescriptionList items={facts} />
       {contact}
       {showPublicContact ? (
         <section className="flex flex-col gap-2">

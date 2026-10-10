@@ -3,7 +3,7 @@ import { afterAll, describe, expect, it } from "vitest";
 
 import { findPublicWorksite } from "@/features/map/server/public-worksite";
 import { readAndLogContact } from "@/features/worksites/server/contact-card";
-import { contactViews, emergencies, worksiteContacts } from "@/shared/db/schema";
+import { contactViews, emergencies, worksiteContacts, worksites } from "@/shared/db/schema";
 
 import { createTestDb } from "./setup/db";
 import { createEmergency, createUsers, createWorksite, NOW } from "./work-items/fixtures";
@@ -65,5 +65,15 @@ describe("home addresses", () => {
       .from(contactViews)
       .where(eq(contactViews.worksiteId, worksiteId));
     expect(logged?.n).toBe(1);
+  });
+
+  it("tells a coordinator that vulnerable people live there, even with no contact written", async () => {
+    const emergency = await createEmergency(db);
+    const [viewer] = await createUsers(db, emergency.id, 1);
+    const { worksiteId } = await createWorksite(db, emergency.id);
+    await db.update(worksites).set({ hasVulnerablePeople: true }).where(eq(worksites.id, worksiteId));
+
+    const contact = await readAndLogContact(db, { emergencyId: emergency.id, worksiteId, viewerId: viewer! });
+    expect(contact).toMatchObject({ addressText: null, hasVulnerablePeople: true });
   });
 });

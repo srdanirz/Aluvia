@@ -255,7 +255,9 @@
       "emptyTitle": "Nobody has reported a home yet",
       "emptyBody": "If you know a home that needs help, report it: it takes less than a minute and needs no account.",
       "emptyReport": "Report a home",
-      "contact": "Contact: {name} · {phone}"
+      "contact": "Contact: {name} · {phone}",
+      "vulnerable": "Vulnerable people",
+      "updated": "Last news {relative}"
     }
   },
   "worksiteUpdates": {
@@ -509,17 +511,19 @@
   "map": {
     "title": "Map of {emergency}",
     "legendLabel": "What each color means",
-    "levels": {
-      "unattended": "Unattended",
-      "do_not_enter": "Do not enter",
-      "unconfirmed": "To confirm",
-      "no_request": "Affected, no request",
-      "in_progress": "In progress",
-      "attended": "Attended"
+    "states": {
+      "needs_help": "Needs help",
+      "on_the_way": "Someone is going",
+      "attended": "Helped",
+      "do_not_enter": "Do not enter"
+    },
+    "detail": {
+      "unconfirmed": "Nobody has updated it for a while: it may already be done. If you pass by, confirm it.",
+      "noRequest": "It is in the official survey of affected homes, but nobody has asked for help yet. If you pass by, ask what it needs."
     },
     "marker": {
-      "home": "Home: {level}",
-      "group": "{count, plural, one {# home} other {# homes}}: {doNotEnter} do not enter, {unattended} unattended, {unconfirmed} to confirm, {noRequest} affected with no request, {inProgress} in progress, {attended} attended"
+      "home": "Home: {state}",
+      "group": "{count, plural, one {# home} other {# homes}}: {needsHelp} need help, {onTheWay} with someone going, {attended} helped, {doNotEnter} do not enter"
     },
     "cell": {
       "title": "{count, plural, one {# home} other {# homes}} in this group",
@@ -541,7 +545,7 @@
     "fallback": {
       "back": "See all zones",
       "zone": "Zone {position} · {count, plural, one {# home} other {# homes}}",
-      "levelCount": "{level}: {count}"
+      "stateCount": "{state}: {count}"
     },
     "truncated": "There are more homes than fit. Zoom in to see them all.",
     "summary": "{homes, plural, =0 {No homes reported yet} one {# home reported} other {# homes reported}}",
@@ -552,7 +556,7 @@
   },
   "worksite": {
     "title": "Home in {emergency}",
-    "metaTitle": "Home in {emergency} · {level}",
+    "metaTitle": "Home in {emergency} · {state}",
     "back": "Back to the map",
     "damage": {
       "chip": "Damage: {level}",
@@ -566,12 +570,22 @@
     "share": "Share",
     "copied": "Link copied",
     "directions": "Directions",
-    "unconfirmedHint": "No news for a while: it may already be done. If you pass by, confirm it.",
     "googleMaps": "Google Maps",
     "waze": "Waze",
     "appleMaps": "Apple Maps",
     "shareFailed": "Could not share. Copy the link from the browser.",
-    "meta": "Reported on {date} · updated {relative}",
+    "reported": "Reported on {date}",
+    "facts": {
+      "needs": "Needs",
+      "needsNothing": "Nothing asked for yet",
+      "going": "Who is going",
+      "goingCount": "{count, plural, one {# volunteer took work here} other {# volunteers took work here}}",
+      "goingNobody": "Nobody yet",
+      "present": "Working now",
+      "presentCount": "{count, plural, =0 {Nobody} one {# person} other {# people}}",
+      "waiting": "Asked for help",
+      "updated": "Last news"
+    },
     "noLocation": "This home has no point on the map yet.",
     "hazardsHint": "Do not go in. A coordinator has to review the risk before anyone claims work.",
     "contact": {
@@ -580,7 +594,9 @@
       "name": "Name",
       "phone": "Phone",
       "notes": "What happened",
-      "logged": "Coordinators only. Your view is logged."
+      "logged": "Coordinators only. Your view is logged.",
+      "vulnerable": "Vulnerable people",
+      "vulnerableYes": "Elderly people, children or people with disabilities live here"
     },
     "publicContact": {
       "title": "Contact",

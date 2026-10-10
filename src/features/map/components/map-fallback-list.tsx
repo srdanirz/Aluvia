@@ -10,10 +10,11 @@ import { track } from "@/shared/analytics/client";
 import { Link } from "@/shared/i18n/navigation";
 import { Button, Card, Chip } from "@/shared/ui";
 
-import { ATTENTION_LEVELS, type AttentionLevel, LEVEL_ICON, LEVEL_TONE, levelRank } from "../attention";
+import { countByState, HOME_STATES, levelRank, STATE_ICON, STATE_TONE } from "../attention";
 import { type Bbox, CELL_DEGREES, snapBbox, zoomToFit } from "../grid";
-import type { MapCell } from "../server/map-cells";
+import type { MapCell, MapCellHome } from "../server/map-cells";
 import { fetchCells, REFRESH_MS } from "./fetch-cells";
+import { HomeStateChip } from "./home-state-chip";
 
 /** `zone=west,south,east,north` from the URL, or null when absent or malformed. */
 function parseZone(value: string | null): Bbox | null {
@@ -23,7 +24,7 @@ function parseZone(value: string | null): Bbox | null {
   return west < east && south < north ? { west, south, east, north } : null;
 }
 
-type Home = { id: string; level: AttentionLevel };
+type Home = MapCellHome;
 /** A list row: one home, or a zone to open (`home` null). */
 type Row = { key: string; position: number; home: Home | null; cell: MapCell };
 
@@ -128,15 +129,16 @@ export function MapFallbackList({
   );
 }
 
-function LevelChips({ levels }: { levels: MapCell["levels"] }) {
+function StateChips({ levels }: { levels: MapCell["levels"] }) {
   const t = useTranslations("map");
+  const states = countByState(levels);
   return (
     <div className="flex flex-wrap gap-2">
-      {ATTENTION_LEVELS.filter((level) => levels[level] > 0).map((level) => {
-        const Icon = LEVEL_ICON[level];
+      {HOME_STATES.filter((state) => states[state] > 0).map((state) => {
+        const Icon = STATE_ICON[state];
         return (
-          <Chip key={level} tone={LEVEL_TONE[level]} icon={<Icon />}>
-            {t("fallback.levelCount", { count: levels[level], level: t(`levels.${level}`) })}
+          <Chip key={state} tone={STATE_TONE[state]} icon={<Icon />}>
+            {t("fallback.stateCount", { count: states[state], state: t(`states.${state}`) })}
           </Chip>
         );
       })}
@@ -155,7 +157,7 @@ function ZoneRow({ cell, slug, position }: { cell: MapCell; slug: string; positi
           <span className="text-body font-medium text-ink">
             {t("fallback.zone", { position, count: cell.count })}
           </span>
-          <LevelChips levels={cell.levels} />
+          <StateChips levels={cell.levels} />
         </div>
         <ChevronRight aria-hidden className="size-icon shrink-0 text-ink-muted" strokeWidth={1.5} />
       </Link>
@@ -165,15 +167,14 @@ function ZoneRow({ cell, slug, position }: { cell: MapCell; slug: string; positi
 
 function HomeRow({ home, slug, position }: { home: Home; slug: string; position: number }) {
   const t = useTranslations("map");
-  const Icon = LEVEL_ICON[home.level];
   return (
     <Card interactive size="compact" className="flex-row items-center justify-between gap-3" asChild>
       <Link href={`/emergencies/${slug}/worksites/${home.id}`}>
         <div className="flex flex-col gap-2">
-          <span className="text-body font-medium text-ink">{t("cell.home", { position })}</span>
-          <Chip tone={LEVEL_TONE[home.level]} icon={<Icon />}>
-            {t(`levels.${home.level}`)}
-          </Chip>
+          <span className="text-body font-medium text-ink">
+            {home.address ?? t("cell.home", { position })}
+          </span>
+          <HomeStateChip level={home.level} />
         </div>
         <ChevronRight aria-hidden className="size-icon shrink-0 text-ink-muted" strokeWidth={1.5} />
       </Link>

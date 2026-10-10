@@ -113,7 +113,7 @@ Espaciado base 4 px: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, más los tokens d
 | `Button` | Pastilla. `primary` negro sólido (uno por vista), `secondary` de vidrio, `accent` lluvia, `ghost` sin relleno. `block` ocupa el ancho. |
 | `IconButton` | Círculo de 44 px de vidrio con `glass-wash`: `surface`, `urgent` y `pending` (vidrio teñido del estado), `solid` (negro), `ghost`. Siempre con `label`. |
 | `Chip` | Pastilla de vidrio teñido con `glass-wash`, punto que brilla con su color y texto en tinta. `urgent`, `pending`, `done`, `closed`, `neutral`. `WorkStatusChip` y `CollectionPointStatusChip` deciden el tono de cada estado (centro de acopio: recibe en musgo, solo algunas en tierra, lleno en gris). |
-| `MapMarker` | Pastilla sólida de 44 px con el ícono del nivel. Tonos de semáforo para casas; `place` (tinta de marca) para lugares que no son casas, como un centro de acopio, así nunca se confunde con un nivel. |
+| `MapMarker` | Pastilla sólida de 44 px con el ícono del estado. Tonos de semáforo para casas; `shape="sign"` (cuadrado de radio `control`) solo para "No entrar", así el peligro se distingue por la silueta además del ícono; `place` (tinta de marca) para lugares que no son casas, como un centro de acopio, así nunca se confunde con un estado. |
 | `ButtonGroup` | Tres o más acciones relacionadas en fila van en **una sola pastilla de vidrio**, nunca como botones sueltos. Adentro, botones `ghost`; como mucho uno `primary`/`solid` marca la acción principal. |
 | `SegmentedControl` | Vistas excluyentes: la elegida en negro, las demás en `surface-muted`. |
 | `Card` | Blanca con `glass-wash`, radio 20, sombra suave. `selected` pasa a `accent-tint`; `interactive` se eleva y atrapa la luz al pasar el mouse. |
@@ -125,6 +125,21 @@ Espaciado base 4 px: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, más los tokens d
 | `FormError` | El único lugar que decide el color de un error: `field` bajo un campo, `form` para un formulario entero. El lint rechaza `text-status-*` fuera de `shared/ui`. |
 | `Section`, `DescriptionList` | Bloque con título y bajada dentro de una vista; datos como etiqueta chica sobre valor, en dos columnas desde tablet. |
 | `Skeleton`, `Spinner` | Ver Carga. `Skeleton` toma su forma con `shape`: `block`, `pill` o `card`. |
+
+## Estados de una casa
+
+El público ve **cuatro palabras**, no los seis niveles internos de [ADR 0011](adr/0011-mapa-nivel-de-atencion-y-agrupacion.md): un semáforo de tres colores y una marca de peligro aparte. La regla vive en `src/features/map/attention.ts` (`LEVEL_STATE`) y la dice siempre `HomeStateChip`; ningún archivo traduce un nivel a color por su cuenta.
+
+| Estado | Tono | Ícono | Marcador | Niveles internos |
+|---|---|---|---|---|
+| Necesita ayuda | `urgent` (rojo) | mano que pide (`HandHelping`) | pastilla | sin atender, por confirmar, afectada sin pedido |
+| Alguien va | `pending` (naranjo) | pasos (`Footprints`) | pastilla | en curso |
+| Atendida | `done` (verde) | check | pastilla | atendida |
+| No entrar | `urgent` (rojo) | señal de pare (`OctagonX`) | cuadrado (`sign`) | riesgo sin revisar |
+
+- La información no se pierde: el nivel interno sigue ordenando el mapa, los grupos y Reportes, y la ficha de la casa explica en una línea los dos que no se ven en el estado ("por confirmar": nadie la actualiza hace tiempo; "afectada sin pedido": catastro oficial sin pedido).
+- Cada estado se distingue sin color: ícono propio, nombre escrito y, para el peligro, otra silueta (#11).
+- Ficha y tarjetas de Reportes muestran primero los datos con que se decide ir: dirección, estado, daño, qué necesita, cuántos voluntarios van, hace cuánto espera y la última novedad. Personas vulnerables solo para coordinadores; cuántas personas viven en la casa no se publica, porque delataría casas vacías (ADR 0011).
 
 ## Movimiento
 
