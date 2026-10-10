@@ -278,6 +278,21 @@ resource "google_cloud_run_v2_job" "task" {
           value = "true"
         }
 
+        # pnpm db:geocode-backfill places old reports with the Geocoding API (ADR 0016). Mounted
+        # only once the secret has a version, like the service's provider secrets.
+        dynamic "env" {
+          for_each = contains(tolist(local.mounted_secrets), "GOOGLE_MAPS_SERVER_KEY") ? [google_secret_manager_secret.app["GOOGLE_MAPS_SERVER_KEY"]] : []
+          content {
+            name = "GOOGLE_MAPS_SERVER_KEY"
+            value_source {
+              secret_key_ref {
+                secret  = env.value.secret_id
+                version = "latest"
+              }
+            }
+          }
+        }
+
         resources {
           limits = { cpu = "1", memory = "1Gi" }
         }
