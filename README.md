@@ -9,7 +9,7 @@ Nace del aluvión del 8 de octubre de 2026 en San Carlos de Apoquindo, Las Conde
 Fase de investigación y diseño. Todavía no hay código.
 
 - [Investigación y contexto](docs/README.md): qué pasó, cómo se resolvió en otros países y qué requisitos salen de ahí.
-- [Decisiones de arquitectura](docs/adr/): por qué GCP, licencia, etc.
+- [Decisiones de arquitectura](docs/adr/): por qué GCP y otras decisiones de largo plazo.
 
 ## Cómo trabajamos
 

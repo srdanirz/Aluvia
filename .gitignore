@@ -8,6 +8,8 @@
 *-sa.json
 *service-account*.json
 credentials.json
+serviceAccountKey.json
+gha-creds-*.json
 application_default_credentials.json
 .secrets/
 
@@ -17,6 +19,7 @@ application_default_credentials.json
 *.tfstate.*
 *.tfvars
 !*.tfvars.example
+*.tfvars.json
 crash.log
 .gcloudignore.local
 
@@ -57,11 +60,17 @@ android/.gradle/
 *.jks
 
 # Data exports with personal information of affected households
-data/
-exports/
+/data/
+/exports/
 *.csv
+*.xls
 *.xlsx
+*.ods
+*.geojson
+*.kml
+*.kmz
 *.sqlite
+*.sqlite3
 *.db
 
 # OS / editors
