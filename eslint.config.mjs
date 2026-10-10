@@ -68,6 +68,10 @@ export default defineConfig([
             { pattern: "^!.*|.*!$", message: "No !important." },
             { pattern: "^dark:", message: "No dark: outside shared/ui. Tokens switch with the theme." },
             {
+              pattern: "(^|:)(text|bg|fill|stroke)-status-",
+              message: "Status colors only via Chip or FormError from @/shared/ui.",
+            },
+            {
               pattern: "(^|:)(border|outline|ring|divide)(-|$)",
               message: "No borders: solid fills only (DESIGN.md). Separate with space or a surface tone.",
             },

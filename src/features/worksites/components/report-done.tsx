@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import { getPathname, Link } from "@/shared/i18n/navigation";
 import { shareLink } from "@/shared/offline/share-link";
-import { Button, ButtonGroup, Card, Chip } from "@/shared/ui";
+import { Button, ButtonGroup, Card, Chip, FormError } from "@/shared/ui";
 
 type ReportDoneProps = {
   slug: string;
@@ -51,11 +51,7 @@ export function ReportDone({ slug, worksiteId, delivery, onAnother }: ReportDone
           {t("another")}
         </Button>
       )}
-      {shared === "failed" ? (
-        <p role="alert" className="text-caption text-status-urgent-text">
-          {t("shareFailed")}
-        </p>
-      ) : null}
+      {shared === "failed" ? <FormError size="field">{t("shareFailed")}</FormError> : null}
     </Card>
   );
 }

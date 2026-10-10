@@ -38,12 +38,18 @@ const schema = z.object({
   METRICS_PORT: optional(z.coerce.number().int().min(1).max(65_535)),
   // Lets Cloud Logging join each log line to its trace. Unset: logs carry the bare trace id.
   GOOGLE_CLOUD_PROJECT: optional(z.string().min(1)),
+  // Development only: browse the admin as this user until sign-in exists (#16).
+  DEV_ADMIN_USER_ID: z.uuid().optional(),
 });
 
 const parsed = schema.safeParse(process.env);
 if (!parsed.success) {
   const issues = parsed.error.issues.map((i) => `  ${i.path.join(".")}: ${i.message}`).join("\n");
   throw new Error(`Invalid environment:\n${issues}\nSee .env.example.`);
+}
+
+if (parsed.data.DEV_ADMIN_USER_ID && process.env.NODE_ENV === "production") {
+  throw new Error("DEV_ADMIN_USER_ID is for development only; unset it in production.");
 }
 
 export const env = parsed.data;

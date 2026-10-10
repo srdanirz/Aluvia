@@ -27,10 +27,23 @@ export const emergencies = pgTable(
     closedAt: timestamp("closed_at", { withTimezone: true }),
     personalDataDeleteAfter: timestamp("personal_data_delete_after", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    // Optimistic lock for admin edits (area, closing).
+    version: integer("version").notNull().default(1),
   },
   (t) => [
     index("emergencies_area_idx").using("gist", t.area),
+    // Admin list, newest first, paged by (created_at, id).
+    index("emergencies_created_at_id_idx").on(t.createdAt.desc(), t.id.desc()),
     check("emergencies_default_locale_check", localeTag(t.defaultLocale)),
+    // The slug is the emergency's URL segment (ADR 0009).
+    check("emergencies_slug_check", sql`${t.slug} ~ '^[a-z0-9]+(-[a-z0-9]+)*$' AND length(${t.slug}) <= 60`),
+    // Readers fall back to the default locale, so its name must exist.
+    check(
+      "emergencies_name_check",
+      sql`jsonb_typeof(${t.name}) = 'object' AND ${t.name} ? ${t.defaultLocale}`,
+    ),
+    check("emergencies_closed_check", sql`(${t.status} = 'closed') = (${t.closedAt} IS NOT NULL)`),
+    check("emergencies_area_check", sql`${t.area} IS NULL OR ST_IsValid(${t.area})`),
   ],
 );
 
@@ -52,6 +65,8 @@ export const emergencySettings = pgTable(
       .$type<{ label: LocalizedText; phone: string }[]>()
       .notNull()
       .default([]),
+    // Optimistic lock: two admins editing the caps never overwrite each other silently.
+    version: integer("version").notNull().default(1),
   },
   (t) => [
     check(

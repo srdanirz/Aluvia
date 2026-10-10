@@ -27,6 +27,7 @@ Decisiones de base: [stack](adr/0002-stack.md) · [mapa](adr/0006-google-maps.md
 
 - Flujo en un solo sentido: `shared → features → app`. Una feature no importa los archivos internos de otra; usa su `index.ts` o el código se mueve a `shared/`.
 - **Una página nunca toca la base de datos.** Llama a `features/<x>/server/`. Esa carpeta es el único lugar con Drizzle o SQL.
+- **Operaciones con `(db, actorId, input)`**: la escritura recibe la base (o una transacción) como argumento, así el test la llama con la base de prueba (`src/features/admin/server/emergencies.ts:45`). La Server Action que la envuelve lleva el mismo nombre más `Action`, revisa la policy y parsea con zod (`src/features/admin/server/actions.ts:29`). Cada vista carga sus datos con un `load<Vista>` de `server/views.ts`, que aplica la policy y pasa `db` (`src/features/admin/server/views.ts:32`).
 - Un archivo hace una sola cosa. Pasado ~200 líneas o con dos responsabilidades, se divide.
 - **Registro para lo que crece uno a uno.** Tipos de trabajo y tipos de desastre son datos en un catálogo, no `if` repartidos por el código. Agregar uno no toca nada central.
 - **Todo cuelga de una emergencia.** Cada tabla de dominio lleva `emergency_id` y cada consulta filtra por él. Las Condes 2026 es la primera emergencia, no la única.

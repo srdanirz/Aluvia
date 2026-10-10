@@ -28,6 +28,27 @@ export const EVENTS = {
     emergencyId: z.uuid(),
     workTypeKey: z.string().min(1).max(64),
   }),
+  // Admin (ADR 0009, 0015). Keys and counts only; names and notice text stay in the database.
+  disaster_type_created: z.strictObject({
+    disasterTypeKey: z.string().min(1).max(64),
+    workTypeCount: z.number().int().nonnegative(),
+    supplyTypeCount: z.number().int().nonnegative(),
+  }),
+  disaster_type_updated: z.strictObject({
+    disasterTypeKey: z.string().min(1).max(64),
+    workTypeCount: z.number().int().nonnegative(),
+    supplyTypeCount: z.number().int().nonnegative(),
+  }),
+  emergency_created: z.strictObject({
+    emergencyId: z.uuid(),
+    disasterTypeKey: z.string().min(1).max(64),
+    hasArea: z.boolean(),
+  }),
+  emergency_settings_updated: z.strictObject({ emergencyId: z.uuid() }),
+  emergency_area_updated: z.strictObject({ emergencyId: z.uuid() }),
+  emergency_notice_published: z.strictObject({ emergencyId: z.uuid(), replaced: z.boolean() }),
+  emergency_notice_withdrawn: z.strictObject({ emergencyId: z.uuid() }),
+  emergency_closed: z.strictObject({ emergencyId: z.uuid() }),
 };
 
 export type EventName = keyof typeof EVENTS;

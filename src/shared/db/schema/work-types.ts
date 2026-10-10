@@ -1,7 +1,7 @@
-import { boolean, integer, jsonb, pgTable, primaryKey, text, uuid } from "drizzle-orm/pg-core";
+import { boolean, check, integer, jsonb, pgTable, primaryKey, text, uuid } from "drizzle-orm/pg-core";
 
 import { emergencies } from "./emergencies";
-import type { LocalizedText } from "./types";
+import { catalogKey, type LocalizedText } from "./types";
 
 /** An emergency's own work catalog, copied from its disaster template. Deactivated, never deleted. */
 export const workTypes = pgTable(
@@ -15,5 +15,5 @@ export const workTypes = pgTable(
     sortOrder: integer("sort_order").notNull().default(0),
     isActive: boolean("is_active").notNull().default(true),
   },
-  (t) => [primaryKey({ columns: [t.emergencyId, t.key] })],
+  (t) => [primaryKey({ columns: [t.emergencyId, t.key] }), check("work_types_key_check", catalogKey(t.key))],
 );

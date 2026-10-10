@@ -1,6 +1,5 @@
 import { House, LayoutGrid, MessageCircle, Navigation, Phone, Search, Share2 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import type { ReactNode } from "react";
 
 import {
   Button,
@@ -9,12 +8,17 @@ import {
   CardBody,
   CardTitle,
   Chip,
+  DescriptionList,
   Field,
+  FileButton,
   FloatingNav,
+  FormError,
   GlassPanel,
   IconButton,
   Input,
   LogoMark,
+  Section,
+  Select,
   Skeleton,
   Spinner,
   ThemeSwitcher,
@@ -22,15 +26,6 @@ import {
 
 import { ReportDemo } from "./report-demo";
 import { SegmentedDemo } from "./segmented-demo";
-
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <section className="flex flex-col gap-4">
-      <h2 className="text-subheading font-medium text-ink">{title}</h2>
-      {children}
-    </section>
-  );
-}
 
 // Living catalog of shared/ui: every primitive and variant on one page, for review in both themes.
 export default async function DesignSystemPage() {
@@ -168,6 +163,16 @@ export default async function DesignSystemPage() {
             <Field id="phone" label={t("phoneLabel")} error={t("phoneError")}>
               <Input type="tel" inputMode="tel" autoComplete="tel" />
             </Field>
+            <Field id="language" label={t("selectLabel")} hint={t("selectHint")}>
+              <Select defaultValue="es">
+                <option value="es">{t("selectSpanish")}</option>
+                <option value="en">{t("selectEnglish")}</option>
+              </Select>
+            </Field>
+            <Field id="file" label={t("fileLabel")} hint={t("fileHint")}>
+              <FileButton label={t("filePick")} className="self-start" />
+            </Field>
+            <FormError>{t("formError")}</FormError>
           </div>
         </Section>
 
@@ -188,11 +193,22 @@ export default async function DesignSystemPage() {
           />
         </Section>
 
+        <Section title={t("facts")}>
+          <Card className="max-w-narrow">
+            <DescriptionList
+              items={[
+                { term: t("factStatus"), value: t("factStatusValue") },
+                { term: t("factZone"), value: t("factZoneValue") },
+              ]}
+            />
+          </Card>
+        </Section>
+
         <Section title={t("loading")}>
           <Card className="max-w-narrow">
             <div className="flex items-center justify-between gap-3">
               <Skeleton className="h-5 w-1/3" />
-              <Skeleton className="h-6 w-1/4 rounded-full" />
+              <Skeleton shape="pill" className="h-6 w-1/4" />
             </div>
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-2/3" />

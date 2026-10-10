@@ -1,6 +1,7 @@
 import { Slot } from "radix-ui";
 import type { ReactNode } from "react";
 
+import { FormError } from "./form-error";
 import { Label } from "./label";
 
 type FieldProps = {
@@ -8,7 +9,11 @@ type FieldProps = {
   label: string;
   hint?: string;
   error?: string;
-  /** The control. Field gives it `id`, `aria-describedby` and `aria-invalid`; do not set them yourself. */
+  /**
+   * The control (Input, Select, Textarea, FileButton). Field gives it `id`, `aria-describedby`
+   * and `aria-invalid`; do not set them yourself. A FileButton keeps its own label too, so its
+   * accessible name is the field label followed by the button text.
+   */
   children: ReactNode;
 };
 
@@ -30,9 +35,9 @@ export function Field({ id, label, hint, error, children }: FieldProps) {
         </p>
       ) : null}
       {error ? (
-        <p id={errorId} role="alert" className="text-caption text-status-urgent-text">
+        <FormError id={errorId} size="field">
           {error}
-        </p>
+        </FormError>
       ) : null}
     </div>
   );

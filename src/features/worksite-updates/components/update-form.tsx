@@ -8,7 +8,7 @@ import { useErrorMessage } from "@/shared/i18n/use-error-message";
 import { Link } from "@/shared/i18n/navigation";
 import { discardOutboxEntry, enqueue } from "@/shared/offline/outbox";
 import { usePersistedState } from "@/shared/offline/use-persisted-state";
-import { Button, ButtonGroup, Card, Chip, Spinner, Stepper, ToggleTile } from "@/shared/ui";
+import { Button, ButtonGroup, Card, Chip, FormError, Spinner, Stepper, ToggleTile } from "@/shared/ui";
 
 import { MAX_PEOPLE_PRESENT, type WorksiteUpdate } from "../schemas";
 
@@ -147,9 +147,9 @@ export function UpdateForm({ slug, worksiteId, supplyTypes, current }: UpdateFor
           {sending ? t("sending") : t("submit")}
         </Button>
         {rejection ? (
-          <p role="alert" className="text-center text-caption text-status-urgent-text">
+          <FormError size="field" className="text-center">
             {errorMessage(rejection)}
-          </p>
+          </FormError>
         ) : null}
       </div>
     </form>

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import { BatchImport, ReportPage } from "@/features/worksites/components";
 import { canImportWorksites, findReportForm } from "@/features/worksites/server";
+import { loadOfficialNotice, OfficialNotice } from "@/features/admin";
 import { getEmergencyAccess } from "@/shared/auth";
 import { Card } from "@/shared/ui";
 
@@ -16,7 +17,10 @@ export default async function BatchWorksitesPage({
   params,
 }: PageProps<"/[locale]/emergencies/[slug]/worksites/batch">) {
   const { locale, slug } = await params;
-  const form = await findReportForm({ slug, locale });
+  const [form, notice] = await Promise.all([
+    findReportForm({ slug, locale }),
+    loadOfficialNotice(slug, locale),
+  ]);
   if (!form) notFound();
   const [t, access] = await Promise.all([
     getTranslations("worksites.batch"),
@@ -24,7 +28,12 @@ export default async function BatchWorksitesPage({
   ]);
 
   return (
-    <ReportPage eyebrow={form.emergency.name} title={t("title")} lead={t("lead")}>
+    <ReportPage
+      notice={<OfficialNotice text={notice} />}
+      eyebrow={form.emergency.name}
+      title={t("title")}
+      lead={t("lead")}
+    >
       {canImportWorksites(access) ? (
         <BatchImport slug={form.emergency.slug} workTypes={form.workTypes} />
       ) : (
