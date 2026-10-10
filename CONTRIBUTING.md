@@ -66,6 +66,23 @@ La plantilla se carga sola al abrir el PR. Lo que la hace funcionar:
 
 Los issues usan formularios (`.github/ISSUE_TEMPLATE/`): feature o error. Un error siempre dice su impacto; "alguien no puede pedir o recibir ayuda" se atiende antes que todo.
 
+## Reglas de GitHub
+
+Las aplica GitHub (rulesets del repo); no dependen de que nadie se acuerde.
+
+| Regla | Dónde |
+|---|---|
+| No se puede mergear sin la aprobación del otro mantenedor; el autor no puede aprobarse a sí mismo | `main` y `develop` |
+| La aprobación tiene que ser posterior al último push; un push nuevo la descarta | `main` y `develop` |
+| CODEOWNERS pide revisión a los dos automáticamente | todo el repo |
+| Todas las conversaciones del PR resueltas antes de mergear | `main` y `develop` |
+| Solo squash; historial lineal | `main` y `develop` |
+| La rama tiene que estar al día con `main` | `main` |
+| Nadie puede borrar ni reescribir (`force push`) `main` o `develop`, salvo el owner del repo | `main` y `develop` |
+| Las ramas de PR se borran solas al mergear | todo el repo |
+
+GitHub no permite limitar quién aprieta el botón de merge. La convención es que mergea el autor, después de la aprobación; lo que garantizan las reglas es que nada entra sin revisión.
+
 ## Revisión
 
 - Ritmo: un PR abierto no espera más de **12 horas** sin primera revisión mientras dure la emergencia. Si no puedes revisar, avisa.
