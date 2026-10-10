@@ -43,6 +43,20 @@
       "when": 1791615829259,
       "tag": "0005_admin_events_append_only",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791617871457,
+      "tag": "0006_enable_btree_gist",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791617872536,
+      "tag": "0007_map",
+      "breakpoints": true
     }
   ]
 }

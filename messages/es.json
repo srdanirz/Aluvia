@@ -83,7 +83,8 @@
     "factZone": "Zona horaria",
     "factZoneValue": "UTC",
     "factStatus": "Estado",
-    "factStatusValue": "Abierta"
+    "factStatusValue": "Abierta",
+    "mapMarkers": "Marcadores del mapa"
   },
   "notFound": {
     "title": "No encontramos esta página",
@@ -390,6 +391,88 @@
     },
     "notice": {
       "label": "Aviso oficial"
+    }
+  },
+  "map": {
+    "title": "Mapa de {emergency}",
+    "hint": "Toca un punto para ver qué necesita esa casa. Primero las que están sin atender.",
+    "legendLabel": "Qué significa cada color",
+    "levels": {
+      "unattended": "Sin atender",
+      "do_not_enter": "No entrar",
+      "unconfirmed": "Por confirmar",
+      "no_request": "Afectada, sin pedido",
+      "in_progress": "En curso",
+      "attended": "Atendida"
+    },
+    "marker": {
+      "home": "Casa: {level}",
+      "group": "{count, plural, one {# casa} other {# casas}}: {doNotEnter} no entrar, {unattended} sin atender, {unconfirmed} por confirmar, {noRequest} afectadas sin pedido, {inProgress} en curso, {attended} atendidas"
+    },
+    "cell": {
+      "title": "{count, plural, one {# casa} other {# casas}} en este grupo",
+      "home": "Casa {position}",
+      "more": "{count, plural, one {Hay # casa más en esta cuadra. Arriba están las más urgentes.} other {Hay # casas más en esta cuadra. Arriba están las más urgentes.}}",
+      "close": "Cerrar"
+    },
+    "loadError": "No pudimos cargar las casas.",
+    "retry": "Reintentar",
+    "unavailable": {
+      "title": "El mapa no está disponible",
+      "body": "Puede ser la señal o un problema nuestro. Los links de cada casa siguen funcionando."
+    },
+    "modeLabel": "Ver el mapa por",
+    "modeHomes": "Casas",
+    "modeZones": "Zonas",
+    "updatedAt": "Actualizado a las {time}",
+    "errors": {
+      "bbox_too_large": "Hay demasiado mapa a la vista para este acercamiento. Acerca un poco el mapa.",
+      "emergency_not_found": "Esta emergencia ya no existe."
+    },
+    "fallback": {
+      "back": "Ver todas las zonas",
+      "zone": "Zona {position} · {count, plural, one {# casa} other {# casas}}",
+      "levelCount": "{level}: {count}"
+    },
+    "zonesHint": "Cada zona toma el color de su casa más urgente. Más oscura: más casas esperando ayuda.",
+    "panelTitle": "Dónde hace falta ayuda",
+    "truncated": "Hay más casas de las que caben. Acerca el mapa para verlas todas."
+  },
+  "worksite": {
+    "title": "Casa en {emergency}",
+    "metaTitle": "Casa en {emergency} · {level}",
+    "back": "Volver al mapa",
+    "damage": {
+      "chip": "Daño: {level}",
+      "minor": "Leve",
+      "moderate": "Moderado",
+      "severe": "Grave",
+      "uninhabitable": "Inhabitable"
+    },
+    "work": "Qué necesita",
+    "noWork": "Todavía no tiene trabajos registrados.",
+    "share": "Compartir",
+    "copied": "Link copiado",
+    "directions": "Cómo llegar",
+    "unconfirmedHint": "Sin novedades hace tiempo: puede que ya esté lista. Si pasas por ahí, confírmalo.",
+    "googleMaps": "Google Maps",
+    "waze": "Waze",
+    "appleMaps": "Apple Maps",
+    "shareFailed": "No se pudo compartir. Copia el link desde el navegador.",
+    "meta": "Reportada el {date} · actualizada {relative}",
+    "noLocation": "Esta casa todavía no tiene su punto en el mapa.",
+    "hazardsHint": "No entrar. Un coordinador tiene que revisar el riesgo antes de que alguien tome trabajos."
+  },
+  "workItems": {
+    "status": {
+      "open_unclaimed": "Sin tomar",
+      "open_claimed": "Tomado",
+      "open_partially_done": "Avance parcial",
+      "open_needs_follow_up": "Requiere seguimiento",
+      "closed_done": "Hecho",
+      "closed_done_by_others": "Hecho por otros",
+      "closed_no_help_wanted": "No necesita ayuda",
+      "closed_duplicate": "Duplicado"
     }
   }
 }

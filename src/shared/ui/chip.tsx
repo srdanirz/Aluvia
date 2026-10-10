@@ -1,5 +1,5 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import type { ComponentProps } from "react";
+import type { ComponentProps, ReactNode } from "react";
 
 import { cn } from "./cn";
 
@@ -19,16 +19,26 @@ const chipVariants = cva(
   },
 );
 
-type ChipProps = ComponentProps<"span"> & VariantProps<typeof chipVariants>;
+type ChipProps = ComponentProps<"span"> &
+  VariantProps<typeof chipVariants> & {
+    /** Replaces the dot with a shape of its own (a map level's icon), tinted with the tone. */
+    icon?: ReactNode;
+  };
 
 /**
  * Status pill: tinted glass, a glowing dot and ink text. The text carries the meaning and the
  * color only reinforces it, so a status is never told by color alone.
  */
-export function Chip({ className, tone, children, ...props }: ChipProps) {
+export function Chip({ className, tone, icon, children, ...props }: ChipProps) {
   return (
     <span className={cn(chipVariants({ tone }), className)} {...props}>
-      <span aria-hidden className="size-dot rounded-full bg-[var(--dot)] shadow-[0_0_8px_var(--dot)]" />
+      {icon ? (
+        <span aria-hidden className="inline-flex text-[var(--dot)] [&>svg]:size-4 [&>svg]:stroke-2">
+          {icon}
+        </span>
+      ) : (
+        <span aria-hidden className="size-dot rounded-full bg-[var(--dot)] shadow-[0_0_8px_var(--dot)]" />
+      )}
       {children}
     </span>
   );

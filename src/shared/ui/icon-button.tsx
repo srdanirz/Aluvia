@@ -1,4 +1,5 @@
 import { cva, type VariantProps } from "class-variance-authority";
+import { Slot } from "radix-ui";
 import type { ComponentProps } from "react";
 
 import { cn } from "./cn";
@@ -25,16 +26,19 @@ type IconButtonProps = ComponentProps<"button"> &
   VariantProps<typeof iconButtonVariants> & {
     /** Accessible name; the icon alone says nothing to a screen reader. */
     label: string;
+    /** Render the child element (a link, for example) with the button's look. */
+    asChild?: boolean;
   };
 
 /** Round 44 px button that holds only an icon. */
-export function IconButton({ className, variant, label, type, ...props }: IconButtonProps) {
+export function IconButton({ className, variant, label, asChild = false, type, ...props }: IconButtonProps) {
+  const Component = asChild ? Slot.Root : "button";
   return (
-    <button
+    <Component
       aria-label={label}
       title={label}
       className={cn(iconButtonVariants({ variant }), className)}
-      type={type ?? "button"}
+      type={asChild ? undefined : (type ?? "button")}
       {...props}
     />
   );

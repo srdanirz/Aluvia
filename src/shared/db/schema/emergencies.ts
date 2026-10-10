@@ -67,11 +67,15 @@ export const emergencySettings = pgTable(
       .default([]),
     // Optimistic lock: two admins editing the caps never overwrite each other silently.
     version: integer("version").notNull().default(1),
+    // A home with open work and no activity for this long shows "to confirm" instead of
+    // "unattended" on the map: it may already be clean (ADR 0011).
+    staleAfterHours: integer("stale_after_hours").notNull().default(48),
   },
   (t) => [
     check(
       "emergency_settings_caps_check",
       sql`${t.smsDailyCap} >= 0 AND ${t.whatsappDailyCap} >= 0 AND ${t.neighborReserve} >= 0`,
     ),
+    check("emergency_settings_stale_after_hours_check", sql`${t.staleAfterHours} > 0`),
   ],
 );

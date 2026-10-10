@@ -15,7 +15,7 @@ El mapa es la vista central de Aluvia. ADR 0003 había elegido MapLibre con tese
 - **Lo que se guarda:** la dirección tal como la escribió el vecino, el punto que él confirmó y, opcionalmente, el `place_id`. No se guardan la dirección formateada ni las coordenadas que devuelve Google.
 - **Si el mapa no carga** (cuota agotada, Google caído, señal mala), la app sigue funcionando: vista de lista por zona y reporte con GPS o con la dirección escrita. El mapa mejora la app, pero no es un requisito para reportar ni para tomar trabajos.
 - **Agrupación:** se mantiene en el servidor. El cliente pide por *bounding box* y PostGIS agrupa; nunca se mandan todas las casas al navegador.
-- **Ubicación pública generalizada** en la base, igual que antes (STYLEGUIDE, Datos personales).
+- **Ubicación pública:** el punto exacto de cada casa, sin datos de contacto (ADR 0011).
 
 ## Costos y controles
 
@@ -36,7 +36,7 @@ Desde marzo de 2025 cada SKU tiene su propio cupo gratis mensual (10.000 cargas 
 ## Consecuencias
 
 - **Se renuncia a la razón principal de ADR 0003:** cada fork necesita su propia API key, Map ID y una cuenta de facturación de GCP con tarjeta, aunque se quede dentro del cupo gratis. La guía de despliegue (por escribir con el scaffold) lo explica.
-- Las variables `NEXT_PUBLIC_*` se fijan al compilar: si falta la key o el Map ID, el build falla con un mensaje claro.
+- Las variables `NEXT_PUBLIC_*` se fijan al compilar. Sin key o Map ID la app compila y el mapa muestra su respaldo; el deploy las exige (ADR 0011).
 - El costo deja de ser cero cuando se pasa el cupo gratis. Las cuotas lo acotan, a cambio de que el mapa se apague en el peor caso.
 
 ## Referencias

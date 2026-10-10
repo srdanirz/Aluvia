@@ -248,6 +248,8 @@
   --spacing-16: 64px;
   --spacing-20: 80px;
   --spacing-panel: 360px;
+  /* Tallest a bottom sheet over the map gets on a phone: the map above it stays usable. */
+  --spacing-sheet: 55dvh;
   /* Component sizes (DESIGN.md, Tamaños). */
   --spacing-chip-x: 10px;
   --spacing-chip-y: 4px;
