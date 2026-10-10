@@ -252,6 +252,18 @@
       "mapUnavailable": "The map did not load. Without it the pin cannot be placed; try again in a while.",
       "forbidden": "Only approved coordinators of this emergency can place the pin.",
       "reload": "Reload"
+    },
+    "reports": {
+      "title": "Where help is needed most",
+      "lead": "First the homes with someone in danger or an unreviewed hazard, then the ones more neighbors reported, the ones with more work nobody has taken and the ones waiting longest.",
+      "reportedBy": "{count, plural, one {Reported by # neighbor} other {Reported by # neighbors}}",
+      "needs": "Needs: {needs}",
+      "waiting": "Asked for help {relative} · {date}",
+      "noStreet": "Home without a written street",
+      "more": "See more homes",
+      "emptyTitle": "Nobody has reported a home yet",
+      "emptyBody": "If you know a home that needs help, report it: it takes less than a minute and needs no account.",
+      "emptyReport": "Report a home"
     }
   },
   "worksiteUpdates": {
@@ -847,6 +859,7 @@
       "label": "Emergency",
       "map": "Map",
       "report": "Report",
+      "reports": "Reports",
       "help": "Help",
       "shifts": "Shifts"
     }

@@ -1,4 +1,4 @@
-import { CalendarClock, HandHeart, House, Map } from "lucide-react";
+import { CalendarClock, ClipboardList, HandHeart, House, Map } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 
@@ -13,6 +13,7 @@ async function EmergencyNav({ params }: { params: Promise<{ slug: string }> }) {
       items={[
         { href: base, label: t("map"), icon: <Map /> },
         { href: `${base}/worksites/new`, label: t("report"), icon: <House /> },
+        { href: `${base}/reports`, label: t("reports"), icon: <ClipboardList /> },
         { href: `${base}/work-items`, label: t("help"), icon: <HandHeart /> },
         { href: `${base}/shifts`, label: t("shifts"), icon: <CalendarClock /> },
       ]}
@@ -20,8 +21,8 @@ async function EmergencyNav({ params }: { params: Promise<{ slug: string }> }) {
   );
 }
 
-// Every screen of an emergency shares one nav, so the map, reporting, helping and shifts are one
-// tap apart. The slug is request data, so the nav streams in its own Suspense instead of making the
+// Every screen of an emergency shares one nav, so the map, reporting, the reported homes, helping and
+// shifts are one tap apart. The slug is request data, so the nav streams in its own Suspense instead of making the
 // whole route dynamic; who may see each view is still checked by every page and Server Action.
 export default function EmergencyLayout({ children, params }: LayoutProps<"/[locale]/emergencies/[slug]">) {
   return (

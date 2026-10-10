@@ -8,6 +8,7 @@ import type { Executor } from "@/shared/db/types";
 
 import type { AttentionLevel, WorkItemStatus } from "../attention";
 import { attentionLevelSql, lastActivitySql, staleBeforeSql } from "./attention-level";
+import { streetWithoutNumberSql } from "./street";
 
 type DamageLevel = (typeof damageLevel.enumValues)[number];
 type Hazard = (typeof worksiteHazard.enumValues)[number];
@@ -80,7 +81,7 @@ export async function findPublicWorksite(
         )
         ORDER BY wt.sort_order, wt.key, wi.id
       ) FILTER (WHERE wi.id IS NOT NULL) AS work_items,
-      initcap(nullif(btrim(regexp_replace(c.address_text, '\s*[0-9].*$', '')), '')) AS street
+      ${streetWithoutNumberSql(sql`c.address_text`)} AS street
     FROM worksites w
     LEFT JOIN worksite_contacts c ON c.worksite_id = w.id
     JOIN emergencies e ON e.id = w.emergency_id

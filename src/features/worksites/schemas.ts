@@ -106,3 +106,8 @@ export type WorksiteSource = (typeof reportSource.enumValues)[number];
 
 export type WorksiteReportInput = z.input<typeof worksiteReportSchema>;
 export type NewWorksite = z.output<typeof newWorksiteSchema>;
+
+/** The reports list's URL: only the page cursor; a bad value reads as the first page. */
+export const reportsQuerySchema = z.object({
+  cursor: z.string().max(400).optional().catch(undefined),
+});
