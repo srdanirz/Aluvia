@@ -87,6 +87,7 @@ export function ReportForm({ slug, workTypes, emergencyNumbers, source }: Report
         phone,
         addressText: draft.addressText,
         notes: draft.notes,
+        publicContact: draft.publicContact,
         notifyChannel: phone && draft.notifyChannel !== "none" ? draft.notifyChannel : null,
       },
     };

@@ -35,6 +35,9 @@ export const worksiteContactSchema = z
     notes: optionalText(MAX_NOTES),
     // Choosing a channel is the consent (ADR 0007); without a phone there is nothing to consent to.
     notifyChannel: z.enum(["sms", "whatsapp"]).nullable().default(null),
+    // The reporter's opt-in to show name and phone on the public home (ADR 0017). Off unless sent,
+    // so a report queued by an older form, a batch draft or an official import stays private.
+    publicContact: z.boolean().default(false),
   })
   .refine((contact) => contact.notifyChannel === null || contact.phone !== null, {
     path: ["notifyChannel"],
@@ -74,6 +77,7 @@ const worksiteFields = {
     addressText: null,
     notes: null,
     notifyChannel: null,
+    publicContact: false,
   }),
 };
 

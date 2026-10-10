@@ -12,7 +12,7 @@ const { db, close } = createTestDb();
 afterAll(close);
 
 describe("home addresses", () => {
-  it("shows the street to everyone but never the number", async () => {
+  it("shows everyone the full written address, number included", async () => {
     const emergency = await createEmergency(db);
     const { worksiteId } = await createWorksite(db, emergency.id);
     await db.insert(worksiteContacts).values({ worksiteId, addressText: "CALLE INVENTADA 1234 DEPTO 5" });
@@ -22,7 +22,34 @@ describe("home addresses", () => {
       .where(eq(emergencies.id, emergency.id));
 
     const home = await findPublicWorksite({ slug: row!.slug, id: worksiteId, locale: "es", now: NOW }, db);
-    expect(home?.street).toBe("Calle Inventada");
+    expect(home?.address).toBe("Calle Inventada 1234 Depto 5");
+  });
+
+  it("shows name and phone publicly only when the reporter opted in", async () => {
+    const emergency = await createEmergency(db);
+    const [row] = await db
+      .select({ slug: emergencies.slug })
+      .from(emergencies)
+      .where(eq(emergencies.id, emergency.id));
+    const contact = { name: "Vecino de prueba", phone: "+56900000002", addressText: "Calle Inventada 9" };
+    const opted = await createWorksite(db, emergency.id);
+    const privateOne = await createWorksite(db, emergency.id);
+    // A row from before the option existed takes the column default: private.
+    const earlier = await createWorksite(db, emergency.id);
+    await db.insert(worksiteContacts).values([
+      { worksiteId: opted.worksiteId, ...contact, publicContact: true },
+      { worksiteId: privateOne.worksiteId, ...contact, publicContact: false },
+      { worksiteId: earlier.worksiteId, ...contact },
+    ]);
+    const read = (id: string) => findPublicWorksite({ slug: row!.slug, id, locale: "es", now: NOW }, db);
+
+    expect(await read(opted.worksiteId)).toMatchObject({
+      contactName: "Vecino de prueba",
+      contactPhone: "+56900000002",
+    });
+    const hidden = { contactName: null, contactPhone: null };
+    expect(await read(privateOne.worksiteId)).toMatchObject(hidden);
+    expect(await read(earlier.worksiteId)).toMatchObject(hidden);
   });
 
   it("gives the full address to a coordinator and logs the view", async () => {

@@ -90,14 +90,19 @@ describe("reported homes list", () => {
     expect(page.items.map((item) => item.id)).toEqual([reported.id]);
   });
 
-  it("shows the public the street without number and a coordinator the logged address", async () => {
+  it("shows the public the full address and a coordinator the logged address", async () => {
     const emergencyId = await createEmergency(db, "reports-address");
     const withAddress = home({ contact: { addressText: "Calle Inventada 123 depto 4" } });
     const withoutAddress = home();
     await createWorksites(db, { emergencyId, source: "neighbor", reports: [withAddress, withoutAddress] });
 
     const shown = (await list(emergencyId)).items.find((item) => item.id === withAddress.id);
-    expect(shown).toMatchObject({ street: "Calle Inventada", addressText: null });
+    expect(shown).toMatchObject({
+      address: "Calle Inventada 123 Depto 4",
+      addressText: null,
+      contactName: null,
+      contactPhone: null,
+    });
     const [publicViews] = await db
       .select({ n: count() })
       .from(contactViews)
@@ -113,6 +118,24 @@ describe("reported homes list", () => {
       .from(contactViews)
       .where(eq(contactViews.emergencyId, emergencyId));
     expect(views).toEqual([{ worksiteId: withAddress.id, userId: coordinatorId }]);
+  });
+
+  it("shows name and phone only for reports that opted in to a public contact", async () => {
+    const emergencyId = await createEmergency(db, "reports-public-contact");
+    const contact = { name: "Vecina de prueba", phone: "+56900000001", addressText: "Calle Inventada 7" };
+    const opted = home({ contact: { ...contact, publicContact: true } });
+    const privateOne = home({ contact });
+    await createWorksites(db, { emergencyId, source: "neighbor", reports: [opted, privateOne] });
+
+    const items = (await list(emergencyId)).items;
+    expect(items.find((item) => item.id === opted.id)).toMatchObject({
+      contactName: "Vecina de prueba",
+      contactPhone: "+56900000001",
+    });
+    expect(items.find((item) => item.id === privateOne.id)).toMatchObject({
+      contactName: null,
+      contactPhone: null,
+    });
   });
 
   it("pages by cursor without gaps or repeats, in one query per page", async () => {

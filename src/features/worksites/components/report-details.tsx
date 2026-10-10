@@ -77,7 +77,7 @@ export function ReportDetails({ draft, onChange, phoneError, phoneIsValid }: Rep
       <Field
         id="report-phone"
         label={t("phoneLabel")}
-        hint={t("phoneHint")}
+        hint={draft.publicContact ? t("phoneHintPublic") : t("phoneHint")}
         error={phoneError ? t("phoneError") : undefined}
       >
         <Input
@@ -88,6 +88,10 @@ export function ReportDetails({ draft, onChange, phoneError, phoneIsValid }: Rep
           onChange={(event) => set("phone", event.target.value)}
         />
       </Field>
+
+      <ToggleTile pressed={draft.publicContact} onPressedChange={(pressed) => set("publicContact", pressed)}>
+        {t("publicContact")}
+      </ToggleTile>
 
       {phoneIsValid ? (
         <div className="flex flex-col gap-2">

@@ -34,7 +34,7 @@ Se calcula desde `work_items` en cada lectura; no se guarda. En orden de urgenci
 
 El mapa y la ficha muestran el punto que confirmó quien reportó, y "Cómo llegar" lleva a la puerta. **Primero la experiencia:** un voluntario que llega a una cuadra inundada no puede adivinar cuál de veinte casas es. SECURITY.md pedía un punto aproximado para no exponer casas vacías a robos. Los mantenedores decidieron que la precisión pesa más y que el riesgo se acota así:
 
-- Nunca se publica nombre, teléfono, dirección escrita, vulnerabilidad ni "casa sin gente": solo el punto, el nivel, el daño y los trabajos.
+- Nunca se publica vulnerabilidad ni "casa sin gente". La dirección escrita es pública y el nombre y teléfono lo son si el vecino lo elige (ADR 0017).
 - Los datos de contacto siguen en `worksite_contacts`, solo para coordinadores y con registro de cada vista.
 
 ### Agrupación

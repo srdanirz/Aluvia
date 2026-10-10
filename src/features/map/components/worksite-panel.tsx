@@ -1,4 +1,4 @@
-import { ArrowLeft, OctagonX } from "lucide-react";
+import { ArrowLeft, OctagonX, Phone } from "lucide-react";
 import { getFormatter, getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 
@@ -13,8 +13,9 @@ import { FocusWorksite } from "./focus-worksite";
 import { ShareButton } from "./share-button";
 
 /**
- * A home's public page over the map: level, damage, what it needs and how to share it. Only the
- * public form reaches it (findPublicWorksite), so there is no contact data to leak.
+ * A home's public page over the map: address, level, damage, what it needs and how to share it.
+ * Only the public form reaches it (findPublicWorksite): name and phone appear only when the
+ * reporter chose to show them (ADR 0017).
  */
 export async function WorksitePanel({
   slug,
@@ -41,7 +42,9 @@ export async function WorksitePanel({
   const format = await getFormatter();
   const LevelIcon = LEVEL_ICON[home.level];
   const position = home.position;
-  const title = home.street ?? t("title", { emergency: home.emergencyName });
+  const title = home.address ?? t("title", { emergency: home.emergencyName });
+  // A coordinator's contact card already shows both, with its access logged.
+  const showPublicContact = !contact && (home.contactName !== null || home.contactPhone !== null);
   const tHazard = await getTranslations("worksites.hazard");
 
   return (
@@ -92,6 +95,23 @@ export async function WorksitePanel({
         </div>
       </header>
       {contact}
+      {showPublicContact ? (
+        <section className="flex flex-col gap-2">
+          <h2 className="text-subheading font-medium text-ink">{t("publicContact.title")}</h2>
+          {home.contactName ? <p className="text-body text-ink">{home.contactName}</p> : null}
+          {home.contactPhone ? (
+            <Button variant="secondary" className="self-start" asChild>
+              <a
+                href={`tel:${home.contactPhone}`}
+                aria-label={t("publicContact.call", { phone: home.contactPhone })}
+              >
+                <Phone aria-hidden />
+                {home.contactPhone}
+              </a>
+            </Button>
+          ) : null}
+        </section>
+      ) : null}
 
       {/* Members see the same jobs with their actions (take, arrive, close); everyone else, this list. */}
       <WorksiteJobs slug={slug} emergencyId={home.emergencyId} worksiteId={home.id}>

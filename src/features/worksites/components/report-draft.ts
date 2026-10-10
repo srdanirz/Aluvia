@@ -10,6 +10,8 @@ export type ReportDraft = {
   addressText: string;
   name: string;
   phone: string;
+  /** Show name and phone on the public home so volunteers can call; on unless the reporter opts out. */
+  publicContact: boolean;
   notifyChannel: "none" | "sms" | "whatsapp";
   notes: string;
 };
@@ -23,6 +25,7 @@ export const EMPTY_DRAFT: ReportDraft = {
   addressText: "",
   name: "",
   phone: "",
+  publicContact: true,
   notifyChannel: "none",
   notes: "",
 };

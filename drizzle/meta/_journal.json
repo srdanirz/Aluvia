@@ -127,6 +127,13 @@
       "when": 1791665384759,
       "tag": "0017_contact_address_key",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1791670389920,
+      "tag": "0018_public_contact",
+      "breakpoints": true
     }
   ]
 }

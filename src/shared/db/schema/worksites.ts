@@ -68,7 +68,10 @@ export const worksites = pgTable(
   ],
 );
 
-/** Contact and consent of a home. Only coordinators read it, and every read is logged in contact_views. */
+/**
+ * Contact and consent of a home. Coordinators read it and every read is logged in contact_views;
+ * the public reads the address, and name and phone only when public_contact is set (ADR 0017).
+ */
 export const worksiteContacts = pgTable(
   "worksite_contacts",
   {
@@ -86,6 +89,9 @@ export const worksiteContacts = pgTable(
     locale: text("locale"),
     notifyChannel: notificationChannel("notify_channel"),
     notifyConsentAt: timestamp("notify_consent_at", { withTimezone: true }),
+    // The reporter chose to show name and phone on the public home (ADR 0017). Rows from before
+    // the option existed stay false: those reporters were promised privacy.
+    publicContact: boolean("public_contact").notNull().default(false),
   },
   (t) => [
     check("worksite_contacts_phone_check", e164(t.phone)),

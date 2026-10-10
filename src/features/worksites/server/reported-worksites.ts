@@ -7,7 +7,7 @@ import type { Executor } from "@/shared/db/types";
 
 import type { AttentionLevel } from "@/features/map/attention";
 import { attentionLevelSql, isOpenWorkItemSql, staleBeforeSql } from "@/features/map/server/attention-level";
-import { streetWithoutNumberSql } from "@/features/map/server/street";
+import { publicAddressSql, publicContactSql } from "@/features/map/server/public-address";
 
 /**
  * The reported homes of an emergency, where help is most needed first. The order is decided in
@@ -19,7 +19,8 @@ import { streetWithoutNumberSql } from "@/features/map/server/street";
  * 4. waiting longer: `unclaimed_since`, homes with nothing waiting after, then `created_at`.
  * Official parcels nobody asked about are left out, as on the map.
  *
- * Everyone gets the street without number. `contactViewerId` is set only by a caller whose policy
+ * Everyone gets the written address (ADR 0017), and name and phone when the reporter opted in to
+ * showing them. `contactViewerId` is set only by a caller whose policy
  * lets that person see contacts (coordinator, platform admin): the rows then carry the written
  * address and every shown address is logged in contact_views by the same statement. One query
  * per page, whatever its size and whoever looks.
@@ -30,8 +31,11 @@ export const REPORTS_PAGE_SIZE = 20;
 export type ReportedWorksite = {
   id: string;
   level: AttentionLevel;
-  /** Street without number; the public reading of the address. */
-  street: string | null;
+  /** The written address as the public reads it (ADR 0017). */
+  address: string | null;
+  /** Name and phone, only when the reporter chose to show them; null otherwise. */
+  contactName: string | null;
+  contactPhone: string | null;
   /** The written address, only for a contact viewer; always null for the public. */
   addressText: string | null;
   reportCount: number;
@@ -46,7 +50,9 @@ export type ReportedWorksitesPage = { items: ReportedWorksite[]; nextCursor: str
 type Row = {
   id: string;
   level: AttentionLevel;
-  street: string | null;
+  address: string | null;
+  contact_name: string | null;
+  contact_phone: string | null;
   address_text: string | null;
   report_count: number;
   needs: string[] | null;
@@ -166,7 +172,9 @@ export async function listReportedWorksites(
         row_number() OVER (
           ORDER BY flag_key, -report_count, -open_unclaimed, waiting_at, created_at, id
         ) AS row_index,
-        ${streetWithoutNumberSql(sql`c.address_text`)} AS street,
+        ${publicAddressSql(sql`c.address_text`)} AS address,
+        ${publicContactSql("c", "name")} AS contact_name,
+        ${publicContactSql("c", "phone")} AS contact_phone,
         ${showAddress ? sql`c.address_text` : sql`NULL::text`} AS address_text
       FROM listed l
       LEFT JOIN worksite_contacts c ON c.worksite_id = l.id
@@ -185,7 +193,7 @@ export async function listReportedWorksites(
         : sql``
     }
     SELECT
-      id, level, street, address_text, report_count, needs, flag_key, open_unclaimed,
+      id, level, address, contact_name, contact_phone, address_text, report_count, needs, flag_key, open_unclaimed,
       ${utcText("waiting_since")} AS waiting_since,
       CASE WHEN waiting_at = 'infinity' THEN 'infinity' ELSE ${utcText("waiting_at")} END AS waiting_key,
       ${utcText("created_at")} AS created_key
@@ -199,7 +207,9 @@ export async function listReportedWorksites(
     items: page.map((row) => ({
       id: row.id,
       level: row.level,
-      street: row.street,
+      address: row.address,
+      contactName: row.contact_name,
+      contactPhone: row.contact_phone,
       addressText: row.address_text,
       reportCount: row.report_count,
       needs: [...new Set(row.needs ?? [])],
