@@ -321,6 +321,7 @@ describe("emergency settings", () => {
     smsDailyCap: 100,
     whatsappDailyCap: 50,
     neighborReserve: 10,
+    claimHoldMinutes: 90,
     officialContact: null,
     officialSurveyName: "Catastro",
   };

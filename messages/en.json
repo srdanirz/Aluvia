@@ -288,7 +288,17 @@
     "own_invitation": "This is your own invitation: someone else has to accept it.",
     "not_field_volunteer": "That person is not a field volunteer in this emergency.",
     "assignment_not_found": "That assignment no longer exists.",
-    "no_whatsapp": "That number has no WhatsApp. For now the code only arrives by WhatsApp: use a number that has it."
+    "no_whatsapp": "That number has no WhatsApp. For now the code only arrives by WhatsApp: use a number that has it.",
+    "unauthenticated": "Sign in to continue.",
+    "not_member": "Join this emergency first.",
+    "not_open": "This job is already closed.",
+    "already_claimed": "Someone just took it. Pick another home.",
+    "hazard_unreviewed": "This home has an unreviewed hazard: it cannot be taken yet.",
+    "claim_lost": "This job is no longer yours. Check the list.",
+    "shift_full": "This shift just filled up.",
+    "shift_started": "This shift already started.",
+    "already_signed_up": "You are already signed up for this shift.",
+    "not_signed_up": "You are not signed up for this shift."
   },
   "admin": {
     "meta": {
@@ -386,7 +396,9 @@
       "supplyTypeCount": "{count, plural, one {# supply} other {# supplies}}",
       "membersTitle": "Members",
       "membersLead": "Approve coordinators and field volunteers, and invite by WhatsApp.",
-      "membersLink": "View members"
+      "membersLink": "View members",
+      "claimHoldLabel": "Minutes a hold lasts",
+      "claimHoldHint": "If whoever tapped On my way does not arrive or renew in this time, the job is free again. From 1 to 1440."
     },
     "disasterTypes": {
       "title": "Disaster types",
@@ -657,5 +669,95 @@
       "inviteHere": "Invite to this home",
       "inviteHint": "Single-use link that expires in 3 days."
     }
+  },
+  "work": {
+    "help": {
+      "title": "Where to help now",
+      "lead": "Homes nobody is on, starting with the ones waiting longest.",
+      "waiting": "Waiting {relative}",
+      "distance": "{distance} away",
+      "showDistance": "Show how far each home is",
+      "locating": "Finding your location",
+      "locationDenied": "We could not read your location. The list is still sorted by waiting time.",
+      "more": "Show more homes",
+      "openHome": "See the home",
+      "claim": "On my way: {workType}",
+      "signIn": "Sign in to take a job",
+      "join": "Join this emergency to take jobs",
+      "shifts": "See shifts",
+      "emptyTitle": "No home is waiting right now",
+      "emptyBody": "Every home has someone. Check back later or look at the shifts.",
+      "peoplePresent": "{count, plural, =0 {Nobody working now} one {# person working now} other {# people working now}}",
+      "missing": "Missing: {supplies}"
+    },
+    "intro": {
+      "title": "Go first to the homes that have waited longest",
+      "body": "Tap On my way and the job is held for you for a while. When you get there, tap I'm here; if you cannot make it, let it go so someone else can.",
+      "dismiss": "Got it"
+    },
+    "damage": {
+      "minor": "Minor damage",
+      "moderate": "Moderate damage",
+      "severe": "Severe damage",
+      "uninhabitable": "Uninhabitable"
+    },
+    "mine": {
+      "title": "What you took",
+      "expiresIn": "Your hold ends {relative}",
+      "expired": "Your hold ended. If nobody else took it, it is still yours when you tap I'm here.",
+      "arrived": "You arrived {relative}",
+      "arrive": "I'm here",
+      "renew": "Still on my way",
+      "release": "Can't go",
+      "done": "Done",
+      "partial": "Made progress",
+      "followUp": "Needs more help",
+      "doneByOthers": "Already done",
+      "noHelpWanted": "They don't want help",
+      "otherClosings": "Other outcomes",
+      "actions": "Job actions",
+      "openHome": "See the home"
+    },
+    "safety": {
+      "title": "Before you go",
+      "boots": "Safety or rubber boots",
+      "gloves": "Heavy gloves",
+      "tetanus": "Tetanus shot up to date",
+      "danger": "If you see fallen wires, smell gas or see cracks, do not go in and report it.",
+      "confirm": "Got it, I'm going",
+      "cancel": "Back"
+    },
+    "hazard": {
+      "chip": "Do not enter: hazard",
+      "body": "A coordinator has to review this home before anyone goes in."
+    },
+    "jobs": {
+      "title": "Jobs at this home",
+      "yours": "Yours",
+      "taken": "Someone is on the way",
+      "verify": "Mark verified",
+      "verified": "Verified",
+      "duplicate": "It is a duplicate",
+      "coordinatorActions": "Coordinator actions",
+      "claim": "On my way"
+    },
+    "saving": "Saving"
+  },
+  "shifts": {
+    "title": "Shifts",
+    "lead": "Pick a shift and we will remind you before it starts.",
+    "seats": "{filled} of {capacity} spots",
+    "full": "Full",
+    "signUp": "Sign up",
+    "cancel": "Cancel sign-up",
+    "signedUp": "Signed up",
+    "when": "{start} to {end}",
+    "meetingPoint": "Meeting point: {place}",
+    "emptyTitle": "No upcoming shifts",
+    "emptyBody": "When a coordinator posts one, it shows up here.",
+    "more": "Show more shifts",
+    "signIn": "Sign in to sign up",
+    "join": "Join this emergency to sign up",
+    "help": "Where to help now"
   }
 }

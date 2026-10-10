@@ -27,3 +27,4 @@ export { Textarea } from "./textarea";
 export { ThemeScript } from "./theme-script";
 export { ThemeSwitcher } from "./theme-switcher";
 export { ToggleTile } from "./toggle-tile";
+export { WorkStatusChip } from "./work-status-chip";

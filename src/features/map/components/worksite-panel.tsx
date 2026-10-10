@@ -3,9 +3,10 @@ import { getFormatter, getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 
 import { Link } from "@/shared/i18n/navigation";
-import { Button, Card, Chip, GlassPanel, IconButton } from "@/shared/ui";
+import { WorksiteJobs } from "@/features/work-items/components";
+import { Button, Card, Chip, GlassPanel, IconButton, WorkStatusChip } from "@/shared/ui";
 
-import { LEVEL_ICON, LEVEL_TONE, WORK_ITEM_STATUS_TONE } from "../attention";
+import { LEVEL_ICON, LEVEL_TONE } from "../attention";
 import type { PublicWorksite } from "../server/public-worksite";
 import { Directions } from "./directions";
 import { FocusWorksite } from "./focus-worksite";
@@ -88,23 +89,26 @@ export async function WorksitePanel({
         </div>
       </header>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="text-subheading font-medium text-ink">{t("work")}</h2>
-        {home.workItems.length > 0 ? (
-          <ul className="flex flex-col gap-2">
-            {home.workItems.map((item, index) => (
-              <li key={index}>
-                <Card inset className="flex-row items-center justify-between gap-3">
-                  <span className="text-body text-ink">{item.workType}</span>
-                  <Chip tone={WORK_ITEM_STATUS_TONE[item.status]}>{tStatus(item.status)}</Chip>
-                </Card>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-body-sm text-ink-soft">{t("noWork")}</p>
-        )}
-      </section>
+      {/* Members see the same jobs with their actions (take, arrive, close); everyone else, this list. */}
+      <WorksiteJobs slug={slug} emergencyId={home.emergencyId} worksiteId={home.id}>
+        <section className="flex flex-col gap-3">
+          <h2 className="text-subheading font-medium text-ink">{t("work")}</h2>
+          {home.workItems.length > 0 ? (
+            <ul className="flex flex-col gap-2">
+              {home.workItems.map((item, index) => (
+                <li key={index}>
+                  <Card inset className="flex-row items-center justify-between gap-3">
+                    <span className="text-body text-ink">{item.workType}</span>
+                    <WorkStatusChip status={item.status}>{tStatus(item.status)}</WorkStatusChip>
+                  </Card>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-body-sm text-ink-soft">{t("noWork")}</p>
+          )}
+        </section>
+      </WorksiteJobs>
 
       {adminTools}
 

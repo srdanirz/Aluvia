@@ -70,6 +70,8 @@ export const emergencySettings = pgTable(
     // A home with open work and no activity for this long shows "to confirm" instead of
     // "unattended" on the map: it may already be clean (ADR 0011).
     staleAfterHours: integer("stale_after_hours").notNull().default(48),
+    // How long a "Voy para allá" reservation holds before the work returns to unclaimed (issue #12).
+    claimHoldMinutes: integer("claim_hold_minutes").notNull().default(120),
   },
   (t) => [
     check(
@@ -77,5 +79,7 @@ export const emergencySettings = pgTable(
       sql`${t.smsDailyCap} >= 0 AND ${t.whatsappDailyCap} >= 0 AND ${t.neighborReserve} >= 0`,
     ),
     check("emergency_settings_stale_after_hours_check", sql`${t.staleAfterHours} > 0`),
+    // A day at most: past that the home reads as taken long after the volunteer is gone.
+    check("emergency_settings_claim_hold_check", sql`${t.claimHoldMinutes} BETWEEN 1 AND 1440`),
   ],
 );

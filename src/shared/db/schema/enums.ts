@@ -18,6 +18,16 @@ export const workItemStatus = pgEnum("work_item_status", [
   "closed_no_help_wanted",
   "closed_duplicate",
 ]);
+// What a work_item_events row records. A status change, or an act that keeps the status (arriving, renewing).
+export const workItemEventKind = pgEnum("work_item_event_kind", [
+  "status_changed",
+  "claimed",
+  "renewed",
+  "arrived",
+  "released",
+  "expired",
+  "verified",
+]);
 export const notificationChannel = pgEnum("notification_channel", ["push", "email", "sms", "whatsapp"]);
 export const notificationLevel = pgEnum("notification_level", [
   "important",
