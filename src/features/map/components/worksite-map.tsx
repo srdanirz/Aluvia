@@ -87,6 +87,9 @@ export function WorksiteMap({
         colorScheme={colorScheme}
         defaultBounds={{ ...withMinimumSpan(bounds ?? WORLD), padding: fitPadding() }}
         gestureHandling="greedy"
+        // The arrow, not Google's open hand: the map reads as a page to tap, not a canvas to grab.
+        draggableCursor="default"
+        draggingCursor="default"
         disableDefaultUI
         clickableIcons={false}
         reuseMaps
