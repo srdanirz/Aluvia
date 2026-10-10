@@ -7,7 +7,8 @@
     "eyebrow": "Emergency aid coordination",
     "title": "Coordinating aid, home by home",
     "lead": "Aluvia shows which homes a disaster affected, what each one needs and where volunteers are needed. It is under construction.",
-    "source": "View the code"
+    "source": "View the code",
+    "pick": "Choose an emergency"
   },
   "theme": {
     "label": "Theme",
@@ -828,5 +829,14 @@
     "signIn": "Sign in to sign up",
     "join": "Join this emergency to sign up",
     "help": "Where to help now"
+  },
+  "emergency": {
+    "nav": {
+      "label": "Emergency",
+      "map": "Map",
+      "report": "Report",
+      "help": "Help",
+      "shifts": "Shifts"
+    }
   }
 }

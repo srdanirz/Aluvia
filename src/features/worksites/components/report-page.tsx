@@ -1,6 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 
+import { Page } from "@/shared/ui";
+
 /**
  * Frame of the report screens: one narrow column, the emergency as eyebrow, one title, and the
  * reminder that Aluvia never asks for money (fake volunteers do, after every flood).
@@ -21,7 +23,7 @@ export async function ReportPage({
 }) {
   const t = await getTranslations("worksites.trust");
   return (
-    <main className="mx-auto flex min-h-dvh max-w-narrow animate-enter flex-col gap-8 px-4 py-8 md:py-16">
+    <Page className="animate-enter">
       {notice}
       <header className="flex flex-col gap-3">
         <p className="text-caption font-medium tracking-label text-ink-muted uppercase">{eyebrow}</p>
@@ -30,6 +32,6 @@ export async function ReportPage({
       </header>
       {children}
       <p className="text-center text-caption text-ink-muted">{t("noMoney")}</p>
-    </main>
+    </Page>
   );
 }

@@ -7,7 +7,8 @@
     "eyebrow": "Coordinación de ayuda en emergencias",
     "title": "Coordinar la ayuda, casa por casa",
     "lead": "Aluvia muestra qué casas están afectadas por un desastre, qué necesita cada una y dónde hace falta gente. Está en construcción.",
-    "source": "Ver el código"
+    "source": "Ver el código",
+    "pick": "Elige una emergencia"
   },
   "theme": {
     "label": "Tema",
@@ -828,5 +829,14 @@
     "signIn": "Entra para inscribirte",
     "join": "Súmate a esta emergencia para inscribirte",
     "help": "Dónde ayudar ahora"
+  },
+  "emergency": {
+    "nav": {
+      "label": "Emergencia",
+      "map": "Mapa",
+      "report": "Reportar",
+      "help": "Ayudar",
+      "shifts": "Turnos"
+    }
   }
 }

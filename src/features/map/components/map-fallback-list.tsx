@@ -89,7 +89,7 @@ export function MapFallbackList({
   );
 
   return (
-    <div className="flex size-full flex-col items-center overflow-y-auto bg-canvas px-4 pt-16 pb-sheet md:ps-panel">
+    <div className="flex size-full flex-col items-center overflow-y-auto bg-canvas px-4 pt-nav-top pb-sheet md:ps-panel">
       <div className="flex w-full max-w-narrow flex-col gap-4 md:ms-8">
         <div role="status" className="flex items-center gap-3">
           <MapPinOff aria-hidden className="size-icon shrink-0 text-ink-muted" strokeWidth={1.5} />

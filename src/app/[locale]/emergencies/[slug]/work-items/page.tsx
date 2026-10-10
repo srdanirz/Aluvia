@@ -13,7 +13,7 @@ import {
 import { helpQuerySchema } from "@/features/work-items/schemas";
 import { loadHelpView } from "@/features/work-items/server";
 import { Link } from "@/shared/i18n/navigation";
-import { Button } from "@/shared/ui";
+import { Button, Page } from "@/shared/ui";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("work.help");
@@ -33,7 +33,7 @@ export default async function WorkItemsPage({
   const listPath = `/emergencies/${slug}/work-items`;
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-narrow animate-enter flex-col gap-8 px-4 py-8 md:py-16">
+    <Page className="animate-enter">
       <header className="flex flex-col gap-3">
         <h1 className="text-heading text-balance text-ink">{t("help.title")}</h1>
         <p className="text-body text-ink-soft">{t("help.lead")}</p>
@@ -76,6 +76,6 @@ export default async function WorkItemsPage({
       <Button variant="ghost" className="self-start" asChild>
         <Link href={`/emergencies/${slug}/shifts`}>{t("help.shifts")}</Link>
       </Button>
-    </main>
+    </Page>
   );
 }

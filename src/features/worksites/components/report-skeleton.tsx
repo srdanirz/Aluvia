@@ -1,9 +1,9 @@
-import { Card, Skeleton } from "@/shared/ui";
+import { Card, Page, Skeleton } from "@/shared/ui";
 
 /** The report screens' loading shape: header, a card, a grid of tiles and the send button. */
 export function ReportSkeleton({ tiles = 6 }: { tiles?: number }) {
   return (
-    <main className="mx-auto flex min-h-dvh max-w-narrow flex-col gap-8 px-4 py-8 md:py-16">
+    <Page>
       <div className="flex flex-col gap-3">
         <Skeleton className="h-4 w-1/3" />
         <Skeleton className="h-10 w-3/4" />
@@ -20,6 +20,6 @@ export function ReportSkeleton({ tiles = 6 }: { tiles?: number }) {
         </div>
       </div>
       <Skeleton shape="pill" className="h-11 w-full" />
-    </main>
+    </Page>
   );
 }

@@ -43,6 +43,18 @@ function ActiveNavList({ items }: { items: FloatingNavItem[] }) {
 
 function NavList({ items, pathname }: { items: FloatingNavItem[]; pathname: string | null }) {
   const { containerRef, indicatorRef } = useSlidingIndicator<HTMLUListElement, HTMLLIElement>(pathname);
+  // The longest matching href wins, so a section nested under another (an emergency's map at
+  // `/emergencies/x` and its shifts at `/emergencies/x/shifts`) lights only the deeper item.
+  const activeHref =
+    pathname === null
+      ? null
+      : items
+          .map(({ href }) => href)
+          .filter((href) => pathname === href || (href !== "/" && pathname.startsWith(`${href}/`)))
+          .reduce<string | null>(
+            (best, href) => (best === null || href.length > best.length ? href : best),
+            null,
+          );
 
   return (
     <ul
@@ -51,8 +63,7 @@ function NavList({ items, pathname }: { items: FloatingNavItem[]; pathname: stri
     >
       <li ref={indicatorRef} aria-hidden className={indicatorClassName} />
       {items.map(({ href, label: itemLabel, icon }) => {
-        const active =
-          pathname !== null && (pathname === href || (href !== "/" && pathname.startsWith(`${href}/`)));
+        const active = href === activeHref;
         return (
           <li key={href}>
             <Link
