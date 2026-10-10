@@ -594,7 +594,7 @@
       "name": "Name",
       "phone": "Phone",
       "notes": "What happened",
-      "logged": "Coordinators only. Your view is logged.",
+      "logged": "Everyone sees the address. Name and phone only if the neighbor chose to publish them; notes and vulnerable people, coordinators only. Your view is logged.",
       "vulnerable": "Vulnerable people",
       "vulnerableYes": "Elderly people, children or people with disabilities live here"
     },
