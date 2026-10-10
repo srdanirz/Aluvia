@@ -84,7 +84,10 @@ El certificado queda `ACTIVE` entre 15 y 60 minutos después de que el dominio r
   ```bash
   gcloud run jobs execute aluvia-task --region southamerica-west1 --wait --args=db:seed
   gcloud run jobs execute aluvia-task --region southamerica-west1 --wait --args=admin:grant,+56912345678
+  gcloud run jobs execute aluvia-task --region southamerica-west1 --wait --args=db:geocode-backfill
   ```
+
+  `db:geocode-backfill` ubica las casas reportadas con dirección y sin punto (ADR 0016) y solo imprime conteos. Usa `GOOGLE_MAPS_SERVER_KEY`, que el job monta desde `terraform apply` con el secreto en `provider_secrets`.
 
   La salida queda en Cloud Logging (`resource.labels.job_name="aluvia-task"`).
 - **Entrar a la base:** Cloud SQL Studio en la consola. No hay contraseñas de base: para una consulta puntual, un script en `scripts/` corrido con `aluvia-task`. La base no tiene IP pública.
