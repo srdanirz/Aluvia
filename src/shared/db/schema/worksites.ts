@@ -78,6 +78,9 @@ export const worksiteContacts = pgTable(
     name: text("name"),
     phone: text("phone"),
     addressText: text("address_text"),
+    // Street and number of address_text, normalized by the SQL function address_key (migration
+    // 0016): a report's typed address finds its official parcel by this, never by fuzzy matching.
+    addressKey: text("address_key").generatedAlwaysAs(sql`address_key(address_text)`),
     notes: text("notes"),
     // Language the neighbor reported in; their notices go out in it (ADR 0007).
     locale: text("locale"),
@@ -90,6 +93,9 @@ export const worksiteContacts = pgTable(
     index("worksite_contacts_phone_idx")
       .on(t.phone)
       .where(sql`${t.notifyChannel} IS NOT NULL`),
+    index("worksite_contacts_address_key_idx")
+      .on(t.addressKey)
+      .where(sql`${t.addressKey} IS NOT NULL`),
     check("worksite_contacts_locale_check", localeTag(t.locale)),
     // A neighbor has no app, so consent is to SMS or WhatsApp, recorded with its time and a phone to reach.
     check(

@@ -16,7 +16,7 @@ export class InvalidWorkType extends Error {}
 
 /**
  * The review flags of a new home, decided by the database in the same INSERT: a point outside
- * the emergency's area (a GPS error, swapped coordinates), a fix less precise than
+ * the emergency's area (a GPS error, swapped coordinates), no point or a fix less precise than
  * PRECISE_LOCATION_METERS, another home of the emergency within DUPLICATE_RADIUS_METERS, or
  * someone in danger. Homes of the same batch do not see each other. An official survey import
  * gets no flags: its parcels are distinct by definition (adjacent ones sit closer than the
@@ -28,7 +28,9 @@ function reviewFlagsFor(emergencyId: string, report: NewWorksite, source: Worksi
   const danger = report.isPersonInDanger ? sql`'person_in_danger'` : sql`NULL`;
   const imprecise =
     (report.locationAccuracyMeters ?? 0) > PRECISE_LOCATION_METERS ? sql`'imprecise_location'` : sql`NULL`;
-  if (!report.location) return sql`array_remove(ARRAY[${danger}]::worksite_review_flag[], NULL)`;
+  // No point at all is the least precise location: a coordinator places the pin.
+  if (!report.location)
+    return sql`array_remove(ARRAY['imprecise_location', ${danger}]::worksite_review_flag[], NULL)`;
 
   const point = sql`ST_SetSRID(ST_MakePoint(${report.location.lng}, ${report.location.lat}), 4326)`;
   return sql`array_remove(ARRAY[

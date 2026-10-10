@@ -8,18 +8,16 @@ import { track } from "@/shared/analytics/client";
 import { useErrorMessage } from "@/shared/i18n/use-error-message";
 import { discardOutboxEntry, enqueue } from "@/shared/offline/outbox";
 import { usePersistedState } from "@/shared/offline/use-persisted-state";
-import { Button, Card, Field, FormError, Spinner, Textarea, ToggleTile } from "@/shared/ui";
+import { Button, Card, Field, FormError, Input, Spinner, Textarea, ToggleTile } from "@/shared/ui";
 
 import { toE164 } from "../phone";
 import type { WorksiteReportInput, WorksiteSource } from "../schemas";
 import type { EmergencyNumber } from "../server/queries";
 import { DangerCard } from "./danger-card";
-import { LocationCard } from "./location-card";
 import { PendingWrites } from "./pending-writes";
 import { EMPTY_DRAFT } from "./report-draft";
 import { ReportDetails } from "./report-details";
 import { ReportDone } from "./report-done";
-import { useCurrentLocation } from "./use-current-location";
 
 type ReportFormProps = {
   slug: string;
@@ -40,15 +38,16 @@ function answeredWorksiteId(response: unknown, fallback: string): string {
 }
 
 /**
- * Report a home in three taps: the GPS is asked for on open, needs are big tiles, send. Every
- * other field is optional and folded away. The draft lives in the phone until it is sent, and a
- * send without signal stays queued in the outbox, so nothing typed is ever lost.
+ * Report a home: the written address first (it is how people get there, and the server places it
+ * on the map), then what happens in their words or by tapping needs. Every other field is optional
+ * and folded away. No GPS: the reporter is often not at the home, and a fix from elsewhere would
+ * put the pin on the wrong block. The draft lives in the phone until it is sent, and a send
+ * without signal stays queued in the outbox, so nothing typed is ever lost.
  */
 export function ReportForm({ slug, workTypes, emergencyNumbers, source }: ReportFormProps) {
   const t = useTranslations("worksites.report");
   const errorMessage = useErrorMessage();
   const locale = useLocale();
-  const { location, retry } = useCurrentLocation();
   const [draft, setDraft, clearDraft] = usePersistedState(`aluvia.report-draft.${slug}`, EMPTY_DRAFT);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [sending, setSending] = useState(false);
@@ -57,12 +56,10 @@ export function ReportForm({ slug, workTypes, emergencyNumbers, source }: Report
 
   const phone = toE164(draft.phone, typeof navigator === "undefined" ? [] : navigator.languages);
   const phoneError = draft.phone.trim() !== "" && phone === null;
-  const hasFix = location.status === "ready" || location.status === "approximate";
-  const point = hasFix ? { lng: location.lng, lat: location.lat } : null;
-  const hasPlace = point !== null || draft.addressText.trim() !== "";
+  const hasAddress = draft.addressText.trim() !== "";
   // Either is enough: a sentence in their own words, or tapping what it needs (DESIGN.md, sin fricción).
   const described = draft.workTypeKeys.length > 0 || draft.notes.trim() !== "";
-  const missing = !described ? "needs" : !hasPlace ? "location" : null;
+  const missing = !hasAddress ? "address" : !described ? "needs" : null;
 
   const toggleNeed = (key: string, pressed: boolean) =>
     setDraft((current) => ({
@@ -80,8 +77,6 @@ export function ReportForm({ slug, workTypes, emergencyNumbers, source }: Report
     const body: WorksiteReportInput = {
       id,
       locale,
-      location: point,
-      locationAccuracyMeters: hasFix ? location.accuracyMeters : null,
       workTypeKeys: draft.workTypeKeys,
       damageLevel: draft.damageLevel,
       hasVulnerablePeople: draft.hasVulnerablePeople,
@@ -111,13 +106,13 @@ export function ReportForm({ slug, workTypes, emergencyNumbers, source }: Report
     }
     track("worksite_reported", {
       source,
-      hasLocation: point !== null,
+      hasNotes: draft.notes.trim() !== "",
       workTypeCount: draft.workTypeKeys.length,
       delivery: result.status,
     });
     clearDraft();
     setDetailsOpen(false);
-    // A report near an official parcel ends on that home, not on its own id; the server says which.
+    // A report naming an official parcel ends on that home, not on its own id; the server says which.
     const worksiteId = result.status === "sent" ? answeredWorksiteId(result.response, id) : id;
     setSent({ worksiteId, delivery: result.status });
   };
@@ -143,6 +138,15 @@ export function ReportForm({ slug, workTypes, emergencyNumbers, source }: Report
     >
       <PendingWrites kind="worksite" />
 
+      <Field id="report-address" label={t("address.label")} hint={t("address.hint")}>
+        <Input
+          required
+          autoComplete="street-address"
+          value={draft.addressText}
+          onChange={(event) => setDraft((current) => ({ ...current, addressText: event.target.value }))}
+        />
+      </Field>
+
       <ToggleTile
         pressed={draft.isPersonInDanger}
         onPressedChange={(isPersonInDanger) => setDraft((current) => ({ ...current, isPersonInDanger }))}
@@ -150,13 +154,6 @@ export function ReportForm({ slug, workTypes, emergencyNumbers, source }: Report
         {t("danger.toggle")}
       </ToggleTile>
       {draft.isPersonInDanger ? <DangerCard numbers={emergencyNumbers} /> : null}
-
-      <LocationCard
-        location={location}
-        onRetry={retry}
-        addressText={draft.addressText}
-        onAddressChange={(addressText) => setDraft((current) => ({ ...current, addressText }))}
-      />
 
       <Field id="report-notes" label={t("story.label")} hint={t("story.hint")}>
         <Textarea
@@ -206,7 +203,6 @@ export function ReportForm({ slug, workTypes, emergencyNumbers, source }: Report
             <ReportDetails
               draft={draft}
               onChange={setDraft}
-              hasLocation={location.status === "ready"}
               phoneError={phoneError}
               phoneIsValid={phone !== null}
             />

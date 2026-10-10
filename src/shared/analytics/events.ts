@@ -11,7 +11,7 @@ import { z } from "zod";
 export const EVENTS = {
   worksite_reported: z.strictObject({
     source: z.enum(["neighbor", "coordinator", "social"]),
-    hasLocation: z.boolean(),
+    hasNotes: z.boolean(),
     workTypeCount: z.number().int().nonnegative(),
     // Queued: saved on the phone without signal, sent when it comes back.
     delivery: z.enum(["sent", "queued"]),

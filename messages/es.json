@@ -98,18 +98,9 @@
   "worksites": {
     "report": {
       "title": "Reportar una casa",
-      "location": {
-        "locating": "Buscando tu ubicación",
-        "ready": "Ubicación lista",
-        "accuracy": "Precisión de {meters} m",
-        "missing": "Sin ubicación",
-        "missingHelp": "Escribe la dirección para que puedan encontrar la casa.",
-        "addressLabel": "Dirección",
-        "addressHint": "Calle y número, como la escribirías en un sobre.",
-        "retry": "Volver a buscar ubicación",
-        "approximate": "Ubicación aproximada",
-        "approximateHelp": "El GPS no está seguro de dónde estás. Escribe también la dirección para que encuentren la casa.",
-        "locatingHelp": "Si tarda, escribe la dirección. El GPS se suma solo cuando responda."
+      "address": {
+        "label": "Dirección",
+        "hint": "Calle y número; es lo que usan para llegar."
       },
       "needs": {
         "title": "O toca lo que necesita",
@@ -119,8 +110,6 @@
         "toggle": "Agregar detalles (opcional)",
         "vulnerable": "Viven personas mayores, niños o con discapacidad",
         "damage": "Daño de la casa",
-        "addressLabel": "Dirección",
-        "addressHint": "Ayuda a llegar si el GPS no es exacto.",
         "nameLabel": "Nombre de contacto",
         "phoneLabel": "Teléfono",
         "phoneHint": "Solo lo ven los coordinadores.",
@@ -136,8 +125,8 @@
       "submit": "Enviar reporte",
       "sending": "Enviando",
       "missing": {
-        "needs": "Escribe qué pasa o toca lo que necesita.",
-        "location": "Falta la ubicación o la dirección."
+        "address": "Falta la dirección.",
+        "needs": "Escribe qué pasa o toca lo que necesita."
       },
       "done": {
         "sentChip": "Recibido",

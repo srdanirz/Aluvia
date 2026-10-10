@@ -14,7 +14,7 @@ Producción de Aluvia en GCP como código (Terraform). Las decisiones y su porqu
 | `github.tf` | Workload Identity Federation y la cuenta `aluvia-deploy` |
 | `monitoring.tf` | Chequeo de disponibilidad, alerta, presupuesto |
 | `scheduler.tf` | Llamadas cada minuto con OIDC: outbox de avisos y reservas vencidas |
-| `maps.tf` | Llave de Google Maps de producción |
+| `maps.tf` | Llaves de Google Maps de producción: la del navegador y la del servidor (solo Geocoding) |
 
 ## Aplicar un cambio
 
@@ -43,7 +43,7 @@ openssl rand -base64 32 | tr -d '\n' | gcloud secrets versions add AUTH_SECRET -
 printf '%s' "$VALOR" | gcloud secrets versions add TWILIO_AUTH_TOKEN --project aluvia-app --data-file=-
 ```
 
-Los secretos de proveedores (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM`, `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `RESEND_API_KEY`, `VAPID_PRIVATE_KEY`, `ANTHROPIC_API_KEY`) los crea Terraform vacíos. Con la versión agregada, el nombre va a `provider_secrets` en `terraform.tfvars` y se aplica: Cloud Run lo recibe como variable de entorno del mismo nombre. El deploy falla si faltan `AUTH_SECRET`, `RATE_LIMIT_SECRET` o los dos de WhatsApp, que es el canal del código de login; Twilio es el respaldo por SMS y se monta cuando tenga versión. Una versión nueva de un secreto existente llega con el próximo deploy.
+Los secretos de proveedores (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM`, `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `RESEND_API_KEY`, `VAPID_PRIVATE_KEY`, `ANTHROPIC_API_KEY`, `GOOGLE_MAPS_SERVER_KEY`) los crea Terraform vacíos. La versión de `GOOGLE_MAPS_SERVER_KEY` sale de Terraform: `terraform output -raw maps_server_key | gcloud secrets versions add GOOGLE_MAPS_SERVER_KEY --project aluvia-app --data-file=-`. Sin ella, un reporte cuya dirección no coincide con un predio oficial queda sin punto, en la cola de revisión. Con la versión agregada, el nombre va a `provider_secrets` en `terraform.tfvars` y se aplica: Cloud Run lo recibe como variable de entorno del mismo nombre. El deploy falla si faltan `AUTH_SECRET`, `RATE_LIMIT_SECRET` o los dos de WhatsApp, que es el canal del código de login; Twilio es el respaldo por SMS y se monta cuando tenga versión. Una versión nueva de un secreto existente llega con el próximo deploy.
 
 ## Variables del repositorio (deploy)
 

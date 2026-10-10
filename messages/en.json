@@ -98,18 +98,9 @@
   "worksites": {
     "report": {
       "title": "Report a home",
-      "location": {
-        "locating": "Finding your location",
-        "ready": "Location ready",
-        "accuracy": "Accurate to {meters} m",
-        "missing": "No location",
-        "missingHelp": "Write the address so people can find the home.",
-        "addressLabel": "Address",
-        "addressHint": "Street and number, as you would write it on an envelope.",
-        "retry": "Find location again",
-        "approximate": "Approximate location",
-        "approximateHelp": "The GPS is not sure where you are. Write the address too so people can find the home.",
-        "locatingHelp": "If it takes long, write the address. The GPS joins in on its own when it answers."
+      "address": {
+        "label": "Address",
+        "hint": "Street and number; it is what people use to get there."
       },
       "needs": {
         "title": "Or tap what it needs",
@@ -119,8 +110,6 @@
         "toggle": "Add details (optional)",
         "vulnerable": "Elderly people, children or people with disabilities live here",
         "damage": "Damage to the home",
-        "addressLabel": "Address",
-        "addressHint": "Helps people get there if the GPS is off.",
         "nameLabel": "Contact name",
         "phoneLabel": "Phone",
         "phoneHint": "Only coordinators see it.",
@@ -136,8 +125,8 @@
       "submit": "Send report",
       "sending": "Sending",
       "missing": {
-        "needs": "Write what happened or tap what it needs.",
-        "location": "The location or the address is missing."
+        "address": "The address is missing.",
+        "needs": "Write what happened or tap what it needs."
       },
       "done": {
         "sentChip": "Received",

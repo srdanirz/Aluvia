@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { count, eq, inArray, sql } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { newWorksiteSchema, worksiteReportSchema } from "@/features/worksites/schemas";
+import { newWorksiteSchema, worksiteDraftSchema, worksiteReportSchema } from "@/features/worksites/schemas";
 import {
   createWorksites,
   findOpenEmergencyId,
@@ -60,18 +60,34 @@ async function homesWithId(ids: string[]) {
 }
 
 describe("report schema", () => {
-  it("needs a point or a written address, and a need or a few words of what happened", () => {
+  it("needs the written address, and a need or a few words of what happened", () => {
     const base = { id: randomUUID(), locale: "es", workTypeKeys: ["mud"] };
-    expect(worksiteReportSchema.safeParse({ ...base, location: null }).success).toBe(false);
+    const missing = worksiteReportSchema.safeParse(base);
+    expect(missing.success).toBe(false);
+    expect(missing.error?.issues.map((issue) => issue.message)).toContain("address_required");
+    expect(worksiteReportSchema.safeParse({ ...base, contact: { addressText: "   " } }).success).toBe(false);
     expect(
-      worksiteReportSchema.safeParse({ ...base, location: null, contact: { addressText: "Calle Falsa 123" } })
+      worksiteReportSchema.safeParse({ ...base, contact: { addressText: "Calle Falsa 123" } }).success,
+    ).toBe(true);
+    const withAddress = { ...base, workTypeKeys: [], contact: { addressText: "Calle Falsa 123" } };
+    expect(worksiteReportSchema.safeParse(withAddress).success).toBe(false);
+    const described = { ...withAddress, contact: { addressText: "Calle Falsa 123", notes: "Entró barro" } };
+    expect(worksiteReportSchema.safeParse(described).success).toBe(true);
+  });
+
+  it("still takes a report queued offline by the GPS form, with a point and no address", () => {
+    const queued = { id: randomUUID(), locale: "es", location: ORIGIN, workTypeKeys: ["mud"] };
+    expect(worksiteReportSchema.safeParse(queued).success).toBe(true);
+  });
+
+  it("keeps the batch import's drafts: a pin or an address", () => {
+    const draft = { id: randomUUID(), locale: "es", workTypeKeys: ["mud"] };
+    expect(worksiteDraftSchema.safeParse({ ...draft, location: null }).success).toBe(false);
+    expect(worksiteDraftSchema.safeParse({ ...draft, location: ORIGIN }).success).toBe(true);
+    expect(
+      worksiteDraftSchema.safeParse({ ...draft, location: null, contact: { addressText: "Calle Falsa 1" } })
         .success,
     ).toBe(true);
-    expect(worksiteReportSchema.safeParse({ ...base, location: ORIGIN, workTypeKeys: [] }).success).toBe(
-      false,
-    );
-    const described = { ...base, location: ORIGIN, workTypeKeys: [], contact: { notes: "Entró barro" } };
-    expect(worksiteReportSchema.safeParse(described).success).toBe(true);
   });
 
   it("rejects consent without a phone", () => {
@@ -345,7 +361,7 @@ describe("review flags and hazards", () => {
     expect(await flagsOf(inside.id)).toEqual([]);
     expect(await flagsOf(outside.id)).toEqual(["outside_area"]);
     expect(await flagsOf(twin.id)).toEqual(["possible_duplicate", "person_in_danger"]);
-    expect(await flagsOf(noPoint.id)).toEqual([]);
+    expect(await flagsOf(noPoint.id)).toEqual(["imprecise_location"]);
     expect(await flagsOf(coarse.id)).toEqual(["imprecise_location"]);
 
     expect(
