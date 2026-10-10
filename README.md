@@ -32,7 +32,7 @@ pnpm db:studio    # base de datos en https://local.drizzle.studio/?port=3003
 | Drizzle Studio | 3003 |
 | Postgres + PostGIS | 5440 |
 
-`pnpm check` corre todo lo que corre el CI: tipos, lint, formato, tests y build. Catálogo del design system: http://localhost:3002/es/dev/ui
+`pnpm check` revisa tipos, lint y formato en local. Los tests y el build corren en el CI con cada push, porque cada corrida de tests levanta su propio Postgres. Catálogo del design system: http://localhost:3002/es/dev/ui
 
 ## Cómo trabajamos
 

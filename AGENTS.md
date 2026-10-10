@@ -9,10 +9,12 @@ pnpm dev          # app on http://localhost:3002 (fixed port)
 pnpm db:up        # Postgres + PostGIS on 5440 (docker compose)
 pnpm db:generate  # migration from schema changes; db:migrate applies it
 pnpm db:studio    # Drizzle Studio on 3003
-pnpm check        # typecheck, lint, format, test, build: what CI runs
+pnpm check        # typecheck, lint, format: the fast local gate
 ```
 
 Keep `pnpm dev` and `pnpm db:studio` running on those ports while working, so the maintainers can browse the result.
+
+Tests and the production build run in CI on every push, not locally: each test run starts its own PostGIS container, and several worktrees doing it at once exhaust the machine. Push and read the `check` job (`gh pr checks`). Locally, run only the single test file you are debugging (`pnpm test tests/x.test.ts`); it still starts a PostGIS container, so one at a time.
 
 ## Before writing code
 
