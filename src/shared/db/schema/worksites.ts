@@ -52,10 +52,13 @@ export const worksites = pgTable(
     index("worksites_emergency_id_unclaimed_since_idx")
       .on(t.emergencyId, t.unclaimedSince)
       .where(sql`${t.unclaimedSince} IS NOT NULL`),
-    // The coordinators' review queue reads only flagged homes.
+    // The coordinators' review queue: homes without a pin, with a review flag or with hazards
+    // nobody reviewed. Same predicate as listWorksitesToReview, so the queue is an index scan.
     index("worksites_emergency_id_review_idx")
-      .on(t.emergencyId, t.createdAt)
-      .where(sql`cardinality(${t.reviewFlags}) > 0`),
+      .on(t.emergencyId, t.createdAt, t.id)
+      .where(
+        sql`${t.location} IS NULL OR cardinality(${t.reviewFlags}) > 0 OR (cardinality(${t.hazards}) > 0 AND ${t.hazardsReviewedAt} IS NULL)`,
+      ),
     check(
       "worksites_hazards_reviewed_check",
       sql`${t.hazardsReviewedBy} IS NULL OR ${t.hazardsReviewedAt} IS NOT NULL`,

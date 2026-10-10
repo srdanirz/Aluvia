@@ -1,0 +1,2 @@
+DROP INDEX "worksites_emergency_id_review_idx";--> statement-breakpoint
+CREATE INDEX "worksites_emergency_id_review_idx" ON "worksites" USING btree ("emergency_id","created_at","id") WHERE "worksites"."location" IS NULL OR cardinality("worksites"."review_flags") > 0 OR (cardinality("worksites"."hazards") > 0 AND "worksites"."hazards_reviewed_at" IS NULL);

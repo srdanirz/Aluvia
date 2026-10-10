@@ -1,0 +1,3749 @@
+{
+  "id": "dfaf5036-e756-476d-bcbf-2caa1a58168e",
+  "prevId": "9519f0bd-bdaa-4e0b-b767-12b8d9950930",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.admin_events": {
+      "name": "admin_events",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "actor_id": {
+          "name": "actor_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "action": {
+          "name": "action",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "target_type": {
+          "name": "target_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "target_id": {
+          "name": "target_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "emergency_id": {
+          "name": "emergency_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "payload": {
+          "name": "payload",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "admin_events_emergency_id_idx": {
+          "name": "admin_events_emergency_id_idx",
+          "columns": [
+            {
+              "expression": "emergency_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "admin_events_actor_id_users_id_fk": {
+          "name": "admin_events_actor_id_users_id_fk",
+          "tableFrom": "admin_events",
+          "tableTo": "users",
+          "columnsFrom": [
+            "actor_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "admin_events_emergency_id_emergencies_id_fk": {
+          "name": "admin_events_emergency_id_emergencies_id_fk",
+          "tableFrom": "admin_events",
+          "tableTo": "emergencies",
+          "columnsFrom": [
+            "emergency_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.contact_views": {
+      "name": "contact_views",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "emergency_id": {
+          "name": "emergency_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "worksite_id": {
+          "name": "worksite_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "viewed_at": {
+          "name": "viewed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "contact_views_worksite_id_idx": {
+          "name": "contact_views_worksite_id_idx",
+          "columns": [
+            {
+              "expression": "worksite_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "contact_views_emergency_id_idx": {
+          "name": "contact_views_emergency_id_idx",
+          "columns": [
+            {
+              "expression": "emergency_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "contact_views_emergency_id_emergencies_id_fk": {
+          "name": "contact_views_emergency_id_emergencies_id_fk",
+          "tableFrom": "contact_views",
+          "tableTo": "emergencies",
+          "columnsFrom": [
+            "emergency_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "contact_views_user_id_users_id_fk": {
+          "name": "contact_views_user_id_users_id_fk",
+          "tableFrom": "contact_views",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "contact_views_worksite_fk": {
+          "name": "contact_views_worksite_fk",
+          "tableFrom": "contact_views",
+          "tableTo": "worksites",
+          "columnsFrom": [
+            "worksite_id",
+            "emergency_id"
+          ],
+          "columnsTo": [
+            "id",
+            "emergency_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.login_codes": {
+      "name": "login_codes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "phone_hash": {
+          "name": "phone_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "code_hash": {
+          "name": "code_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "attempts": {
+          "name": "attempts",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "consumed_at": {
+          "name": "consumed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "login_codes_phone_hash_created_at_idx": {
+          "name": "login_codes_phone_hash_created_at_idx",
+          "columns": [
+            {
+              "expression": "phone_hash",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "login_codes_expires_at_idx": {
+          "name": "login_codes_expires_at_idx",
+          "columns": [
+            {
+              "expression": "expires_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "login_codes_attempts_check": {
+          "name": "login_codes_attempts_check",
+          "value": "\"login_codes\".\"attempts\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.sessions": {
+      "name": "sessions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "sessions_user_id_idx": {
+          "name": "sessions_user_id_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "sessions_expires_at_idx": {
+          "name": "sessions_expires_at_idx",
+          "columns": [
+            {
+              "expression": "expires_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "sessions_user_id_users_id_fk": {
+          "name": "sessions_user_id_users_id_fk",
+          "tableFrom": "sessions",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.disaster_type_supply_types": {
+      "name": "disaster_type_supply_types",
+      "schema": "",
+      "columns": {
+        "disaster_type_key": {
+          "name": "disaster_type_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "disaster_type_supply_types_disaster_type_fk": {
+          "name": "disaster_type_supply_types_disaster_type_fk",
+          "tableFrom": "disaster_type_supply_types",
+          "tableTo": "disaster_types",
+          "columnsFrom": [
+            "disaster_type_key"
+          ],
+          "columnsTo": [
+            "key"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "disaster_type_supply_types_disaster_type_key_key_pk": {
+          "name": "disaster_type_supply_types_disaster_type_key_key_pk",
+          "columns": [
+            "disaster_type_key",
+            "key"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "disaster_type_supply_types_key_check": {
+          "name": "disaster_type_supply_types_key_check",
+          "value": "\"disaster_type_supply_types\".\"key\" ~ '^[a-z][a-z0-9_]{1,39}$'"
+        },
+        "disaster_type_supply_types_sort_order_check": {
+          "name": "disaster_type_supply_types_sort_order_check",
+          "value": "\"disaster_type_supply_types\".\"sort_order\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.disaster_type_work_types": {
+      "name": "disaster_type_work_types",
+      "schema": "",
+      "columns": {
+        "disaster_type_key": {
+          "name": "disaster_type_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "disaster_type_work_types_disaster_type_fk": {
+          "name": "disaster_type_work_types_disaster_type_fk",
+          "tableFrom": "disaster_type_work_types",
+          "tableTo": "disaster_types",
+          "columnsFrom": [
+            "disaster_type_key"
+          ],
+          "columnsTo": [
+            "key"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "disaster_type_work_types_disaster_type_key_key_pk": {
+          "name": "disaster_type_work_types_disaster_type_key_key_pk",
+          "columns": [
+            "disaster_type_key",
+            "key"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "disaster_type_work_types_key_check": {
+          "name": "disaster_type_work_types_key_check",
+          "value": "\"disaster_type_work_types\".\"key\" ~ '^[a-z][a-z0-9_]{1,39}$'"
+        },
+        "disaster_type_work_types_sort_order_check": {
+          "name": "disaster_type_work_types_sort_order_check",
+          "value": "\"disaster_type_work_types\".\"sort_order\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.disaster_types": {
+      "name": "disaster_types",
+      "schema": "",
+      "columns": {
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "version": {
+          "name": "version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "disaster_types_key_check": {
+          "name": "disaster_types_key_check",
+          "value": "\"disaster_types\".\"key\" ~ '^[a-z][a-z0-9_]{1,39}$'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.emergencies": {
+      "name": "emergencies",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "disaster_type_key": {
+          "name": "disaster_type_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "default_locale": {
+          "name": "default_locale",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "time_zone": {
+          "name": "time_zone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "comunas": {
+          "name": "comunas",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::text[]"
+        },
+        "area": {
+          "name": "area",
+          "type": "geometry(MultiPolygon, 4326)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "emergency_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'open'"
+        },
+        "started_at": {
+          "name": "started_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "closed_at": {
+          "name": "closed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "personal_data_delete_after": {
+          "name": "personal_data_delete_after",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "version": {
+          "name": "version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        }
+      },
+      "indexes": {
+        "emergencies_area_idx": {
+          "name": "emergencies_area_idx",
+          "columns": [
+            {
+              "expression": "area",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "gist",
+          "with": {}
+        },
+        "emergencies_created_at_id_idx": {
+          "name": "emergencies_created_at_id_idx",
+          "columns": [
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "emergencies_disaster_type_key_disaster_types_key_fk": {
+          "name": "emergencies_disaster_type_key_disaster_types_key_fk",
+          "tableFrom": "emergencies",
+          "tableTo": "disaster_types",
+          "columnsFrom": [
+            "disaster_type_key"
+          ],
+          "columnsTo": [
+            "key"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "emergencies_slug_unique": {
+          "name": "emergencies_slug_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "slug"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "emergencies_default_locale_check": {
+          "name": "emergencies_default_locale_check",
+          "value": "\"emergencies\".\"default_locale\" ~ '^[a-z]{2,3}(-[A-Z]{2})?$'"
+        },
+        "emergencies_slug_check": {
+          "name": "emergencies_slug_check",
+          "value": "\"emergencies\".\"slug\" ~ '^[a-z0-9]+(-[a-z0-9]+)*$' AND length(\"emergencies\".\"slug\") <= 60"
+        },
+        "emergencies_name_check": {
+          "name": "emergencies_name_check",
+          "value": "jsonb_typeof(\"emergencies\".\"name\") = 'object' AND \"emergencies\".\"name\" ? \"emergencies\".\"default_locale\""
+        },
+        "emergencies_closed_check": {
+          "name": "emergencies_closed_check",
+          "value": "(\"emergencies\".\"status\" = 'closed') = (\"emergencies\".\"closed_at\" IS NOT NULL)"
+        },
+        "emergencies_area_check": {
+          "name": "emergencies_area_check",
+          "value": "\"emergencies\".\"area\" IS NULL OR ST_IsValid(\"emergencies\".\"area\")"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.emergency_settings": {
+      "name": "emergency_settings",
+      "schema": "",
+      "columns": {
+        "emergency_id": {
+          "name": "emergency_id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "sms_daily_cap": {
+          "name": "sms_daily_cap",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "whatsapp_daily_cap": {
+          "name": "whatsapp_daily_cap",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "neighbor_reserve": {
+          "name": "neighbor_reserve",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "official_contact": {
+          "name": "official_contact",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "official_survey_name": {
+          "name": "official_survey_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "emergency_numbers": {
+          "name": "emergency_numbers",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
+        "version": {
+          "name": "version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "stale_after_hours": {
+          "name": "stale_after_hours",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 48
+        },
+        "claim_hold_minutes": {
+          "name": "claim_hold_minutes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 120
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "emergency_settings_emergency_id_emergencies_id_fk": {
+          "name": "emergency_settings_emergency_id_emergencies_id_fk",
+          "tableFrom": "emergency_settings",
+          "tableTo": "emergencies",
+          "columnsFrom": [
+            "emergency_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "emergency_settings_caps_check": {
+          "name": "emergency_settings_caps_check",
+          "value": "\"emergency_settings\".\"sms_daily_cap\" >= 0 AND \"emergency_settings\".\"whatsapp_daily_cap\" >= 0 AND \"emergency_settings\".\"neighbor_reserve\" >= 0"
+        },
+        "emergency_settings_stale_after_hours_check": {
+          "name": "emergency_settings_stale_after_hours_check",
+          "value": "\"emergency_settings\".\"stale_after_hours\" > 0"
+        },
+        "emergency_settings_claim_hold_check": {
+          "name": "emergency_settings_claim_hold_check",
+          "value": "\"emergency_settings\".\"claim_hold_minutes\" BETWEEN 1 AND 1440"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.emergency_members": {
+      "name": "emergency_members",
+      "schema": "",
+      "columns": {
+        "emergency_id": {
+          "name": "emergency_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "member_role",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'volunteer'"
+        },
+        "requested_role": {
+          "name": "requested_role",
+          "type": "member_role",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "approved_at": {
+          "name": "approved_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "approved_by": {
+          "name": "approved_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "emergency_members_user_id_idx": {
+          "name": "emergency_members_user_id_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "emergency_members_elevated_idx": {
+          "name": "emergency_members_elevated_idx",
+          "columns": [
+            {
+              "expression": "emergency_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "approved_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"emergency_members\".\"role\" <> 'volunteer'",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "emergency_members_pending_idx": {
+          "name": "emergency_members_pending_idx",
+          "columns": [
+            {
+              "expression": "emergency_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"emergency_members\".\"requested_role\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "emergency_members_emergency_id_emergencies_id_fk": {
+          "name": "emergency_members_emergency_id_emergencies_id_fk",
+          "tableFrom": "emergency_members",
+          "tableTo": "emergencies",
+          "columnsFrom": [
+            "emergency_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "emergency_members_user_id_users_id_fk": {
+          "name": "emergency_members_user_id_users_id_fk",
+          "tableFrom": "emergency_members",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "emergency_members_approved_by_users_id_fk": {
+          "name": "emergency_members_approved_by_users_id_fk",
+          "tableFrom": "emergency_members",
+          "tableTo": "users",
+          "columnsFrom": [
+            "approved_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "emergency_members_emergency_id_user_id_pk": {
+          "name": "emergency_members_emergency_id_user_id_pk",
+          "columns": [
+            "emergency_id",
+            "user_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "emergency_members_approver_check": {
+          "name": "emergency_members_approver_check",
+          "value": "\"emergency_members\".\"approved_by\" <> \"emergency_members\".\"user_id\""
+        },
+        "emergency_members_elevated_check": {
+          "name": "emergency_members_elevated_check",
+          "value": "\"emergency_members\".\"role\" = 'volunteer' OR \"emergency_members\".\"approved_at\" IS NOT NULL"
+        },
+        "emergency_members_requested_role_check": {
+          "name": "emergency_members_requested_role_check",
+          "value": "\"emergency_members\".\"requested_role\" IS NULL OR (\"emergency_members\".\"requested_role\" <> 'volunteer' AND \"emergency_members\".\"requested_role\" <> \"emergency_members\".\"role\")"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.emergency_notices": {
+      "name": "emergency_notices",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "emergency_id": {
+          "name": "emergency_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "message": {
+          "name": "message",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "published_by": {
+          "name": "published_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "published_at": {
+          "name": "published_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "withdrawn_at": {
+          "name": "withdrawn_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "emergency_notices_active_idx": {
+          "name": "emergency_notices_active_idx",
+          "columns": [
+            {
+              "expression": "emergency_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"emergency_notices\".\"withdrawn_at\" IS NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "emergency_notices_emergency_id_idx": {
+          "name": "emergency_notices_emergency_id_idx",
+          "columns": [
+            {
+              "expression": "emergency_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "emergency_notices_emergency_id_emergencies_id_fk": {
+          "name": "emergency_notices_emergency_id_emergencies_id_fk",
+          "tableFrom": "emergency_notices",
+          "tableTo": "emergencies",
+          "columnsFrom": [
+            "emergency_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "emergency_notices_published_by_users_id_fk": {
+          "name": "emergency_notices_published_by_users_id_fk",
+          "tableFrom": "emergency_notices",
+          "tableTo": "users",
+          "columnsFrom": [
+            "published_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "emergency_notices_message_check": {
+          "name": "emergency_notices_message_check",
+          "value": "jsonb_typeof(\"emergency_notices\".\"message\") = 'object' AND \"emergency_notices\".\"message\" <> '{}'::jsonb"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.invitation_worksites": {
+      "name": "invitation_worksites",
+      "schema": "",
+      "columns": {
+        "invitation_id": {
+          "name": "invitation_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "emergency_id": {
+          "name": "emergency_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "worksite_id": {
+          "name": "worksite_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "invitation_worksites_worksite_id_idx": {
+          "name": "invitation_worksites_worksite_id_idx",
+          "columns": [
+            {
+              "expression": "worksite_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "invitation_worksites_invitation_fk": {
+          "name": "invitation_worksites_invitation_fk",
+          "tableFrom": "invitation_worksites",
+          "tableTo": "invitations",
+          "columnsFrom": [
+            "invitation_id",
+            "emergency_id"
+          ],
+          "columnsTo": [
+            "id",
+            "emergency_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "invitation_worksites_worksite_fk": {
+          "name": "invitation_worksites_worksite_fk",
+          "tableFrom": "invitation_worksites",
+          "tableTo": "worksites",
+          "columnsFrom": [
+            "worksite_id",
+            "emergency_id"
+          ],
+          "columnsTo": [
+            "id",
+            "emergency_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "invitation_worksites_invitation_id_worksite_id_pk": {
+          "name": "invitation_worksites_invitation_id_worksite_id_pk",
+          "columns": [
+            "invitation_id",
+            "worksite_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.invitations": {
+      "name": "invitations",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "emergency_id": {
+          "name": "emergency_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "token_hash": {
+          "name": "token_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "member_role",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "max_uses": {
+          "name": "max_uses",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "uses": {
+          "name": "uses",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "revoked_at": {
+          "name": "revoked_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "revoked_by": {
+          "name": "revoked_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "invitations_emergency_id_created_at_idx": {
+          "name": "invitations_emergency_id_created_at_idx",
+          "columns": [
+            {
+              "expression": "emergency_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "invitations_emergency_id_emergencies_id_fk": {
+          "name": "invitations_emergency_id_emergencies_id_fk",
+          "tableFrom": "invitations",
+          "tableTo": "emergencies",
+          "columnsFrom": [
+            "emergency_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "invitations_created_by_users_id_fk": {
+          "name": "invitations_created_by_users_id_fk",
+          "tableFrom": "invitations",
+          "tableTo": "users",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "invitations_revoked_by_users_id_fk": {
+          "name": "invitations_revoked_by_users_id_fk",
+          "tableFrom": "invitations",
+          "tableTo": "users",
+          "columnsFrom": [
+            "revoked_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "invitations_token_hash_unique": {
+          "name": "invitations_token_hash_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "token_hash"
+          ]
+        },
+        "invitations_id_emergency_id_key": {
+          "name": "invitations_id_emergency_id_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id",
+            "emergency_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "invitations_expiry_check": {
+          "name": "invitations_expiry_check",
+          "value": "\"invitations\".\"expires_at\" > \"invitations\".\"created_at\""
+        },
+        "invitations_uses_check": {
+          "name": "invitations_uses_check",
+          "value": "\"invitations\".\"uses\" >= 0 AND (\"invitations\".\"max_uses\" IS NULL OR (\"invitations\".\"max_uses\" > 0 AND \"invitations\".\"uses\" <= \"invitations\".\"max_uses\"))"
+        },
+        "invitations_elevated_check": {
+          "name": "invitations_elevated_check",
+          "value": "\"invitations\".\"role\" = 'volunteer' OR \"invitations\".\"max_uses\" IS NOT NULL"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.notification_daily_usage": {
+      "name": "notification_daily_usage",
+      "schema": "",
+      "columns": {
+        "emergency_id": {
+          "name": "emergency_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "channel": {
+          "name": "channel",
+          "type": "notification_channel",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "day": {
+          "name": "day",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_count": {
+          "name": "user_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "neighbor_count": {
+          "name": "neighbor_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "notification_daily_usage_emergency_id_emergencies_id_fk": {
+          "name": "notification_daily_usage_emergency_id_emergencies_id_fk",
+          "tableFrom": "notification_daily_usage",
+          "tableTo": "emergencies",
+          "columnsFrom": [
+            "emergency_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "notification_daily_usage_emergency_id_channel_day_pk": {
+          "name": "notification_daily_usage_emergency_id_channel_day_pk",
+          "columns": [
+            "emergency_id",
+            "channel",
+            "day"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "notification_daily_usage_counts_check": {
+          "name": "notification_daily_usage_counts_check",
+          "value": "\"notification_daily_usage\".\"user_count\" >= 0 AND \"notification_daily_usage\".\"neighbor_count\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.notification_delivery_reports": {
+      "name": "notification_delivery_reports",
+      "schema": "",
+      "columns": {
+        "provider_message_id": {
+          "name": "provider_message_id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "channel": {
+          "name": "channel",
+          "type": "notification_channel",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "code": {
+          "name": "code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reported_at": {
+          "name": "reported_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.notification_preferences": {
+      "name": "notification_preferences",
+      "schema": "",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "channels": {
+          "name": "channels",
+          "type": "notification_channel[]",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{push}'::notification_channel[]"
+        },
+        "quiet_hours": {
+          "name": "quiet_hours",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "notification_preferences_user_id_users_id_fk": {
+          "name": "notification_preferences_user_id_users_id_fk",
+          "tableFrom": "notification_preferences",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.notifications": {
+      "name": "notifications",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "emergency_id": {
+          "name": "emergency_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "event_key": {
+          "name": "event_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "worksite_id": {
+          "name": "worksite_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "channel": {
+          "name": "channel",
+          "type": "notification_channel",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "level": {
+          "name": "level",
+          "type": "notification_level",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "payload": {
+          "name": "payload",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        },
+        "not_before": {
+          "name": "not_before",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "claimed_at": {
+          "name": "claimed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "attempts": {
+          "name": "attempts",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "sent_at": {
+          "name": "sent_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cancelled_at": {
+          "name": "cancelled_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "provider_message_id": {
+          "name": "provider_message_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "failed_at": {
+          "name": "failed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "failure_code": {
+          "name": "failure_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "read_at": {
+          "name": "read_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "notifications_emergency_id_idx": {
+          "name": "notifications_emergency_id_idx",
+          "columns": [
+            {
+              "expression": "emergency_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "notifications_user_id_idx": {
+          "name": "notifications_user_id_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "notifications_worksite_id_idx": {
+          "name": "notifications_worksite_id_idx",
+          "columns": [
+            {
+              "expression": "worksite_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "notifications_pending_idx": {
+          "name": "notifications_pending_idx",
+          "columns": [
+            {
+              "expression": "not_before",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"notifications\".\"sent_at\" IS NULL AND \"notifications\".\"failed_at\" IS NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "notifications_provider_message_id_idx": {
+          "name": "notifications_provider_message_id_idx",
+          "columns": [
+            {
+              "expression": "provider_message_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"notifications\".\"provider_message_id\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "notifications_emergency_id_failed_at_idx": {
+          "name": "notifications_emergency_id_failed_at_idx",
+          "columns": [
+            {
+              "expression": "emergency_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "failed_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"notifications\".\"worksite_id\" IS NOT NULL AND \"notifications\".\"failed_at\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "notifications_emergency_id_emergencies_id_fk": {
+          "name": "notifications_emergency_id_emergencies_id_fk",
+          "tableFrom": "notifications",
+          "tableTo": "emergencies",
+          "columnsFrom": [
+            "emergency_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "notifications_user_id_users_id_fk": {
+          "name": "notifications_user_id_users_id_fk",
+          "tableFrom": "notifications",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "notifications_worksite_fk": {
+          "name": "notifications_worksite_fk",
+          "tableFrom": "notifications",
+          "tableTo": "worksites",
+          "columnsFrom": [
+            "worksite_id",
+            "emergency_id"
+          ],
+          "columnsTo": [
+            "id",
+            "emergency_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "notifications_event_recipient_channel_key": {
+          "name": "notifications_event_recipient_channel_key",
+          "nullsNotDistinct": true,
+          "columns": [
+            "event_key",
+            "user_id",
+            "worksite_id",
+            "channel"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "notifications_one_recipient_check": {
+          "name": "notifications_one_recipient_check",
+          "value": "(\"notifications\".\"user_id\" IS NULL) <> (\"notifications\".\"worksite_id\" IS NULL)"
+        },
+        "notifications_failure_check": {
+          "name": "notifications_failure_check",
+          "value": "(\"notifications\".\"failed_at\" IS NULL) = (\"notifications\".\"failure_code\" IS NULL)"
+        },
+        "notifications_terminal_check": {
+          "name": "notifications_terminal_check",
+          "value": "\"notifications\".\"sent_at\" IS NULL OR \"notifications\".\"failed_at\" IS NULL"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.push_subscriptions": {
+      "name": "push_subscriptions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "endpoint": {
+          "name": "endpoint",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "keys": {
+          "name": "keys",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "push_subscriptions_user_id_users_id_fk": {
+          "name": "push_subscriptions_user_id_users_id_fk",
+          "tableFrom": "push_subscriptions",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "push_subscriptions_endpoint_unique": {
+          "name": "push_subscriptions_endpoint_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "endpoint"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.rate_limits": {
+      "name": "rate_limits",
+      "schema": "",
+      "columns": {
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "window_started_at": {
+          "name": "window_started_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hits": {
+          "name": "hits",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "rate_limits_window_started_at_idx": {
+          "name": "rate_limits_window_started_at_idx",
+          "columns": [
+            {
+              "expression": "window_started_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.shift_signups": {
+      "name": "shift_signups",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "shift_id": {
+          "name": "shift_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "cancelled_at": {
+          "name": "cancelled_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "shift_signups_active_idx": {
+          "name": "shift_signups_active_idx",
+          "columns": [
+            {
+              "expression": "shift_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"shift_signups\".\"cancelled_at\" IS NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "shift_signups_shift_id_idx": {
+          "name": "shift_signups_shift_id_idx",
+          "columns": [
+            {
+              "expression": "shift_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "shift_signups_user_id_idx": {
+          "name": "shift_signups_user_id_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "shift_signups_shift_id_shifts_id_fk": {
+          "name": "shift_signups_shift_id_shifts_id_fk",
+          "tableFrom": "shift_signups",
+          "tableTo": "shifts",
+          "columnsFrom": [
+            "shift_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "shift_signups_user_id_users_id_fk": {
+          "name": "shift_signups_user_id_users_id_fk",
+          "tableFrom": "shift_signups",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.shifts": {
+      "name": "shifts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "emergency_id": {
+          "name": "emergency_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "work_type_key": {
+          "name": "work_type_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "meeting_point": {
+          "name": "meeting_point",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "location": {
+          "name": "location",
+          "type": "geometry(Point, 4326)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "starts_at": {
+          "name": "starts_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ends_at": {
+          "name": "ends_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "capacity": {
+          "name": "capacity",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "filled": {
+          "name": "filled",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "version": {
+          "name": "version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "shifts_emergency_id_starts_at_idx": {
+          "name": "shifts_emergency_id_starts_at_idx",
+          "columns": [
+            {
+              "expression": "emergency_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "starts_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "shifts_emergency_id_emergencies_id_fk": {
+          "name": "shifts_emergency_id_emergencies_id_fk",
+          "tableFrom": "shifts",
+          "tableTo": "emergencies",
+          "columnsFrom": [
+            "emergency_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "shifts_work_type_fk": {
+          "name": "shifts_work_type_fk",
+          "tableFrom": "shifts",
+          "tableTo": "work_types",
+          "columnsFrom": [
+            "emergency_id",
+            "work_type_key"
+          ],
+          "columnsTo": [
+            "emergency_id",
+            "key"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "shifts_filled_check": {
+          "name": "shifts_filled_check",
+          "value": "\"shifts\".\"filled\" >= 0 AND \"shifts\".\"filled\" <= \"shifts\".\"capacity\""
+        },
+        "shifts_time_check": {
+          "name": "shifts_time_check",
+          "value": "\"shifts\".\"ends_at\" > \"shifts\".\"starts_at\""
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.supply_types": {
+      "name": "supply_types",
+      "schema": "",
+      "columns": {
+        "emergency_id": {
+          "name": "emergency_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "supply_types_emergency_id_emergencies_id_fk": {
+          "name": "supply_types_emergency_id_emergencies_id_fk",
+          "tableFrom": "supply_types",
+          "tableTo": "emergencies",
+          "columnsFrom": [
+            "emergency_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "supply_types_emergency_id_key_pk": {
+          "name": "supply_types_emergency_id_key_pk",
+          "columns": [
+            "emergency_id",
+            "key"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "supply_types_key_check": {
+          "name": "supply_types_key_check",
+          "value": "\"supply_types\".\"key\" ~ '^[a-z][a-z0-9_]{1,39}$'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "phone": {
+          "name": "phone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "locale": {
+          "name": "locale",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "platform_role": {
+          "name": "platform_role",
+          "type": "platform_role",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "users_email_idx": {
+          "name": "users_email_idx",
+          "columns": [
+            {
+              "expression": "lower(\"email\")",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "users_phone_idx": {
+          "name": "users_phone_idx",
+          "columns": [
+            {
+              "expression": "phone",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "users_phone_check": {
+          "name": "users_phone_check",
+          "value": "\"users\".\"phone\" ~ '^\\+[1-9][0-9]{7,14}$'"
+        },
+        "users_locale_check": {
+          "name": "users_locale_check",
+          "value": "\"users\".\"locale\" ~ '^[a-z]{2,3}(-[A-Z]{2})?$'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.work_item_events": {
+      "name": "work_item_events",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "work_item_id": {
+          "name": "work_item_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "emergency_id": {
+          "name": "emergency_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "work_item_event_kind",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'status_changed'"
+        },
+        "from_status": {
+          "name": "from_status",
+          "type": "work_item_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "to_status": {
+          "name": "to_status",
+          "type": "work_item_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "actor_id": {
+          "name": "actor_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "work_item_events_work_item_id_idx": {
+          "name": "work_item_events_work_item_id_idx",
+          "columns": [
+            {
+              "expression": "work_item_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "work_item_events_emergency_id_emergencies_id_fk": {
+          "name": "work_item_events_emergency_id_emergencies_id_fk",
+          "tableFrom": "work_item_events",
+          "tableTo": "emergencies",
+          "columnsFrom": [
+            "emergency_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "work_item_events_actor_id_users_id_fk": {
+          "name": "work_item_events_actor_id_users_id_fk",
+          "tableFrom": "work_item_events",
+          "tableTo": "users",
+          "columnsFrom": [
+            "actor_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "work_item_events_work_item_fk": {
+          "name": "work_item_events_work_item_fk",
+          "tableFrom": "work_item_events",
+          "tableTo": "work_items",
+          "columnsFrom": [
+            "work_item_id",
+            "emergency_id"
+          ],
+          "columnsTo": [
+            "id",
+            "emergency_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.work_items": {
+      "name": "work_items",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "emergency_id": {
+          "name": "emergency_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "worksite_id": {
+          "name": "worksite_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "work_type_key": {
+          "name": "work_type_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "work_item_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'open_unclaimed'"
+        },
+        "claimed_by": {
+          "name": "claimed_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "claimed_at": {
+          "name": "claimed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "claim_expires_at": {
+          "name": "claim_expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "arrived_at": {
+          "name": "arrived_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "verified_at": {
+          "name": "verified_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "verified_by": {
+          "name": "verified_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "version": {
+          "name": "version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "work_items_emergency_id_status_idx": {
+          "name": "work_items_emergency_id_status_idx",
+          "columns": [
+            {
+              "expression": "emergency_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "work_items_worksite_id_idx": {
+          "name": "work_items_worksite_id_idx",
+          "columns": [
+            {
+              "expression": "worksite_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "work_items_claimed_by_idx": {
+          "name": "work_items_claimed_by_idx",
+          "columns": [
+            {
+              "expression": "claimed_by",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "work_items_claim_expires_at_idx": {
+          "name": "work_items_claim_expires_at_idx",
+          "columns": [
+            {
+              "expression": "claim_expires_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"work_items\".\"claim_expires_at\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "work_items_emergency_id_emergencies_id_fk": {
+          "name": "work_items_emergency_id_emergencies_id_fk",
+          "tableFrom": "work_items",
+          "tableTo": "emergencies",
+          "columnsFrom": [
+            "emergency_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "work_items_claimed_by_users_id_fk": {
+          "name": "work_items_claimed_by_users_id_fk",
+          "tableFrom": "work_items",
+          "tableTo": "users",
+          "columnsFrom": [
+            "claimed_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "work_items_verified_by_users_id_fk": {
+          "name": "work_items_verified_by_users_id_fk",
+          "tableFrom": "work_items",
+          "tableTo": "users",
+          "columnsFrom": [
+            "verified_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "work_items_worksite_fk": {
+          "name": "work_items_worksite_fk",
+          "tableFrom": "work_items",
+          "tableTo": "worksites",
+          "columnsFrom": [
+            "worksite_id",
+            "emergency_id"
+          ],
+          "columnsTo": [
+            "id",
+            "emergency_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "work_items_work_type_fk": {
+          "name": "work_items_work_type_fk",
+          "tableFrom": "work_items",
+          "tableTo": "work_types",
+          "columnsFrom": [
+            "emergency_id",
+            "work_type_key"
+          ],
+          "columnsTo": [
+            "emergency_id",
+            "key"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "work_items_claimant_fk": {
+          "name": "work_items_claimant_fk",
+          "tableFrom": "work_items",
+          "tableTo": "emergency_members",
+          "columnsFrom": [
+            "emergency_id",
+            "claimed_by"
+          ],
+          "columnsTo": [
+            "emergency_id",
+            "user_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "work_items_id_emergency_id_key": {
+          "name": "work_items_id_emergency_id_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id",
+            "emergency_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "work_items_unclaimed_check": {
+          "name": "work_items_unclaimed_check",
+          "value": "\"work_items\".\"status\" <> 'open_unclaimed' OR \"work_items\".\"claimed_by\" IS NULL"
+        },
+        "work_items_verified_check": {
+          "name": "work_items_verified_check",
+          "value": "\"work_items\".\"verified_by\" IS NULL OR \"work_items\".\"verified_at\" IS NOT NULL"
+        },
+        "work_items_claim_expires_check": {
+          "name": "work_items_claim_expires_check",
+          "value": "\"work_items\".\"claim_expires_at\" IS NULL OR \"work_items\".\"status\" IN ('open_claimed', 'open_partially_done', 'open_needs_follow_up')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.work_types": {
+      "name": "work_types",
+      "schema": "",
+      "columns": {
+        "emergency_id": {
+          "name": "emergency_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "work_types_emergency_id_emergencies_id_fk": {
+          "name": "work_types_emergency_id_emergencies_id_fk",
+          "tableFrom": "work_types",
+          "tableTo": "emergencies",
+          "columnsFrom": [
+            "emergency_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "work_types_emergency_id_key_pk": {
+          "name": "work_types_emergency_id_key_pk",
+          "columns": [
+            "emergency_id",
+            "key"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "work_types_key_check": {
+          "name": "work_types_key_check",
+          "value": "\"work_types\".\"key\" ~ '^[a-z][a-z0-9_]{1,39}$'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.worksite_assignments": {
+      "name": "worksite_assignments",
+      "schema": "",
+      "columns": {
+        "emergency_id": {
+          "name": "emergency_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "worksite_id": {
+          "name": "worksite_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "assigned_by": {
+          "name": "assigned_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "assigned_at": {
+          "name": "assigned_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "worksite_assignments_emergency_id_user_id_idx": {
+          "name": "worksite_assignments_emergency_id_user_id_idx",
+          "columns": [
+            {
+              "expression": "emergency_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "worksite_assignments_assigned_by_users_id_fk": {
+          "name": "worksite_assignments_assigned_by_users_id_fk",
+          "tableFrom": "worksite_assignments",
+          "tableTo": "users",
+          "columnsFrom": [
+            "assigned_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "worksite_assignments_worksite_fk": {
+          "name": "worksite_assignments_worksite_fk",
+          "tableFrom": "worksite_assignments",
+          "tableTo": "worksites",
+          "columnsFrom": [
+            "worksite_id",
+            "emergency_id"
+          ],
+          "columnsTo": [
+            "id",
+            "emergency_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "worksite_assignments_member_fk": {
+          "name": "worksite_assignments_member_fk",
+          "tableFrom": "worksite_assignments",
+          "tableTo": "emergency_members",
+          "columnsFrom": [
+            "emergency_id",
+            "user_id"
+          ],
+          "columnsTo": [
+            "emergency_id",
+            "user_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "worksite_assignments_worksite_id_user_id_pk": {
+          "name": "worksite_assignments_worksite_id_user_id_pk",
+          "columns": [
+            "worksite_id",
+            "user_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.worksite_update_supplies": {
+      "name": "worksite_update_supplies",
+      "schema": "",
+      "columns": {
+        "update_id": {
+          "name": "update_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "emergency_id": {
+          "name": "emergency_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "supply_type_key": {
+          "name": "supply_type_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "worksite_update_supplies_update_fk": {
+          "name": "worksite_update_supplies_update_fk",
+          "tableFrom": "worksite_update_supplies",
+          "tableTo": "worksite_updates",
+          "columnsFrom": [
+            "update_id",
+            "emergency_id"
+          ],
+          "columnsTo": [
+            "id",
+            "emergency_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "worksite_update_supplies_supply_type_fk": {
+          "name": "worksite_update_supplies_supply_type_fk",
+          "tableFrom": "worksite_update_supplies",
+          "tableTo": "supply_types",
+          "columnsFrom": [
+            "emergency_id",
+            "supply_type_key"
+          ],
+          "columnsTo": [
+            "emergency_id",
+            "key"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "worksite_update_supplies_update_id_supply_type_key_pk": {
+          "name": "worksite_update_supplies_update_id_supply_type_key_pk",
+          "columns": [
+            "update_id",
+            "supply_type_key"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.worksite_updates": {
+      "name": "worksite_updates",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "emergency_id": {
+          "name": "emergency_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "worksite_id": {
+          "name": "worksite_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "people_present": {
+          "name": "people_present",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reported_by": {
+          "name": "reported_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cancelled_at": {
+          "name": "cancelled_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cancelled_by": {
+          "name": "cancelled_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "worksite_updates_worksite_id_created_at_idx": {
+          "name": "worksite_updates_worksite_id_created_at_idx",
+          "columns": [
+            {
+              "expression": "worksite_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"worksite_updates\".\"cancelled_at\" IS NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "worksite_updates_emergency_id_emergencies_id_fk": {
+          "name": "worksite_updates_emergency_id_emergencies_id_fk",
+          "tableFrom": "worksite_updates",
+          "tableTo": "emergencies",
+          "columnsFrom": [
+            "emergency_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "worksite_updates_reported_by_users_id_fk": {
+          "name": "worksite_updates_reported_by_users_id_fk",
+          "tableFrom": "worksite_updates",
+          "tableTo": "users",
+          "columnsFrom": [
+            "reported_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "worksite_updates_cancelled_by_users_id_fk": {
+          "name": "worksite_updates_cancelled_by_users_id_fk",
+          "tableFrom": "worksite_updates",
+          "tableTo": "users",
+          "columnsFrom": [
+            "cancelled_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "worksite_updates_worksite_fk": {
+          "name": "worksite_updates_worksite_fk",
+          "tableFrom": "worksite_updates",
+          "tableTo": "worksites",
+          "columnsFrom": [
+            "worksite_id",
+            "emergency_id"
+          ],
+          "columnsTo": [
+            "id",
+            "emergency_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "worksite_updates_id_emergency_id_key": {
+          "name": "worksite_updates_id_emergency_id_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id",
+            "emergency_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "worksite_updates_people_present_check": {
+          "name": "worksite_updates_people_present_check",
+          "value": "\"worksite_updates\".\"people_present\" BETWEEN 0 AND 500"
+        },
+        "worksite_updates_cancelled_check": {
+          "name": "worksite_updates_cancelled_check",
+          "value": "\"worksite_updates\".\"cancelled_by\" IS NULL OR \"worksite_updates\".\"cancelled_at\" IS NOT NULL"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.worksite_contacts": {
+      "name": "worksite_contacts",
+      "schema": "",
+      "columns": {
+        "worksite_id": {
+          "name": "worksite_id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "phone": {
+          "name": "phone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "address_text": {
+          "name": "address_text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "locale": {
+          "name": "locale",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "notify_channel": {
+          "name": "notify_channel",
+          "type": "notification_channel",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "notify_consent_at": {
+          "name": "notify_consent_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "worksite_contacts_phone_idx": {
+          "name": "worksite_contacts_phone_idx",
+          "columns": [
+            {
+              "expression": "phone",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"worksite_contacts\".\"notify_channel\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "worksite_contacts_worksite_id_worksites_id_fk": {
+          "name": "worksite_contacts_worksite_id_worksites_id_fk",
+          "tableFrom": "worksite_contacts",
+          "tableTo": "worksites",
+          "columnsFrom": [
+            "worksite_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "worksite_contacts_phone_check": {
+          "name": "worksite_contacts_phone_check",
+          "value": "\"worksite_contacts\".\"phone\" ~ '^\\+[1-9][0-9]{7,14}$'"
+        },
+        "worksite_contacts_locale_check": {
+          "name": "worksite_contacts_locale_check",
+          "value": "\"worksite_contacts\".\"locale\" ~ '^[a-z]{2,3}(-[A-Z]{2})?$'"
+        },
+        "worksite_contacts_consent_check": {
+          "name": "worksite_contacts_consent_check",
+          "value": "(\"worksite_contacts\".\"notify_channel\" IS NULL AND \"worksite_contacts\".\"notify_consent_at\" IS NULL) OR (\"worksite_contacts\".\"notify_channel\" IN ('sms', 'whatsapp') AND \"worksite_contacts\".\"notify_consent_at\" IS NOT NULL AND \"worksite_contacts\".\"phone\" IS NOT NULL)"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.worksites": {
+      "name": "worksites",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "emergency_id": {
+          "name": "emergency_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "location": {
+          "name": "location",
+          "type": "geometry(Point, 4326)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "damage_level": {
+          "name": "damage_level",
+          "type": "damage_level",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "has_vulnerable_people": {
+          "name": "has_vulnerable_people",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "official_survey_done": {
+          "name": "official_survey_done",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "source": {
+          "name": "source",
+          "type": "report_source",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "unclaimed_since": {
+          "name": "unclaimed_since",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "review_flags": {
+          "name": "review_flags",
+          "type": "worksite_review_flag[]",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'"
+        },
+        "hazards": {
+          "name": "hazards",
+          "type": "worksite_hazard[]",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'"
+        },
+        "hazards_reviewed_at": {
+          "name": "hazards_reviewed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "hazards_reviewed_by": {
+          "name": "hazards_reviewed_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "version": {
+          "name": "version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "worksites_location_idx": {
+          "name": "worksites_location_idx",
+          "columns": [
+            {
+              "expression": "location",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "gist",
+          "with": {}
+        },
+        "worksites_location_geography_idx": {
+          "name": "worksites_location_geography_idx",
+          "columns": [
+            {
+              "expression": "(\"location\"::geography)",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "gist",
+          "with": {}
+        },
+        "worksites_emergency_id_location_idx": {
+          "name": "worksites_emergency_id_location_idx",
+          "columns": [
+            {
+              "expression": "emergency_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "location",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "gist",
+          "with": {}
+        },
+        "worksites_emergency_id_unclaimed_since_idx": {
+          "name": "worksites_emergency_id_unclaimed_since_idx",
+          "columns": [
+            {
+              "expression": "emergency_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "unclaimed_since",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"worksites\".\"unclaimed_since\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "worksites_emergency_id_review_idx": {
+          "name": "worksites_emergency_id_review_idx",
+          "columns": [
+            {
+              "expression": "emergency_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"worksites\".\"location\" IS NULL OR cardinality(\"worksites\".\"review_flags\") > 0 OR (cardinality(\"worksites\".\"hazards\") > 0 AND \"worksites\".\"hazards_reviewed_at\" IS NULL)",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "worksites_emergency_id_emergencies_id_fk": {
+          "name": "worksites_emergency_id_emergencies_id_fk",
+          "tableFrom": "worksites",
+          "tableTo": "emergencies",
+          "columnsFrom": [
+            "emergency_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "worksites_hazards_reviewed_by_users_id_fk": {
+          "name": "worksites_hazards_reviewed_by_users_id_fk",
+          "tableFrom": "worksites",
+          "tableTo": "users",
+          "columnsFrom": [
+            "hazards_reviewed_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "worksites_id_emergency_id_key": {
+          "name": "worksites_id_emergency_id_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id",
+            "emergency_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "worksites_hazards_reviewed_check": {
+          "name": "worksites_hazards_reviewed_check",
+          "value": "\"worksites\".\"hazards_reviewed_by\" IS NULL OR \"worksites\".\"hazards_reviewed_at\" IS NOT NULL"
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.damage_level": {
+      "name": "damage_level",
+      "schema": "public",
+      "values": [
+        "minor",
+        "moderate",
+        "severe",
+        "uninhabitable"
+      ]
+    },
+    "public.emergency_status": {
+      "name": "emergency_status",
+      "schema": "public",
+      "values": [
+        "open",
+        "closed"
+      ]
+    },
+    "public.member_role": {
+      "name": "member_role",
+      "schema": "public",
+      "values": [
+        "volunteer",
+        "coordinator",
+        "field_volunteer"
+      ]
+    },
+    "public.notification_channel": {
+      "name": "notification_channel",
+      "schema": "public",
+      "values": [
+        "push",
+        "email",
+        "sms",
+        "whatsapp"
+      ]
+    },
+    "public.notification_level": {
+      "name": "notification_level",
+      "schema": "public",
+      "values": [
+        "important",
+        "shift_reminder",
+        "normal",
+        "digest"
+      ]
+    },
+    "public.platform_role": {
+      "name": "platform_role",
+      "schema": "public",
+      "values": [
+        "admin"
+      ]
+    },
+    "public.report_source": {
+      "name": "report_source",
+      "schema": "public",
+      "values": [
+        "neighbor",
+        "coordinator",
+        "social",
+        "official"
+      ]
+    },
+    "public.work_item_event_kind": {
+      "name": "work_item_event_kind",
+      "schema": "public",
+      "values": [
+        "status_changed",
+        "claimed",
+        "renewed",
+        "arrived",
+        "released",
+        "expired",
+        "verified"
+      ]
+    },
+    "public.work_item_status": {
+      "name": "work_item_status",
+      "schema": "public",
+      "values": [
+        "open_unclaimed",
+        "open_claimed",
+        "open_partially_done",
+        "open_needs_follow_up",
+        "closed_done",
+        "closed_done_by_others",
+        "closed_no_help_wanted",
+        "closed_duplicate"
+      ]
+    },
+    "public.worksite_hazard": {
+      "name": "worksite_hazard",
+      "schema": "public",
+      "values": [
+        "electricity",
+        "gas",
+        "structure"
+      ]
+    },
+    "public.worksite_review_flag": {
+      "name": "worksite_review_flag",
+      "schema": "public",
+      "values": [
+        "outside_area",
+        "imprecise_location",
+        "possible_duplicate",
+        "person_in_danger"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

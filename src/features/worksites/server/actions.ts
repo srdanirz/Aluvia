@@ -23,6 +23,7 @@ import { extractDuration, reportsCounter } from "./metrics";
 import { placeWorksite, type PlaceWorksiteResult } from "./place-worksite";
 import { canImportWorksites, canPlaceWorksite, canReviewWorksite } from "./policy";
 import { findOpenEmergencyId, findReportForm } from "./queries";
+import { listWorksitesToReview, type ReviewPage } from "./review-queue";
 import { markWorksiteHazardsReviewed, resolveWorksiteReviewFlag, type ReviewResult } from "./review-worksite";
 import { worksiteReviewFlag } from "@/shared/db/schema/enums";
 
@@ -163,7 +164,9 @@ export async function resolveReviewFlag(
   if (!emergencyId) return { ok: false, code: "emergency_not_found" };
   if (!canReviewWorksite(await getEmergencyAccess(emergencyId))) return { ok: false, code: "forbidden" };
   const { worksiteId, version, flag } = parsed.data;
-  return resolveWorksiteReviewFlag(db, { emergencyId, worksiteId, version, flag });
+  const result = await resolveWorksiteReviewFlag(db, { emergencyId, worksiteId, version, flag });
+  if (result.ok) trackServerEvent("worksite_review_flag_resolved", { flag });
+  return result;
 }
 
 /** A coordinator checked the "do not enter" hazards; the home's work can be claimed again. */
@@ -177,5 +180,35 @@ export async function reviewHazards(
   const access = await getEmergencyAccess(emergencyId);
   if (!access || !canReviewWorksite(access)) return { ok: false, code: "forbidden" };
   const { worksiteId, version } = parsed.data;
-  return markWorksiteHazardsReviewed(db, { emergencyId, worksiteId, version, reviewedBy: access.userId });
+  const result = await markWorksiteHazardsReviewed(db, {
+    emergencyId,
+    worksiteId,
+    version,
+    reviewedBy: access.userId,
+  });
+  if (result.ok) trackServerEvent("worksite_hazards_reviewed", {}, { distinctId: access.userId });
+  return result;
+}
+
+const queueInputSchema = z.object({
+  slug: z.string().min(1).max(100),
+  cursor: z.string().max(200).nullable(),
+});
+
+/** Next page of the review queue; each page shown is a logged contact view. */
+export async function loadReviewQueue(
+  input: z.input<typeof queueInputSchema>,
+): Promise<{ ok: true; page: ReviewPage } | Denied> {
+  const parsed = queueInputSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, code: "invalid_input" };
+  const emergencyId = await findOpenEmergencyId(parsed.data.slug);
+  if (!emergencyId) return { ok: false, code: "emergency_not_found" };
+  const access = await getEmergencyAccess(emergencyId);
+  if (!access || !canReviewWorksite(access)) return { ok: false, code: "forbidden" };
+  const page = await listWorksitesToReview(db, {
+    emergencyId,
+    viewerId: access.userId,
+    cursor: parsed.data.cursor,
+  });
+  return { ok: true, page };
 }

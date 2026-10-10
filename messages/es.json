@@ -198,6 +198,35 @@
     },
     "trust": {
       "noMoney": "Aluvia nunca pide dinero. Si alguien te cobra en su nombre, es una estafa."
+    },
+    "review": {
+      "title": "Casas por revisar",
+      "lead": "Las más antiguas primero. Revisa cada marca; ver la dirección queda registrado.",
+      "forbidden": "Solo los coordinadores aprobados de esta emergencia ven esta lista.",
+      "emptyChip": "Al día",
+      "empty": "No hay casas por revisar.",
+      "loadMore": "Ver más",
+      "loadingMore": "Cargando",
+      "saving": "Guardando",
+      "reported": "Reportada {time} · {source}",
+      "noAddress": "Sin dirección escrita",
+      "placeLater": "Pon el pin desde el mapa.",
+      "resolve": "Revisado",
+      "hazard": "No entrar: {hazard}",
+      "hazardsReviewed": "Riesgo revisado",
+      "source": {
+        "neighbor": "vecino",
+        "coordinator": "coordinador",
+        "social": "redes",
+        "official": "catastro oficial"
+      },
+      "flag": {
+        "no_location": "Sin ubicar",
+        "outside_area": "Fuera del área",
+        "imprecise_location": "GPS impreciso",
+        "possible_duplicate": "Posible duplicado",
+        "person_in_danger": "Persona en peligro"
+      }
     }
   },
   "worksiteUpdates": {
