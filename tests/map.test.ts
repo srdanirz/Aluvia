@@ -167,13 +167,13 @@ describe("attention level", () => {
     expect(cell?.levels.unconfirmed).toBe(1);
   });
 
-  // Homes from an official survey carry their own level until someone asks for work.
-  it("is affected with no request for an official home without work", async () => {
+  // Official parcels nobody asked about stay off the map: thousands of them hid the homes in need.
+  it("leaves out an official home without work", async () => {
     await db
       .insert(worksites)
       .values({ id: randomUUID(), emergencyId, location: inCell(0, 0), source: "official", updatedAt: NOW });
-    const [cell] = await listCells({ slug, bbox: NEAR, zoom: STREET_ZOOM, now: NOW }, db);
-    expect(cell?.worksites?.[0]?.level).toBe("no_request");
+    const cells = await listCells({ slug, bbox: NEAR, zoom: STREET_ZOOM, now: NOW }, db);
+    expect(cells).toEqual([]);
   });
 
   it("is do not enter while a reported hazard waits for review", async () => {

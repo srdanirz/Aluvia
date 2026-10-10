@@ -44,16 +44,16 @@ Marca: **negro y blanco** para las acciones, y tres familias del territorio, pro
 | `action` / `on-action` | `#000000` / `#FFFFFF` | `#FFFFFF` / `#000000` | Botón principal, ítem activo. |
 | `accent` / `on-accent` | `#3C6880` / `#FFFFFF` | `#9CC4D9` / `#0B0C12` | Acción destacada, foco, links. Es `rain-600`. |
 | `accent-tint` | `#E9F1F5` | `#172129` | Tarjeta seleccionada. Es `rain-100`. |
-| `status-urgent` / `-tint` | `#76563A` / `#F5EDE3` | `#D4B691` / `#241E18` | Sin tomar, grave (tierra). |
-| `status-urgent-text` | `#76563A` | `#D4B691` | Texto de error. |
-| `status-pending` / `-tint` | `#3C6880` / `#E9F1F5` | `#9CC4D9` / `#172129` | Tomado, en curso (lluvia). |
-| `status-done` / `-tint` | `#4A6341` / `#ECF1E7` | `#AAC39D` / `#1B2118` | Hecho (musgo). |
+| `status-urgent` / `-tint` | `#C8372D` / `#FBE9E7` | `#F27A6F` / `#2C1614` | Sin atender o no entrar: rojo de semáforo. |
+| `status-urgent-text` | `#A42A22` | `#F27A6F` | Texto de error. |
+| `status-pending` / `-tint` | `#C96A0A` / `#FDF0E2` | `#F4A650` / `#2B1E10` | Tomado, en curso: naranjo. |
+| `status-done` / `-tint` | `#2F7D3B` / `#E5F2E7` | `#74C483` / `#142519` | Atendida: verde. |
 | `status-closed` / `-tint` | `#8B8EA3` / `#EEF0F5` | `#9A9DB2` / `#23252F` | Cerrado sin hacer. |
 | `glass` | blanco al 62 % | `#16171F` al 60 % | Relleno de lo que flota. |
 | `glass-hover` | blanco al 75 % | blanco al 8 % | Hover de piezas discretas o translúcidas: un vidrio más claro, nunca un gris sólido. |
 | `aurora-1/2/3` | `#BCD3DF`, `#DFC9AD`, `#C4D3B9` | `#2B4252`, `#4B3D2E`, `#384733` | Fondo ambiental y luces: lluvia, tierra y musgo. |
 
-Contraste medido: todo texto cumple AA (4,5:1) sobre `canvas` y `surface` en los dos temas; los `-600` dan 5:1 o más. Un chip lleva **texto en tinta y punto de color**: el color refuerza, el texto dice.
+Contraste medido: todo texto cumple AA (4,5:1) sobre `canvas` y `surface` en los dos temas; los `-600` dan 5:1 o más. Un chip lleva **texto en tinta y punto de color**: el color refuerza, el texto dice. `status-pending` (naranjo) da 3,8:1 en claro: sirve para puntos, íconos y bordes de forma (3:1), nunca para texto.
 
 **Familias ambientales** (`rain-`, `earth-`, `moss-` en 100, 300 y 600): franjas, estados vacíos, zonas del mapa, gráficos e ilustración. Una familia por bloque. Nunca para una acción.
 

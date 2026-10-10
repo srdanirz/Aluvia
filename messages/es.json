@@ -501,7 +501,6 @@
   },
   "map": {
     "title": "Mapa de {emergency}",
-    "hint": "Toca un punto para ver qué necesita esa casa. Primero las que están sin atender.",
     "legendLabel": "Qué significa cada color",
     "levels": {
       "unattended": "Sin atender",
@@ -527,9 +526,6 @@
       "title": "El mapa no está disponible",
       "body": "Puede ser la señal o un problema nuestro. Los links de cada casa siguen funcionando."
     },
-    "modeLabel": "Ver el mapa por",
-    "modeHomes": "Casas",
-    "modeZones": "Zonas",
     "updatedAt": "Actualizado a las {time}",
     "errors": {
       "bbox_too_large": "Hay demasiado mapa a la vista para este acercamiento. Acerca un poco el mapa.",
@@ -540,9 +536,12 @@
       "zone": "Zona {position} · {count, plural, one {# casa} other {# casas}}",
       "levelCount": "{level}: {count}"
     },
-    "zonesHint": "Cada zona toma el color de su casa más urgente. Más oscura: más casas esperando ayuda.",
-    "panelTitle": "Dónde hace falta ayuda",
-    "truncated": "Hay más casas de las que caben. Acerca el mapa para verlas todas."
+    "truncated": "Hay más casas de las que caben. Acerca el mapa para verlas todas.",
+    "summary": "{homes, plural, =0 {Aún no hay casas reportadas} one {# casa reportada} other {# casas reportadas}}",
+    "waiting": "{waiting, plural, =0 {Ninguna espera ayuda ahora} one {# espera ayuda} other {# esperan ayuda}}",
+    "askHelp": "Pedir ayuda",
+    "offerHelp": "Quiero ayudar",
+    "legendToggle": "Qué significa cada color"
   },
   "worksite": {
     "title": "Casa en {emergency}",
