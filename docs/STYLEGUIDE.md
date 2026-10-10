@@ -54,6 +54,7 @@ En una emergencia el link circula por WhatsApp y el tráfico llega de golpe.
 - **Todo listado tiene un test de conteo de consultas**: se siembran 1 y 20 filas y el número de consultas tiene que ser el mismo. Es nuestro reemplazo de Bullet. Un listado sin ese test no se mergea.
 - Un N+1 necesita un **loop sobre filas**. Una relación leída en un solo registro no es N+1, y precargarla "por si acaso" cuesta sin aportar. (origen: sur)
 - Lo que se resuelve por fila (zona, usuario, hora local) se calcula una vez y se pasa como argumento. Un default que cuesta una consulta por fila es peor que un argumento obligatorio. (origen: sur, `days_overdue`)
+- **Cursor con la precisión de Postgres**: el cursor de `(created_at, id)` lleva `created_at::text`, nunca un `Date` de JS (`src/features/members/server/queries.ts:77`, `src/shared/lib/pagination.ts`).
 - **Ninguna consulta sin límite.** Listados con paginación por cursor (keyset), máximo 100 por página. El mapa pide por *bounding box* y agrupa en la base; nunca "todas las casas".
 - `columns:` explícito: se trae lo que la vista usa, nunca la fila entera hacia el cliente.
 - Un listado nuevo trae su `EXPLAIN ANALYZE` en la descripción del PR.
@@ -91,7 +92,8 @@ Dos voluntarios van a tocar "tomar" sobre la misma tarea en el mismo segundo. **
 
 Reglas completas en [SECURITY.md](../SECURITY.md). En el código:
 
-- Cada Server Action y route handler llama a la `policy` de su feature antes de leer o escribir. Sin excepción por "es solo lectura".
+- Cada Server Action y route handler llama a la `policy` de su feature antes de leer o escribir. Sin excepción por "es solo lectura". La sesión y el acceso por emergencia salen de `@/shared/auth` (`getEmergencyAccess`, `canUpdateWorksite`; `src/shared/auth/access.ts:46`), nunca de leer `emergency_members` a mano en la feature.
+- Una escritura de admin vuelve a verificar el rol **dentro de su propia sentencia** (`AND EXISTS (... platform_role = 'admin')`, `src/features/members/server/roles.ts:14`) y deja su fila en `admin_events` en la misma transacción.
 - **Dos formas de cada casa, en funciones distintas**: la pública (punto, nivel de daño, tipos de trabajo) y la de coordinador (dirección, teléfono, notas). La pública no tiene forma de devolver campos de contacto: no los selecciona.
 - La forma pública lleva el punto exacto y nada de contacto: nombre, teléfono, dirección escrita y vulnerabilidad viven en `worksite_contacts` y en la forma de coordinador (`src/features/map/server/public-worksite.ts`, ADR 0011).
 - Ver un contacto deja registro (`contact_views`: quién, qué casa, cuándo).
@@ -193,6 +195,7 @@ Detalle y razones en [ADR 0004](adr/0004-design-system.md). La regla corta: **si
 
 - **Toda pieza visual sale de `src/shared/ui/`** (shadcn/ui sobre Tailwind v4). Las features componen esas primitivas; no las reimplementan ni las "ajustan" por fuera.
 - **Si falta una primitiva, se agrega a `shared/ui/` en el mismo PR de la feature que la necesita**, con sus variantes, en `/dev/ui` y en CODE_MAP. Nunca se crea una versión local en la feature.
+- **Datos de contexto de un formulario van como argumento ligado, no como campo oculto**: `action.bind(null, { emergencyId })` (`src/features/members/components/members-admin.tsx`). El `<input>` crudo no existe fuera de `shared/ui`, y el servidor valida y autoriza ese argumento igual que un campo.
 - **Variantes, no overrides.** Un botón distinto es una variante nueva en `button.tsx` (`cva`), no un `className` que lo sobrescribe desde afuera.
 - **Prohibido fuera de `shared/ui/`:** `<table>`, `<button>`, `<input>`, `<select>`, `<dialog>` crudos; el prop `style`; valores arbitrarios de Tailwind (`w-[37px]`, `bg-[#f00]`); el modificador `!` y `!important`; colores, radios o sombras que no sean tokens.
 - **Tablas = `DataTable` del design system** (se agrega a `shared/ui` cuando la primera pantalla la necesite). Nada de tablas armadas a mano por feature.

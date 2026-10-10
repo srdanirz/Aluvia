@@ -267,7 +267,24 @@
     "invalid": "Revisa este valor.",
     "unexpected": "No se pudo guardar. Intenta de nuevo.",
     "notice_required": "Escribe el aviso en el idioma por defecto de la emergencia.",
-    "invalid_phone": "Usa solo dígitos, espacios y un + inicial."
+    "invalid_phone": "Usa solo dígitos, espacios y un + inicial.",
+    "invalid_code": "Ese código no coincide. Revisa el último que te llegó.",
+    "invalid_name": "Escribe tu nombre.",
+    "code_not_sent": "No pudimos mandar el código. Intenta de nuevo en un momento.",
+    "code_expired": "El código venció o ya se usó. Pide uno nuevo.",
+    "too_many_attempts": "Demasiados intentos con este código. Pide uno nuevo.",
+    "already_has_role": "Ya tienes ese rol o uno mayor.",
+    "request_pending": "Ya tienes un pedido en revisión.",
+    "cannot_approve_self": "Nadie se aprueba a sí mismo: lo aprueba otro administrador.",
+    "no_pending_request": "Ese pedido ya no está pendiente.",
+    "no_role_to_revoke": "Esa persona ya no tiene un rol.",
+    "invitation_not_found": "No encontramos esta invitación.",
+    "expired": "La invitación venció.",
+    "revoked": "La invitación fue revocada.",
+    "used_up": "La invitación ya se usó.",
+    "own_invitation": "Es tu propia invitación: tiene que aceptarla otra persona.",
+    "not_field_volunteer": "Esa persona no es voluntario de terreno en esta emergencia.",
+    "assignment_not_found": "Esa asignación ya no existe."
   },
   "admin": {
     "meta": {
@@ -520,6 +537,118 @@
       "title": "Una casa necesita seguimiento",
       "body": "Un voluntario marcó que una casa necesita volver. Revisa qué falta.",
       "sms": "Aluvia: una casa necesita seguimiento. {url}"
+    }
+  },
+  "auth": {
+    "logIn": "Entrar",
+    "logOut": "Salir",
+    "login": {
+      "sendCode": "Recibir código",
+      "verify": "Entrar",
+      "continue": "Continuar",
+      "pending": "Enviando",
+      "phone": {
+        "title": "Entra con tu teléfono",
+        "lead": "Sin contraseña: te mandamos un código por WhatsApp o SMS.",
+        "label": "Tu teléfono",
+        "hint": "El número de tu celular, con o sin +56."
+      },
+      "code": {
+        "title": "Escribe el código",
+        "lead": "Lo mandamos al {phone}. Vence en 10 minutos.",
+        "label": "Código de 6 dígitos",
+        "resent": "Te mandamos un código nuevo.",
+        "resend": "Mandar otro código",
+        "change": "Cambiar número"
+      },
+      "name": {
+        "title": "¿Cómo te llamas?",
+        "lead": "Te lo pedimos una sola vez.",
+        "label": "Tu nombre",
+        "hint": "Lo ven los coordinadores para saber quién va a cada casa."
+      }
+    },
+    "loginCode": {
+      "sms": "Tu código de Aluvia es {code}. Vence en 10 minutos. No lo compartas con nadie."
+    }
+  },
+  "roles": {
+    "volunteer": "Voluntario",
+    "field_volunteer": "Voluntario de terreno",
+    "coordinator": "Coordinador"
+  },
+  "members": {
+    "pending": "Guardando",
+    "join": {
+      "eyebrow": "Sumarte a la ayuda",
+      "lead": "Como voluntario puedes tomar trabajos de las casas y anotarte en turnos.",
+      "start": "Quiero ayudar",
+      "startHint": "Solo te pedimos tu teléfono y tu nombre, una vez.",
+      "join": "Unirme como voluntario",
+      "joined": "Ya eres parte como {role}.",
+      "open": "Ir a la emergencia",
+      "closed": "Esta emergencia ya cerró. Gracias por querer ayudar.",
+      "requestTitle": "¿Coordinas en terreno?",
+      "requestLead": "Un administrador revisa tu pedido antes de darte el rol.",
+      "requestCoordinator": "Pedir ser coordinador",
+      "requestFieldVolunteer": "Pedir ser voluntario de terreno",
+      "requested": "Pedido en revisión: {role}",
+      "requestedLabel": "Estado del pedido"
+    },
+    "invitation": {
+      "eyebrow": "Invitación",
+      "title": "Te invitaron a {emergency}",
+      "lead": "Entras como {role}.",
+      "accept": "Aceptar invitación",
+      "acceptHint": "Si no has entrado antes, te pedimos tu teléfono y tu nombre.",
+      "unavailable": "Esta invitación ya no sirve",
+      "askAgain": "Pide un link nuevo a quien te invitó."
+    },
+    "admin": {
+      "title": "Miembros de {emergency}",
+      "lead": "Aprueba coordinadores y voluntarios de terreno, e invita por WhatsApp.",
+      "requests": "Pedidos",
+      "noRequests": "No hay pedidos pendientes.",
+      "requestedOn": "Pidió el {date}",
+      "approve": "Aprobar",
+      "reject": "Rechazar",
+      "members": "Coordinadores y voluntarios de terreno",
+      "noMembers": "Todavía no hay nadie con rol en esta emergencia.",
+      "approvedOn": "Aprobado el {date}",
+      "assignedHomes": "{count, plural, =0 {Sin casas asignadas} one {# casa asignada} other {# casas asignadas}}",
+      "revoke": "Quitar rol",
+      "invitations": "Invitaciones",
+      "noInvitations": "No hay invitaciones activas.",
+      "invitationSummary": "{role} · vence el {date}",
+      "invitationUses": "{max, select, unlimited {{uses, plural, one {# uso} other {# usos}}} other {{uses} de {max} usos}}",
+      "invitationHomes": "{count, plural, one {# casa} other {# casas}}",
+      "revokeInvitation": "Revocar",
+      "more": "Ver más",
+      "unnamed": "Sin nombre"
+    },
+    "invite": {
+      "title": "Nueva invitación",
+      "roleLabel": "Rol",
+      "expiryLabel": "Vence en",
+      "hours": "{hours, plural, =24 {1 día} =72 {3 días} other {7 días}}",
+      "maxUsesLabel": "Cuántas personas pueden usarla",
+      "maxUsesHint": "Déjalo vacío para un link de voluntarios sin límite. Un rol pide un número.",
+      "create": "Crear link",
+      "ready": "Link listo. Mándalo solo a quien corresponde.",
+      "copy": "Copiar link",
+      "copied": "Copiado",
+      "whatsapp": "Mandar por WhatsApp",
+      "whatsappText": "Te invito a ayudar en Aluvia: {url}"
+    },
+    "assignments": {
+      "title": "Voluntarios de terreno",
+      "lead": "Solo ellos actualizan esta casa, además de los coordinadores.",
+      "empty": "Esta emergencia no tiene voluntarios de terreno. Invita a uno a esta casa.",
+      "assign": "Asignar",
+      "unassign": "Quitar",
+      "assigned": "Asignado",
+      "inviteHere": "Invitar a esta casa",
+      "inviteHint": "Link de un uso que vence en 3 días."
     }
   }
 }

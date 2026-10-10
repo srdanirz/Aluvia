@@ -51,6 +51,13 @@
 | `tests/setup/fixtures.ts` | Emergencia de prueba con catálogo inventado y `rejectionCode` |
 | `tests/admin.test.ts` | Admin: concurrencia de ediciones, cierre y aviso; seeds; `admin_events` de solo inserción; conteo de consultas y cursor |
 | `tests/notifications/` | Rutas (webhook de Twilio, leído), entrega única, dos workers en paralelo, lease, reintentos, horario silencioso, topes con reserva, escalamiento, proveedores y textos |
+| `src/shared/auth/` | Login y autorización (ADR 0013): `getCurrentUser`, `requireUser`, `getEmergencyAccess`, predicados `canClaimWorkItems`, `canViewContacts`, `canUpdateWorksite`; sesiones (`session.ts`, cookie), códigos (`crypto.ts`, `login-code-sender.ts`), `phone.ts`. Se importa desde `@/shared/auth` |
+| `src/shared/lib/` | `pagination.ts` (keyset por `(created_at, id)`, `Page<T>`), `safe-path.ts` (rutas de retorno sin salir del sitio) |
+| `src/shared/messaging/` | Clientes de WhatsApp Cloud API y Twilio (ADR 0010) |
+| `src/features/auth/` | Login por teléfono: `server/login.ts` (pedir y verificar código), `server/actions.ts`, `LoginForm`, `LogOutButton` |
+| `src/features/members/` | Unirse, pedir y aprobar roles, invitaciones y casas asignadas (#16): `server/` (membership, invitations, assignments, queries, views), `JoinPanel`, `InvitationPanel`, `MembersAdmin`, `WorksiteAssignments` |
+| `src/app/[locale]/login/`, `emergencies/[slug]/join/`, `invitations/[token]/`, `admin/emergencies/[slug]/members/` | Pantallas de login, unirse, aceptar invitación y miembros del admin |
+| `tests/auth.test.ts`, `tests/members.test.ts` | Login (un código abre una sesión, límites), roles, invitaciones de un uso, casas asignadas, conteo de consultas de los listados |
 | `tests/schema.test.ts` | Las reglas que decide la base: FKs por emergencia, cupo de turnos, una inscripción activa, un aviso por evento |
 | `src/app/api/health/` | `GET /api/health`: 200 si la app llega a la base; lo usa el chequeo de disponibilidad |
 | `infra/` | Producción en GCP como código (Terraform, ADR 0012); runbook en `infra/README.md` |

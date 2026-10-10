@@ -267,7 +267,24 @@
     "invalid": "Check this value.",
     "unexpected": "It could not be saved. Try again.",
     "notice_required": "Write the notice in the emergency's default language.",
-    "invalid_phone": "Use only digits, spaces and a leading +."
+    "invalid_phone": "Use only digits, spaces and a leading +.",
+    "invalid_code": "That code does not match. Check the latest one you got.",
+    "invalid_name": "Enter your name.",
+    "code_not_sent": "We could not send the code. Try again in a moment.",
+    "code_expired": "The code expired or was already used. Ask for a new one.",
+    "too_many_attempts": "Too many attempts with this code. Ask for a new one.",
+    "already_has_role": "You already have that role or a higher one.",
+    "request_pending": "You already have a request under review.",
+    "cannot_approve_self": "Nobody approves themselves: another admin does.",
+    "no_pending_request": "That request is no longer pending.",
+    "no_role_to_revoke": "That person no longer has a role.",
+    "invitation_not_found": "We could not find this invitation.",
+    "expired": "The invitation expired.",
+    "revoked": "The invitation was revoked.",
+    "used_up": "The invitation was already used.",
+    "own_invitation": "This is your own invitation: someone else has to accept it.",
+    "not_field_volunteer": "That person is not a field volunteer in this emergency.",
+    "assignment_not_found": "That assignment no longer exists."
   },
   "admin": {
     "meta": {
@@ -520,6 +537,118 @@
       "title": "A home needs follow-up",
       "body": "A volunteer marked that a home needs another visit. Check what is missing.",
       "sms": "Aluvia: a home needs follow-up. {url}"
+    }
+  },
+  "auth": {
+    "logIn": "Log in",
+    "logOut": "Log out",
+    "login": {
+      "sendCode": "Get code",
+      "verify": "Log in",
+      "continue": "Continue",
+      "pending": "Sending",
+      "phone": {
+        "title": "Log in with your phone",
+        "lead": "No password: we send you a code by WhatsApp or SMS.",
+        "label": "Your phone",
+        "hint": "Your mobile number, with or without the country code."
+      },
+      "code": {
+        "title": "Enter the code",
+        "lead": "We sent it to {phone}. It expires in 10 minutes.",
+        "label": "6-digit code",
+        "resent": "We sent you a new code.",
+        "resend": "Send another code",
+        "change": "Change number"
+      },
+      "name": {
+        "title": "What is your name?",
+        "lead": "We only ask once.",
+        "label": "Your name",
+        "hint": "Coordinators see it to know who is going to each home."
+      }
+    },
+    "loginCode": {
+      "sms": "Your Aluvia code is {code}. It expires in 10 minutes. Do not share it."
+    }
+  },
+  "roles": {
+    "volunteer": "Volunteer",
+    "field_volunteer": "Field volunteer",
+    "coordinator": "Coordinator"
+  },
+  "members": {
+    "pending": "Saving",
+    "join": {
+      "eyebrow": "Join the response",
+      "lead": "As a volunteer you can take work at homes and sign up for shifts.",
+      "start": "I want to help",
+      "startHint": "We only ask for your phone and your name, once.",
+      "join": "Join as a volunteer",
+      "joined": "You are in as {role}.",
+      "open": "Go to the emergency",
+      "closed": "This emergency is closed. Thank you for wanting to help.",
+      "requestTitle": "Coordinating on the ground?",
+      "requestLead": "An admin reviews your request before giving you the role.",
+      "requestCoordinator": "Ask to be a coordinator",
+      "requestFieldVolunteer": "Ask to be a field volunteer",
+      "requested": "Request under review: {role}",
+      "requestedLabel": "Request status"
+    },
+    "invitation": {
+      "eyebrow": "Invitation",
+      "title": "You are invited to {emergency}",
+      "lead": "You join as {role}.",
+      "accept": "Accept invitation",
+      "acceptHint": "If you have not logged in before, we ask for your phone and your name.",
+      "unavailable": "This invitation no longer works",
+      "askAgain": "Ask whoever invited you for a new link."
+    },
+    "admin": {
+      "title": "Members of {emergency}",
+      "lead": "Approve coordinators and field volunteers, and invite people by WhatsApp.",
+      "requests": "Requests",
+      "noRequests": "No pending requests.",
+      "requestedOn": "Asked on {date}",
+      "approve": "Approve",
+      "reject": "Reject",
+      "members": "Coordinators and field volunteers",
+      "noMembers": "Nobody holds a role in this emergency yet.",
+      "approvedOn": "Approved on {date}",
+      "assignedHomes": "{count, plural, =0 {No homes assigned} one {# home assigned} other {# homes assigned}}",
+      "revoke": "Remove role",
+      "invitations": "Invitations",
+      "noInvitations": "No active invitations.",
+      "invitationSummary": "{role} · expires on {date}",
+      "invitationUses": "{max, select, unlimited {{uses, plural, one {# use} other {# uses}}} other {{uses} of {max} uses}}",
+      "invitationHomes": "{count, plural, one {# home} other {# homes}}",
+      "revokeInvitation": "Revoke",
+      "more": "Show more",
+      "unnamed": "No name"
+    },
+    "invite": {
+      "title": "New invitation",
+      "roleLabel": "Role",
+      "expiryLabel": "Expires in",
+      "hours": "{hours, plural, =24 {1 day} =72 {3 days} other {7 days}}",
+      "maxUsesLabel": "How many people can use it",
+      "maxUsesHint": "Leave it empty for an unlimited volunteer link. A role needs a number.",
+      "create": "Create link",
+      "ready": "Link ready. Send it only to the right person.",
+      "copy": "Copy link",
+      "copied": "Copied",
+      "whatsapp": "Send by WhatsApp",
+      "whatsappText": "Join me helping on Aluvia: {url}"
+    },
+    "assignments": {
+      "title": "Field volunteers",
+      "lead": "Only they update this home, besides the coordinators.",
+      "empty": "This emergency has no field volunteers. Invite one to this home.",
+      "assign": "Assign",
+      "unassign": "Remove",
+      "assigned": "Assigned",
+      "inviteHere": "Invite to this home",
+      "inviteHint": "Single-use link that expires in 3 days."
     }
   }
 }

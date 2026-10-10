@@ -3,7 +3,8 @@ import { pgEnum } from "drizzle-orm/pg-core";
 // Stored values: English, snake_case, never renamed once data exists (STYLEGUIDE, Datos).
 export const emergencyStatus = pgEnum("emergency_status", ["open", "closed"]);
 export const platformRole = pgEnum("platform_role", ["admin"]);
-export const memberRole = pgEnum("member_role", ["volunteer", "coordinator"]);
+// field_volunteer updates only the homes assigned to them and never sees contacts (issue #16).
+export const memberRole = pgEnum("member_role", ["volunteer", "coordinator", "field_volunteer"]);
 export const damageLevel = pgEnum("damage_level", ["minor", "moderate", "severe", "uninhabitable"]);
 // `official`: imported from a government survey layer (ADR 0009, admin import).
 export const reportSource = pgEnum("report_source", ["neighbor", "coordinator", "social", "official"]);
