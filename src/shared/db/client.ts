@@ -8,6 +8,7 @@ import postgres from "postgres";
 import { env } from "@/shared/env";
 import { countRequestQuery } from "@/shared/observability/metrics";
 
+import { createIamTokenSource } from "./iam-token";
 import { observeDatabaseConnections } from "./metrics";
 import * as schema from "./schema";
 
@@ -28,12 +29,16 @@ export const db = drizzle(sql, { schema, logger: { logQuery: countRequestQuery }
 function connect() {
   // Unique per instance, so pg_stat_activity tells this pool's connections apart.
   const poolName = `aluvia-${randomUUID().slice(0, 8)}`;
+  // One token source for both clients, so they share a single cached IAM token (ADR 0012).
+  const auth = env.DATABASE_IAM_AUTH ? { password: createIamTokenSource() } : {};
   const pool = postgres(env.DATABASE_URL, {
+    ...auth,
     max: env.DATABASE_POOL_MAX,
     idle_timeout: IDLE_TIMEOUT_SECONDS,
     connection: { application_name: poolName },
   });
   const probe = postgres(env.DATABASE_URL, {
+    ...auth,
     max: 1,
     idle_timeout: PROBE_IDLE_TIMEOUT_SECONDS,
     connection: { application_name: "aluvia-metrics" },

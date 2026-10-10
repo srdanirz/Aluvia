@@ -1,0 +1,18 @@
+# Only what the build needs reaches the Docker context; secrets never do.
+.git
+.github
+.next
+node_modules
+coverage
+infra
+docs
+tests
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.tfstate*
+.terraform
+Dockerfile
+.dockerignore

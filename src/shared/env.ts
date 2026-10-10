@@ -40,6 +40,9 @@ const schema = z.object({
   GOOGLE_CLOUD_PROJECT: optional(z.string().min(1)),
   // Development only: browse the admin as this user until sign-in exists (#16).
   DEV_ADMIN_USER_ID: z.uuid().optional(),
+  // Cloud SQL IAM authentication: the password is the runtime service account's access token,
+  // fetched from the GCP metadata server. Production only (ADR 0012).
+  DATABASE_IAM_AUTH: z.stringbool().default(false),
 });
 
 const parsed = schema.safeParse(process.env);

@@ -1,0 +1,154 @@
+name: Deploy
+
+# Production deploy (ADR 0012): after CI passes on main, build the image, run the migrations as a
+# Cloud Run job, then roll the service to the new image. Authenticates with Workload Identity
+# Federation; there is no service account key anywhere. Settings come from repository variables
+# (infra/README.md), so a fork deploys to its own project by setting its own.
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+# One deploy at a time, in order; a newer push waits instead of cancelling a half-done rollout.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ vars.APP_URL }}
+    env:
+      SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+      REGION: ${{ vars.GCP_REGION }}
+      IMAGE_BASE: ${{ vars.GCP_IMAGE_BASE }}
+    steps:
+      # A missing build variable would ship a bundle with that piece silently off (the map, for
+      # one). Runtime secrets need no check here: env.ts refuses to boot without them.
+      - name: Check required variables
+        env:
+          GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+          GCP_REGION: ${{ vars.GCP_REGION }}
+          GCP_IMAGE_BASE: ${{ vars.GCP_IMAGE_BASE }}
+          GCP_WIF_PROVIDER: ${{ vars.GCP_WIF_PROVIDER }}
+          GCP_DEPLOY_SA: ${{ vars.GCP_DEPLOY_SA }}
+          APP_URL: ${{ vars.APP_URL }}
+          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${{ vars.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}
+          NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID: ${{ vars.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID }}
+        run: |
+          missing=0
+          for name in GCP_PROJECT_ID GCP_REGION GCP_IMAGE_BASE GCP_WIF_PROVIDER GCP_DEPLOY_SA APP_URL \
+            NEXT_PUBLIC_GOOGLE_MAPS_API_KEY NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID; do
+            if [ -z "${!name}" ]; then echo "::error::Falta la variable del repositorio $name (infra/README.md)."; missing=1; fi
+          done
+          exit "$missing"
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SHA }}
+          persist-credentials: false
+
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SA }}
+
+      - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+
+      # Required runtime secrets must be mounted on the service (infra/secrets.tf, provider_secrets)
+      # before an image that needs them ships; otherwise every new revision fails to boot.
+      - name: Check required secrets
+        run: |
+          mounted=$(gcloud run services describe aluvia --region "$REGION" \
+            --format 'value(spec.template.spec.containers[0].env[].name)' | tr ';' '\n')
+          missing=0
+          for name in AUTH_SECRET RATE_LIMIT_SECRET TWILIO_ACCOUNT_SID TWILIO_AUTH_TOKEN TWILIO_FROM; do
+            if ! grep -qx "$name" <<<"$mounted"; then
+              echo "::error::Cloud Run no tiene $name: agrega su versión en Secret Manager y el nombre a provider_secrets (infra/README.md)."
+              missing=1
+            fi
+          done
+          exit "$missing"
+
+      - run: gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - name: Build and push the app image
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          target: app
+          push: true
+          tags: ${{ env.IMAGE_BASE }}/app:${{ env.SHA }}
+          cache-from: type=gha,scope=app
+          cache-to: type=gha,scope=app,mode=max
+          # Public values inlined into the browser bundle; secrets never go here.
+          build-args: |
+            NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${{ vars.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}
+            NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID=${{ vars.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID }}
+            NEXT_PUBLIC_SENTRY_DSN=${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
+            NEXT_PUBLIC_POSTHOG_KEY=${{ vars.NEXT_PUBLIC_POSTHOG_KEY }}
+            NEXT_PUBLIC_POSTHOG_HOST=${{ vars.NEXT_PUBLIC_POSTHOG_HOST }}
+            NEXT_PUBLIC_VAPID_PUBLIC_KEY=${{ vars.NEXT_PUBLIC_VAPID_PUBLIC_KEY }}
+            SENTRY_ORG=${{ vars.SENTRY_ORG }}
+            SENTRY_PROJECT=${{ vars.SENTRY_PROJECT }}
+          # Uploads source maps when set; empty, the build skips them (ADR 0008).
+          secrets: |
+            sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}
+
+      - name: Build and push the migrate image
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          target: migrate
+          push: true
+          tags: ${{ env.IMAGE_BASE }}/migrate:${{ env.SHA }}
+          cache-from: type=gha,scope=migrate
+          cache-to: type=gha,scope=migrate,mode=max
+
+      # Migrations are additive (STYLEGUIDE), so the revision serving traffic keeps working
+      # while they run. A failed migration stops the deploy before any traffic moves.
+      - name: Run migrations
+        run: |
+          gcloud run jobs update aluvia-migrate --region "$REGION" --image "$IMAGE_BASE/migrate:$SHA" --quiet
+          gcloud run jobs execute aluvia-migrate --region "$REGION" --wait
+
+      - name: Deploy the service
+        id: deploy
+        run: |
+          previous=$(gcloud run services describe aluvia --region "$REGION" --format 'value(status.traffic[0].revisionName)')
+          echo "previous=$previous" >> "$GITHUB_OUTPUT"
+          gcloud run services update aluvia --region "$REGION" --quiet --container app --image "$IMAGE_BASE/app:$SHA"
+          # A manual rollback pins traffic to one revision; without this, new revisions get 0 %.
+          gcloud run services update-traffic aluvia --region "$REGION" --to-latest --quiet
+
+      - name: Smoke test
+        env:
+          APP_URL: ${{ vars.APP_URL }}
+        run: |
+          for attempt in 1 2 3 4 5 6; do
+            if curl -fsS --max-time 10 "$APP_URL/api/health"; then exit 0; fi
+            sleep 10
+          done
+          echo "::error::$APP_URL/api/health no responde 200 tras el deploy."
+          exit 1
+
+      # The run.app URL refuses outside traffic, so the new revision is checked through the
+      # domain after the switch, and a failure sends traffic back to the revision it replaced.
+      - name: Roll back
+        if: failure() && steps.deploy.outputs.previous != ''
+        env:
+          PREVIOUS: ${{ steps.deploy.outputs.previous }}
+        run: gcloud run services update-traffic aluvia --region "$REGION" --to-revisions "$PREVIOUS=100" --quiet

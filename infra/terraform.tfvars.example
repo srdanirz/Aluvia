@@ -1,0 +1,3 @@
+# Copy to terraform.tfvars (gitignored). Everything else has a default in variables.tf.
+alert_emails = ["mantenedor1@example.org", "mantenedor2@example.org"]
+billing_account = "000000-000000-000000"
