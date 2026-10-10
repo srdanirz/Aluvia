@@ -24,6 +24,11 @@ export const EVENTS = {
   }),
   worksite_drafts_extracted: z.strictObject({ count: z.number().int().nonnegative() }),
   worksite_placed: z.strictObject({ hadNearby: z.boolean() }),
+  // Coordinator review queue (issue #43).
+  worksite_review_flag_resolved: z.strictObject({
+    flag: z.enum(["outside_area", "imprecise_location", "possible_duplicate", "person_in_danger"]),
+  }),
+  worksite_hazards_reviewed: z.strictObject({}),
   work_item_claimed: z.strictObject({
     emergencyId: z.uuid(),
     workTypeKey: z.string().min(1).max(64),

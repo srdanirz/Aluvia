@@ -164,7 +164,9 @@ export async function resolveReviewFlag(
   if (!emergencyId) return { ok: false, code: "emergency_not_found" };
   if (!canReviewWorksite(await getEmergencyAccess(emergencyId))) return { ok: false, code: "forbidden" };
   const { worksiteId, version, flag } = parsed.data;
-  return resolveWorksiteReviewFlag(db, { emergencyId, worksiteId, version, flag });
+  const result = await resolveWorksiteReviewFlag(db, { emergencyId, worksiteId, version, flag });
+  if (result.ok) trackServerEvent("worksite_review_flag_resolved", { flag });
+  return result;
 }
 
 /** A coordinator checked the "do not enter" hazards; the home's work can be claimed again. */
@@ -178,7 +180,14 @@ export async function reviewHazards(
   const access = await getEmergencyAccess(emergencyId);
   if (!access || !canReviewWorksite(access)) return { ok: false, code: "forbidden" };
   const { worksiteId, version } = parsed.data;
-  return markWorksiteHazardsReviewed(db, { emergencyId, worksiteId, version, reviewedBy: access.userId });
+  const result = await markWorksiteHazardsReviewed(db, {
+    emergencyId,
+    worksiteId,
+    version,
+    reviewedBy: access.userId,
+  });
+  if (result.ok) trackServerEvent("worksite_hazards_reviewed", {}, { distinctId: access.userId });
+  return result;
 }
 
 const queueInputSchema = z.object({

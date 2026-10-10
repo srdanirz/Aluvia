@@ -63,9 +63,12 @@ function encodeCursor(createdAt: string, id: string): string {
   return Buffer.from(`${createdAt}|${id}`).toString("base64url");
 }
 
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 function decodeCursor(cursor: string): { createdAt: string; id: string } | null {
   const [createdAt, id] = Buffer.from(cursor, "base64url").toString().split("|");
-  if (!createdAt || !id || Number.isNaN(Date.parse(createdAt))) return null;
+  // The cursor comes back from the browser: anything malformed reads as "from the start".
+  if (!createdAt || !id || !UUID.test(id) || Number.isNaN(Date.parse(createdAt))) return null;
   return { createdAt, id };
 }
 

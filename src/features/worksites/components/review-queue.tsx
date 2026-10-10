@@ -4,7 +4,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 
 import { useErrorMessage } from "@/shared/i18n/use-error-message";
-import { Button, Card, CardBody, Chip, Spinner } from "@/shared/ui";
+import { Button, Card, CardBody, Chip, FormError, Spinner } from "@/shared/ui";
 
 import { loadReviewQueue, resolveReviewFlag, reviewHazards } from "../server/actions";
 import type { ReviewItem, ReviewPage } from "../server/review-queue";
@@ -78,11 +78,7 @@ export function ReviewQueue({ slug, initial }: ReviewQueueProps) {
 
   return (
     <div className="flex flex-col gap-3">
-      {error ? (
-        <p role="alert" className="text-body-sm text-status-urgent-text">
-          {errorMessage(error)}
-        </p>
-      ) : null}
+      {error ? <FormError>{errorMessage(error)}</FormError> : null}
       {items.map((item) => (
         <ReviewCard
           key={item.id}

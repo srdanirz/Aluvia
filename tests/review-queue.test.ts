@@ -89,4 +89,10 @@ describe("review queue", () => {
     expect(new Set(ids).size).toBe(homes.length);
     expect(ids.sort()).toEqual(homes.map((h) => h.id).sort());
   });
+
+  it("reads a tampered cursor as the first page instead of failing", async () => {
+    const tampered = Buffer.from("2026-10-10T00:00:00Z|not-a-uuid").toString("base64url");
+    const page = await listWorksitesToReview(db, { emergencyId, viewerId: coordinatorId, cursor: tampered });
+    expect(page.items.length).toBeGreaterThan(0);
+  });
 });
