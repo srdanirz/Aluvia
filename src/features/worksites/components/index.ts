@@ -4,3 +4,4 @@ export { PendingWrites } from "./pending-writes";
 export { ReportForm } from "./report-form";
 export { ReportPage } from "./report-page";
 export { ReportSkeleton } from "./report-skeleton";
+export { ReviewQueue } from "./review-queue";

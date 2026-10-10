@@ -85,6 +85,13 @@
       "when": 1791635971393,
       "tag": "0011_work_item_events_append_only",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1791648974267,
+      "tag": "0012_review_queue_index",
+      "breakpoints": true
     }
   ]
 }

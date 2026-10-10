@@ -198,6 +198,35 @@
     },
     "trust": {
       "noMoney": "Aluvia never asks for money. If someone charges you in its name, it is a scam."
+    },
+    "review": {
+      "title": "Homes to review",
+      "lead": "Oldest first. Settle each flag; viewing the address is logged.",
+      "forbidden": "Only approved coordinators of this emergency see this list.",
+      "emptyChip": "Up to date",
+      "empty": "There are no homes to review.",
+      "loadMore": "Show more",
+      "loadingMore": "Loading",
+      "saving": "Saving",
+      "reported": "Reported {time} · {source}",
+      "noAddress": "No written address",
+      "placeLater": "Place the pin from the map.",
+      "resolve": "Reviewed",
+      "hazard": "Do not enter: {hazard}",
+      "hazardsReviewed": "Risk reviewed",
+      "source": {
+        "neighbor": "neighbor",
+        "coordinator": "coordinator",
+        "social": "social media",
+        "official": "official survey"
+      },
+      "flag": {
+        "no_location": "Not placed",
+        "outside_area": "Outside the area",
+        "imprecise_location": "Imprecise GPS",
+        "possible_duplicate": "Possible duplicate",
+        "person_in_danger": "Person in danger"
+      }
     }
   },
   "worksiteUpdates": {
