@@ -86,7 +86,7 @@ describe("backfillWorksiteLocations", () => {
     const id = await addUnplacedHome(emergencyId, "calle inventada 101, depto 2");
     const before = await readHome(id);
 
-    const summary = await backfillWorksiteLocations(db);
+    const summary = await backfillWorksiteLocations(db, emergencyId);
 
     expect(geocode).not.toHaveBeenCalled();
     expect(summary).toMatchObject({ placedByParcel: 1, placedByGeocoder: 0, updated: 1, remaining: 0 });
@@ -104,7 +104,7 @@ describe("backfillWorksiteLocations", () => {
     const emergencyId = await newEmergency();
     const id = await addUnplacedHome(emergencyId, "Pasaje Ficticio 202");
 
-    const summary = await backfillWorksiteLocations(db);
+    const summary = await backfillWorksiteLocations(db, emergencyId);
 
     expect(geocode).toHaveBeenCalledTimes(1);
     expect(geocode.mock.calls[0]?.[1].area).toEqual(AREA);
@@ -118,7 +118,7 @@ describe("backfillWorksiteLocations", () => {
     const before = await readHome(id);
     geocode.mockResolvedValue({ point: null, outcome: "imprecise" });
 
-    const summary = await backfillWorksiteLocations(db);
+    const summary = await backfillWorksiteLocations(db, emergencyId);
 
     expect(summary).toMatchObject({ updated: 0, remaining: 1, notPlaced: { imprecise: 1 } });
     expect(await readHome(id)).toEqual(before);
@@ -127,11 +127,11 @@ describe("backfillWorksiteLocations", () => {
   it("is idempotent: a second run places nothing and calls nobody", async () => {
     const emergencyId = await newEmergency();
     const id = await addUnplacedHome(emergencyId, "Avenida Imaginaria 303");
-    await backfillWorksiteLocations(db);
+    await backfillWorksiteLocations(db, emergencyId);
     const placed = await readHome(id);
     geocode.mockClear();
 
-    const summary = await backfillWorksiteLocations(db);
+    const summary = await backfillWorksiteLocations(db, emergencyId);
 
     expect(geocode).not.toHaveBeenCalled();
     expect(summary).toMatchObject({ candidates: 0, updated: 0 });
@@ -142,7 +142,7 @@ describe("backfillWorksiteLocations", () => {
     const emergencyId = await newEmergency();
     await addUnplacedHome(emergencyId, "Calle Secreta 404");
 
-    const summary = await backfillWorksiteLocations(db);
+    const summary = await backfillWorksiteLocations(db, emergencyId);
 
     expect(JSON.stringify(summary)).not.toContain("Secreta");
   });

@@ -44,7 +44,11 @@ export type BackfillSummary = {
  * placing the pin meanwhile, never moves a point. Returns counts only: the addresses never leave
  * this function. Geocoding calls run one after another (a one-off over a handful of homes).
  */
-export async function backfillWorksiteLocations(database: Executor): Promise<BackfillSummary> {
+export async function backfillWorksiteLocations(
+  database: Executor,
+  // Every emergency by default; one when given (tests share a database across files).
+  emergencyId: string | null = null,
+): Promise<BackfillSummary> {
   const rows = await database.execute<Candidate & { total: number }>(sql`
     SELECT w.id, c.address_text,
       ST_X(p.location) AS parcel_lng, ST_Y(p.location) AS parcel_lat,
@@ -63,6 +67,7 @@ export async function backfillWorksiteLocations(database: Executor): Promise<Bac
       HAVING count(*) = 1
     ) p ON true
     WHERE w.location IS NULL AND w.source <> 'official'
+      AND (${emergencyId}::uuid IS NULL OR w.emergency_id = ${emergencyId}::uuid)
       AND c.address_text IS NOT NULL AND btrim(c.address_text) <> ''
     ORDER BY w.created_at, w.id
     LIMIT ${BACKFILL_BATCH}`);
