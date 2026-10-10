@@ -60,7 +60,7 @@ async function homesWithId(ids: string[]) {
 }
 
 describe("report schema", () => {
-  it("needs a point or a written address, and at least one need", () => {
+  it("needs a point or a written address, and a need or a few words of what happened", () => {
     const base = { id: randomUUID(), locale: "es", workTypeKeys: ["mud"] };
     expect(worksiteReportSchema.safeParse({ ...base, location: null }).success).toBe(false);
     expect(
@@ -70,6 +70,8 @@ describe("report schema", () => {
     expect(worksiteReportSchema.safeParse({ ...base, location: ORIGIN, workTypeKeys: [] }).success).toBe(
       false,
     );
+    const described = { ...base, location: ORIGIN, workTypeKeys: [], contact: { notes: "Entró barro" } };
+    expect(worksiteReportSchema.safeParse(described).success).toBe(true);
   });
 
   it("rejects consent without a phone", () => {

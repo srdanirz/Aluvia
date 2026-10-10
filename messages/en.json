@@ -112,7 +112,7 @@
         "locatingHelp": "If it takes long, write the address. The GPS joins in on its own when it answers."
       },
       "needs": {
-        "title": "What does it need?",
+        "title": "Or tap what it needs",
         "empty": "This emergency has no work types set up yet."
       },
       "details": {
@@ -130,15 +130,13 @@
         "notifySms": "SMS",
         "notifyWhatsapp": "WhatsApp",
         "notifyHint": "We only write to you about this home. Reply STOP to stop the messages.",
-        "notesLabel": "Notes",
-        "notesHint": "Anything that helps find the home or come prepared.",
         "hazards": "Do not enter: there is a risk of",
         "hazardsHint": "Nobody can take work at this home until a coordinator reviews it."
       },
       "submit": "Send report",
       "sending": "Sending",
       "missing": {
-        "needs": "Pick at least one need.",
+        "needs": "Write what happened or tap what it needs.",
         "location": "The location or the address is missing."
       },
       "done": {
@@ -163,6 +161,11 @@
         "callLocal": "Call your country's emergency number first. Aluvia coordinates cleanup and does not replace emergency services.",
         "call": "{label} · {phone}",
         "thenContinue": "Then you can go on with the report: a coordinator will see it first."
+      },
+      "story": {
+        "label": "What happened?",
+        "placeholder": "E.g. mud came up to the kitchen, an 80-year-old woman lives alone.",
+        "hint": "In your own words. Only coordinators see it."
       }
     },
     "damage": {
