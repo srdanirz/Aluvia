@@ -10,12 +10,13 @@ Tomamos el **sistema** (paleta, tipografía, espaciado, radios, sombras), no la 
 
 ## Adaptaciones para Aluvia
 
-La referencia es un sitio editorial para leer con calma. Aluvia se usa en la calle, con sol, desde un celular y con prisa. Por eso cambian cuatro cosas, y estas mandan sobre la referencia:
+La referencia es un sitio editorial para leer con calma. Aluvia se usa en la calle, con sol, desde un celular y con prisa. Por eso cambian cinco cosas, y estas mandan sobre la referencia:
 
 1. **Contraste AA siempre.** El Signal Blue (`#41a1cf`) da 2,9:1 sobre el lienzo y no sirve para texto ni para bordes de controles. Texto y links azules usan `#006a9e` (5,9:1); bordes azules, `#0081c0`.
 2. **La acción principal es el botón oscuro relleno** (Dusk, 16:1), no el contorno azul. El contorno queda para acciones secundarias.
 3. **Colores de estado.** La referencia prohíbe acentos nuevos; Aluvia necesita distinguir urgente, en curso y hecho. Se agregan cuatro tokens de estado, que solo usan `StatusBadge` y los pines del mapa.
 4. **Densidad.** En el panel del coordinador se usa la escala compacta; el aire generoso de la referencia queda para las pantallas públicas.
+5. **Paleta ambiental.** La referencia es casi monocroma. Aluvia suma tres familias suaves, lluvia, tierra y musgo, para que la plataforma se sienta del territorio y humana, no de alarma. Son fondos, zonas e ilustración: nunca acciones ni estados.
 
 ## Tokens
 
@@ -44,12 +45,33 @@ La referencia es un sitio editorial para leer con calma. Aluvia se usa en la cal
 
 Todos los pares de texto cumplen AA (4,5:1) contra `canvas` y `surface` en los dos temas; `line-strong` es solo decorativo.
 
+### Paleta ambiental: lluvia, tierra y musgo
+
+| Token | Claro | Oscuro | Uso |
+|---|---|---|---|
+| `rain-100` | `#e9f1f5` | `#172129` | Fondo: franjas, estados vacíos, zonas informativas. |
+| `rain-300` | `#bcd3df` | `#2b4252` | Relleno decorativo: zonas del mapa, gráficos, ilustración. |
+| `rain-600` | `#3c6880` | `#9cc4d9` | Texto e íconos sobre `rain-100`, `canvas` y `surface`. |
+| `earth-100` | `#f5ede3` | `#241e18` | Fondo cálido: franjas y tarjetas de contexto. |
+| `earth-300` | `#dfc9ad` | `#4b3d2e` | Relleno decorativo: capas del terreno, gráficos. |
+| `earth-600` | `#76563a` | `#d4b691` | Texto e íconos sobre `earth-100`, `canvas` y `surface`. |
+| `moss-100` | `#ecf1e7` | `#1b2118` | Fondo: franjas de comunidad y voluntariado. |
+| `moss-300` | `#c4d3b9` | `#384733` | Relleno decorativo y gráficos. |
+| `moss-600` | `#4a6341` | `#aac39d` | Texto e íconos sobre `moss-100`, `canvas` y `surface`. |
+
+- **Lluvia** para información y agua; **tierra** para el terreno, las casas y el trabajo físico; **musgo** para comunidad y voluntarios. Una familia por bloque, sin degradés entre ellas.
+- Los `-100` son fondos; encima va texto `ink` o el `-600` de su familia. Los `-300` son solo decorativos: nunca texto ni borde de un control (1,6:1 contra el lienzo); encima va texto `ink`.
+- Contraste medido en los dos temas: cada `-600` da 5,3:1 o más sobre su `-100`, `canvas` y `surface`; `ink` da 8,4:1 o más sobre cualquier `-100` o `-300`.
+- No son acentos ni estados. Una acción sigue siendo `action` o `accent`; un estado sale de `StatusBadge`. Verde musgo no significa hecho.
+- Las zonas del mapa se pintan con `rain-300` o `earth-300`, nunca con colores de estado.
+
 ### Tipografía
 
 | Familia | Fuente | Licencia | Uso |
 |---|---|---|---|
 | `font-display` | Fraunces, peso 400 | OFL (Google Fonts) | Títulos de 27 px o más. Nunca peso 600+. |
 | `font-sans` | Inter, pesos 400 a 600 | OFL (Google Fonts) | Todo lo demás: UI, cuerpo, botones, tablas. |
+| `font-brand` | Unbounded, peso 700 | OFL (Google Fonts) | Solo el logotipo. Nunca en títulos ni en la UI. |
 
 Se cargan con `next/font/google`, nunca desde un `<link>`.
 
@@ -73,6 +95,21 @@ En celular, `display` y `heading-lg` bajan a `heading`. El texto de cuerpo nunca
 - **Sombras:** `shadow-card` (`0 1px 1px rgb(0 0 0 / .08), 0 4px 5px rgb(0 0 0 / .08)`) para tarjetas; `shadow-float` (`0 2px 6px rgb(0 0 0 / .15)`) para lo que flota sobre el mapa. **Los botones no llevan sombra.**
 - **Bordes:** 1 px `line` en tarjetas y secciones. Los bordes hacen el trabajo que en otros sistemas hacen las sombras.
 - Ancho máximo de contenido: 1200 px.
+
+## Marca
+
+El logo es una persona cavando con una pala, en silueta de tinta con la cabeza separada del cuerpo: vecinos que ayudan con sus manos. El tono es sobrio, porque es una herramienta para una catástrofe: sin mascotas con cara, rebotes ni chistes visuales.
+
+| Archivo | Contenido | Fondo |
+|---|---|---|
+| [`brand/aluvia-logo.svg`](brand/aluvia-logo.svg) | Figura y logotipo, tinta `#1f1f29` | `canvas`, `surface` y los `-100` |
+| [`brand/aluvia-logo-inverse.svg`](brand/aluvia-logo-inverse.svg) | Figura y logotipo, `#fefffc` | `action`, tema oscuro, fotos oscuras |
+| [`brand/aluvia-mark.svg`](brand/aluvia-mark.svg) | Solo la figura, tinta | Ícono de la PWA, avatar, favicon |
+| [`brand/aluvia-mark-inverse.svg`](brand/aluvia-mark-inverse.svg) | Solo la figura, `#fefffc` | Ídem sobre fondo oscuro |
+
+- El logotipo es "aluvia" en minúsculas, Unbounded 700, convertido a trazos: no se reescribe con la fuente.
+- Siempre de una sola tinta. Sin color, sombra, borde ni contenedor; la cabeza no se acerca ni se aleja del cuerpo.
+- Aire mínimo alrededor: el alto de la cabeza de la figura. Tamaño mínimo: 24 px de alto la figura sola, 120 px de ancho el logo completo.
 
 ## Temas: claro, oscuro y automático
 
@@ -121,10 +158,13 @@ Celular primero, pero tablet y escritorio son de primera clase: los coordinadore
 
 - Negro puro `#000000` ni blanco puro como lienzo.
 - Botones con sombra, rellenos azules o en degradé.
-- Acentos de color nuevos fuera de los tokens de estado.
+- Colores nuevos fuera de los tokens: estado, paleta ambiental y los de la tabla de color.
 - Serif en peso 600+ o en textos menores a 27 px.
 - Transparencia en el texto de cuerpo.
 - Fotos de archivo, ilustraciones 3D, emojis.
+- Unbounded fuera del logotipo.
+- Lluvia, tierra o musgo para una acción o un estado.
+- El logo con color, sombra o contenedor.
 
 ## Para un agente que diseña una pantalla
 
