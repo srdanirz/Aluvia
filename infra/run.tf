@@ -122,7 +122,7 @@ resource "google_cloud_run_v2_service" "app" {
       }
 
       dynamic "env" {
-        for_each = google_secret_manager_secret.app
+        for_each = { for name in local.mounted_secrets : name => google_secret_manager_secret.app[name] }
         content {
           name = env.key
           value_source {

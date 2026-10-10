@@ -39,11 +39,11 @@ Terraform crea el contenedor y el permiso; el valor nunca pasa por el repo ni po
 # Secretos generados (AUTH_SECRET, RATE_LIMIT_SECRET)
 openssl rand -base64 32 | tr -d '\n' | gcloud secrets versions add AUTH_SECRET --project aluvia-app --data-file=-
 
-# Credenciales de un proveedor: primero la versión, después el nombre en provider_secrets
-printf '%s' "$VALOR" | gcloud secrets versions add RESEND_API_KEY --project aluvia-app --data-file=-
+# Credenciales de un proveedor: el secreto ya existe vacío, solo se agrega la versión
+printf '%s' "$VALOR" | gcloud secrets versions add TWILIO_AUTH_TOKEN --project aluvia-app --data-file=-
 ```
 
-Para un proveedor nuevo: crear el secreto con su primera versión, agregar el nombre a `provider_secrets` en `terraform.tfvars` y aplicar. Cloud Run lo recibe como variable de entorno del mismo nombre. Una nueva versión de un secreto existente llega con el próximo deploy.
+Los secretos de proveedores (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM`, `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `RESEND_API_KEY`, `VAPID_PRIVATE_KEY`, `ANTHROPIC_API_KEY`) los crea Terraform vacíos. Con la versión agregada, el nombre va a `provider_secrets` en `terraform.tfvars` y se aplica: Cloud Run lo recibe como variable de entorno del mismo nombre. El deploy falla si faltan `AUTH_SECRET`, `RATE_LIMIT_SECRET` o los tres de Twilio, que el login necesita para arrancar. Una versión nueva de un secreto existente llega con el próximo deploy.
 
 ## Variables del repositorio (deploy)
 

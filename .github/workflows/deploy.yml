@@ -66,6 +66,21 @@ jobs:
 
       - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
 
+      # Required runtime secrets must be mounted on the service (infra/secrets.tf, provider_secrets)
+      # before an image that needs them ships; otherwise every new revision fails to boot.
+      - name: Check required secrets
+        run: |
+          mounted=$(gcloud run services describe aluvia --region "$REGION" \
+            --format 'value(spec.template.spec.containers[0].env[].name)' | tr ';' '\n')
+          missing=0
+          for name in AUTH_SECRET RATE_LIMIT_SECRET TWILIO_ACCOUNT_SID TWILIO_AUTH_TOKEN TWILIO_FROM; do
+            if ! grep -qx "$name" <<<"$mounted"; then
+              echo "::error::Cloud Run no tiene $name: agrega su versión en Secret Manager y el nombre a provider_secrets (infra/README.md)."
+              missing=1
+            fi
+          done
+          exit "$missing"
+
       - run: gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
 
       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1

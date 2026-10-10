@@ -75,9 +75,9 @@ variable "database_pool_max" {
 
 variable "provider_secrets" {
   description = <<-EOT
-    Optional third-party credentials mounted as env vars of the same name (RESEND_API_KEY,
-    TWILIO_AUTH_TOKEN, ...). Add a name here only after its first version exists in Secret
-    Manager, or the deploy fails. Values never pass through Terraform.
+    Third-party credentials from local.provider_secrets (secrets.tf) that Cloud Run mounts as env
+    vars of the same name. Add a name only after its first version exists, or the revision fails
+    to start. Values never pass through Terraform.
   EOT
   type        = set(string)
   default     = []
