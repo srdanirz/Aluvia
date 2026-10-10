@@ -183,7 +183,7 @@ El criterio es el nivel de detalle, no la cantidad.
 Detalle y razones en [ADR 0004](adr/0004-design-system.md). La regla corta: **si no existe en `src/shared/ui/`, no existe.**
 
 - **Toda pieza visual sale de `src/shared/ui/`** (shadcn/ui sobre Tailwind v4). Las features componen esas primitivas; no las reimplementan ni las "ajustan" por fuera.
-- **Si falta una primitiva, se agrega a `shared/ui/` en su propio PR**, con sus variantes, antes de usarla. Nunca se crea una versión local en la feature.
+- **Si falta una primitiva, se agrega a `shared/ui/` en el mismo PR de la feature que la necesita**, con sus variantes, en `/dev/ui` y en CODE_MAP. Nunca se crea una versión local en la feature.
 - **Variantes, no overrides.** Un botón distinto es una variante nueva en `button.tsx` (`cva`), no un `className` que lo sobrescribe desde afuera.
 - **Prohibido fuera de `shared/ui/`:** `<table>`, `<button>`, `<input>`, `<select>`, `<dialog>` crudos; el prop `style`; valores arbitrarios de Tailwind (`w-[37px]`, `bg-[#f00]`); el modificador `!` y `!important`; colores, radios o sombras que no sean tokens.
 - **Tablas = `DataTable` del design system** (se agrega a `shared/ui` cuando la primera pantalla la necesite). Nada de tablas armadas a mano por feature.
