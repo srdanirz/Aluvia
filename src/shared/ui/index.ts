@@ -11,6 +11,7 @@ export { IconButton } from "./icon-button";
 export { Input } from "./input";
 export { Label } from "./label";
 export { Logo } from "./logo";
+export { LogoMark } from "./logo-mark";
 export { SegmentedControl } from "./segmented-control";
 export { Skeleton } from "./skeleton";
 export { Spinner } from "./spinner";
