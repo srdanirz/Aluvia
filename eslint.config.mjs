@@ -30,6 +30,13 @@ export default defineConfig([
     },
   },
   {
+    // Inside the design system arbitrary values are allowed, but every class must still exist.
+    files: ["src/shared/ui/**/*.tsx"],
+    plugins: { "better-tailwindcss": betterTailwind },
+    settings: { "better-tailwindcss": { entryPoint: "src/shared/ui/theme.css" } },
+    rules: { "better-tailwindcss/no-unknown-classes": "error" },
+  },
+  {
     files: ["src/**/*.tsx"],
     ignores: ["src/shared/ui/**"],
     plugins: { "better-tailwindcss": betterTailwind },
@@ -60,6 +67,10 @@ export default defineConfig([
             { pattern: "\\(", message: "No arbitrary CSS variables. Use a token from theme.css." },
             { pattern: "^!.*|.*!$", message: "No !important." },
             { pattern: "^dark:", message: "No dark: outside shared/ui. Tokens switch with the theme." },
+            {
+              pattern: "(^|:)(border|outline|ring|divide)(-|$)",
+              message: "No borders: solid fills only (DESIGN.md). Separate with space or a surface tone.",
+            },
             {
               pattern: `(^|:)-?(${PHYSICAL_CLASSES})`,
               message: "Use logical classes (ms-, me-, ps-, pe-, start-, end-, text-start).",

@@ -1,137 +1,152 @@
 # DESIGN
 
-Lenguaje visual de Aluvia. Es la referencia que se lee **antes de diseñar o construir cualquier pantalla**, y la especificación de los tokens. La implementación es `src/shared/ui/theme.css`: si los dos difieren, manda `theme.css` y este archivo se corrige en el mismo PR. Las reglas de uso del design system (qué se puede y qué no fuera de `shared/ui/`) están en [ADR 0004](adr/0004-design-system.md) y en el [STYLEGUIDE](STYLEGUIDE.md).
+Lenguaje visual de Aluvia. Se lee **antes de diseñar o construir cualquier pantalla**. Es la especificación; la implementación es `src/shared/ui/theme.css`, y si difieren manda `theme.css` y este archivo se corrige en el mismo PR. Reglas de uso fuera de `shared/ui/`: [ADR 0004](adr/0004-design-system.md) y [STYLEGUIDE](STYLEGUIDE.md). Catálogo vivo: `/es/dev/ui`.
 
-## Referencia
+## Dirección
 
-El estilo parte del sitio de [General Intelligence Company](https://www.generalintelligencecompany.com/), según el análisis de Refero ([ficha del estilo](https://styles.refero.design/style/34baa524-5d5b-4165-bbab-d01f05e6d6b9)): lienzo cálido casi blanco, tinta casi negra, bordes finos, una serif editorial para títulos, una sans sobria para todo lo demás y un solo acento azul usado con moderación.
+Paneles de vidrio sobre un fondo luminoso, luces iridiscentes, piezas en forma de pastilla y colores sólidos. Referencias: interfaces de seguimiento con mapa (lista de tarjetas a un lado, mapa al otro, detalle flotando abajo) y el brillo ambiental de Apple Intelligence.
 
-Tomamos el **sistema** (paleta, tipografía, espaciado, radios, sombras), no la marca: sus fuentes son comerciales y sus ilustraciones pintadas son propias, así que no se usan.
+**Reglas que no se discuten:**
 
-## Adaptaciones para Aluvia
+1. **Sin bordes.** Una pieza se separa con espacio, con otro tono de superficie o con sombra, nunca con una línea. El lint rechaza `border`, `outline`, `ring` y `divide` fuera de `shared/ui`. La única línea es el anillo de foco cuando se navega con teclado en botones y enlaces (accesibilidad); los campos muestran el foco con un halo suave de color `accent`.
+2. **Un color por pieza.** Un botón es un relleno sólido (o un degradado), nunca un relleno de un color con un borde de otro.
+3. **Pastillas.** Botones, chips, selectores y navegación son `rounded-full`. Tarjetas y paneles, radios grandes. Tres o más acciones en fila se unen en una pastilla larga (`ButtonGroup`).
+4. **Luz, no líneas.** La profundidad la dan el vidrio, las luces iridiscentes (`glass-wash`) y la sombra.
+5. **Carga uniforme.** Una vista aparece entera de una vez (ver Carga).
 
-La referencia es un sitio editorial para leer con calma. Aluvia se usa en la calle, con sol, desde un celular y con prisa. Por eso cambian cuatro cosas, y estas mandan sobre la referencia:
+## Color
 
-1. **Contraste AA siempre.** El Signal Blue (`#41a1cf`) da 2,9:1 sobre el lienzo y no sirve para texto ni para bordes de controles. Texto y links azules usan `#006a9e` (5,9:1); bordes azules, `#0081c0`.
-2. **La acción principal es el botón oscuro relleno** (Dusk, 16:1), no el contorno azul. El contorno queda para acciones secundarias.
-3. **Colores de estado.** La referencia prohíbe acentos nuevos; Aluvia necesita distinguir urgente, en curso y hecho. Se agregan cuatro tokens de estado, que solo usan `StatusBadge` y los pines del mapa.
-4. **Densidad.** En el panel del coordinador se usa la escala compacta; el aire generoso de la referencia queda para las pantallas públicas.
-
-## Tokens
-
-### Color
+Marca: **negro, blanco, rosado `#EF318C` e índigo `#3334E6`**. El rosado marca lo que necesita ayuda; el índigo, lo que está en curso y la acción destacada.
 
 | Token | Claro | Oscuro | Uso |
 |---|---|---|---|
-| `canvas` | `#fefffc` | `#121214` | Fondo de página. En claro, nunca `#ffffff` como lienzo. |
-| `surface` | `#ffffff` | `#1a1a1e` | Tarjetas, paneles, hojas inferiores. |
-| `surface-muted` | `#f9faf7` | `#222227` | Inputs, franjas de sección, fila seleccionada. |
-| `ink` | `#171717` | `#ececec` | Texto principal. Nunca `#000000`. |
-| `ink-strong` | `#2c2c2c` | `#f5f5f3` | Títulos. |
-| `ink-soft` | `#444141` | `#c4c4c0` | Texto secundario, etiquetas. |
-| `ink-muted` | `#646464` | `#9a9a96` | Ayudas, metadatos. Mínimo para texto. |
-| `line` | `#dee2de` | `#2e2e33` | Bordes de tarjetas, divisores. |
-| `line-strong` | `#b4b8b4` | `#4a4a50` | Bordes deshabilitados. Nunca para texto (2:1). |
-| `action` | `#1f1f29` | `#f5f5f3` | Fondo del botón principal. |
-| `on-action` | `#ffffff` | `#1f1f29` | Texto e íconos sobre `action`. |
-| `action-line` | `#282834` | `#d4d4d8` | Borde de botones secundarios, íconos. |
-| `accent` | `#006a9e` | `#5cb8e6` | Links y texto de acento. |
-| `accent-line` | `#0081c0` | `#41a1cf` | Borde de la acción destacada, foco. |
-| `status-urgent` | `#b42318` | `#f97066` | Sin atender, grave. |
-| `status-pending` | `#b54708` | `#fdb022` | Tomado, en curso. |
-| `status-done` | `#067647` | `#47cd89` | Hecho. |
-| `status-closed` | `#646464` | `#9a9a96` | Cerrado sin hacer: duplicado, no quiere ayuda. |
-| `glass` | `surface` al 72 % | `surface` al 72 % | Fondo de lo que flota sobre el contenido (navegación, controles del mapa). |
-| `glass-line` | `ink` al 14 % | `ink` al 14 % | Borde de lo que flota. |
+| `canvas` | `#F5F6FB` | `#0B0C12` | Fondo de página, bajo la aurora. |
+| `surface` | `#FFFFFF` | `#16171F` | Tarjetas. |
+| `surface-muted` | `#E9EBF5` | `#1E2029` | Botones secundarios, campos, selector no elegido. |
+| `ink` | `#0A0B10` | `#F2F3F8` | Texto principal y texto de chips. |
+| `ink-soft` | `#3D3F52` | `#C3C6D6` | Texto secundario. |
+| `ink-muted` | `#62657A` | `#9A9DB2` | Ayudas y metadatos. Mínimo para texto. |
+| `action` / `on-action` | `#000000` / `#FFFFFF` | `#FFFFFF` / `#000000` | Botón principal, ítem activo. |
+| `accent` / `on-accent` | `#3334E6` / `#FFFFFF` | `#8E8FFF` / `#0B0C12` | Acción destacada, foco, links. |
+| `accent-tint` | `#E5E5FC` | `#23244A` | Tarjeta seleccionada. |
+| `status-urgent` / `-tint` | `#EF318C` / `#FDE4F0` | `#FF5FA8` / `#3A1A2B` | Sin tomar, grave. Solo punto, relleno o texto grande. |
+| `status-urgent-text` | `#C2186B` | `#FF5FA8` | Texto de error (el rosado de marca no llega a AA en texto chico). |
+| `status-pending` / `-tint` | `#3334E6` / `#E5E5FC` | `#8E8FFF` / `#23244A` | Tomado, en curso. |
+| `status-done` / `-tint` | `#0F9D58` / `#DDF4E8` | `#4AD295` / `#143326` | Hecho. |
+| `status-closed` / `-tint` | `#8B8EA3` / `#EEF0F5` | `#9A9DB2` / `#23252F` | Cerrado sin hacer. |
+| `glass` | blanco al 62 % | `#16171F` al 60 % | Relleno de lo que flota. |
+| `aurora-1/2/3` | `#8D9FFF`, `#F5B9EA`, `#C686FF` | los mismos, más tenues | Fondo ambiental y luces. Son los tonos del brillo de Apple Intelligence. |
 
-Todos los pares de texto cumplen AA (4,5:1) contra `canvas` y `surface` en los dos temas; `line-strong` es solo decorativo.
+Contraste medido: todo texto cumple AA (4,5:1) sobre `canvas` y `surface` en los dos temas; `text-iridescent` usa un tono medio más oscuro en claro (`#7C3AED`) para no bajar de 3:1 en tamaño grande. El rosado de marca da 3,8:1 sobre blanco, así que un chip lleva **texto en tinta y punto de color**, nunca texto rosado.
 
-### Tipografía
+## Luces
 
-| Familia | Fuente | Licencia | Uso |
-|---|---|---|---|
-| `font-display` | Fraunces, peso 400 | OFL (Google Fonts) | Títulos de 27 px o más. Nunca peso 600+. |
-| `font-sans` | Geist, pesos 400 a 600 | OFL (Google Fonts) | Todo lo demás: UI, cuerpo, botones, tablas. |
-| `font-mono` | Geist Mono, peso 400 | OFL (Google Fonts) | Datos, códigos, horas en tablas. |
-
-La referencia usa `af` (fuente de foundry) y PP Mondwest, ambas de pago, así que no pueden ir en un repo público. Fraunces es el reemplazo que Refero propone para Mondwest; Geist y Geist Mono los usa el propio sitio de referencia. Se cargan con `next/font/google`, nunca desde un `<link>`.
-
-| Rol | Tamaño | Alto de línea | Tracking | Familia |
-|---|---|---|---|---|
-| `display` | 54 px | 1.1 | -0.02em | display |
-| `heading-lg` | 48 px | 1.1 | -0.02em | display |
-| `heading` | 40 px | 1.1 | -0.02em | display |
-| `heading-sm` | 27 px | 1.5 | -0.04em | display |
-| `subheading` | 18 px | 1.3 | -0.01em | sans 500 |
-| `body` | 16 px | 1.5 | -0.01em | sans 400 |
-| `body-sm` | 15 px | 1.4 | -0.01em | sans 400 |
-| `caption` | 13 px | 1.3 | -0.01em | sans 400 |
-
-En celular, `display` y `heading-lg` bajan a `heading`. El texto de cuerpo nunca baja de 15 px.
-
-### Espaciado, radios y sombras
-
-- **Base 4 px.** Escala: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, más 44 para el alto mínimo táctil (`min-h-11`). Ningún valor fuera de la escala: `theme.css` elimina los demás.
-- **Radios:** botones e inputs 8 px · tarjetas 12 px · paneles grandes y hojas 16 px · superficies destacadas 24 px · pastilla de navegación y chips `full`. Nada sobre 24 px salvo la pastilla.
-- **Sombras:** `shadow-card` (`0 1px 1px rgb(0 0 0 / .08), 0 4px 5px rgb(0 0 0 / .08)`) para tarjetas; `shadow-float` (`0 2px 6px rgb(0 0 0 / .15)`) para lo que flota sobre el mapa. **Los botones no llevan sombra.**
-- **Bordes:** 1 px `line` en tarjetas y secciones. Los bordes hacen el trabajo que en otros sistemas hacen las sombras.
-- Ancho máximo de contenido: 1200 px.
-
-## Temas: claro, oscuro y automático
-
-- Tres opciones para el usuario: **claro, oscuro y automático** (sigue al sistema operativo). Automático es el valor por defecto.
-- Cada token tiene su valor en los dos temas, en `theme.css`. **Los componentes no saben en qué tema están**: usan `bg-surface` y el token cambia solo. Por eso el variante `dark:` no se usa fuera de `src/shared/ui/`.
-- **Automático no necesita nada del servidor:** `theme.css` resuelve el tema con `@media (prefers-color-scheme: dark)`. La cookie solo existe si el usuario eligió claro u oscuro explícito; en ese caso un script en línea en el `<head>` (`ThemeScript`) pone `data-theme` en `<html>` antes del primer pintado. Así no hay parpadeo y las páginas siguen siendo estáticas.
-- El mapa toma el tema con la prop `colorScheme` de `@vis.gl/react-google-maps`, que **solo se aplica al crear el mapa**. Cambiar de tema no remonta el mapa (sería otra carga cobrada, ADR 0006): el mapa toma el tema nuevo en la próxima carga. El Map ID necesita un estilo oscuro configurado en el estilo en la nube de Google.
-- Las sombras en oscuro casi no se ven: ahí los bordes `line` hacen el trabajo.
-
-## Dispositivos
-
-Celular primero, pero tablet y escritorio son de primera clase: los coordinadores trabajan en iPad en terreno.
-
-| Rango | Desde | Layout |
+| Utilidad | Qué hace | Dónde |
 |---|---|---|
-| Celular | 0 | Una columna. Mapa a pantalla completa con hoja inferior. Navegación inferior al alcance del pulgar. |
-| Tablet | 768 px (`md`) | Horizontal (`landscape:`): mapa con panel lateral de 360 px. Vertical (`portrait:`): el panel pasa a hoja inferior. `md` solo mira el ancho y un iPad vertical ya mide 768 px o más, por eso manda la orientación. |
-| Escritorio | 1280 px (`xl`) | Mapa, panel lateral y detalle de la casa a la vez. |
+| `Aurora` (componente) | Tres brillos difusos fijos detrás de la página | Una vez por página, en el layout |
+| `glass-wash` | Dos luces iridiscentes tenues dentro de la pieza (arriba a la izquierda y abajo a la derecha) | Todas las tarjetas y paneles (ya incluida en `Card` y `GlassPanel`) |
+| `glass-sheen` | Un reflejo de luz cruza la pieza al pasar el mouse o enfocarla | Solo piezas que se pueden tocar (`Card interactive`) |
+| `text-iridescent` | Texto en degradado índigo, lila y rosado | Una frase por vista, en tamaño `heading` o mayor |
 
-- Se prueba a **375, 768, 1024 (iPad vertical y horizontal) y 1440 px**.
-- Todo se puede hacer con el dedo: objetivos de 44 px o más, sin acciones que solo existan con hover.
-- Se respetan las áreas seguras del iPhone y del iPad (`env(safe-area-inset-*)`) en la barra inferior y en la hoja del mapa. Solo funcionan con `export const viewport = { viewportFit: "cover" }` en el layout raíz; sin eso valen 0.
-- Los inputs usan el teclado correcto (`inputMode="tel"`, `type="email"`) y tienen 16 px o más, para que iOS no haga zoom al tocarlos.
+## Tipografía
+
+Una sola familia: **Helvetica Neue** en dispositivos Apple (la de la referencia; es de pago y no se distribuye, pero viene instalada) e **Inter** en el resto. Geist Mono para datos tabulares.
+
+| Rol | Tamaño | Alto de línea | Tracking | Peso |
+|---|---|---|---|---|
+| `display` | 48 px | 1.05 | -0.03em | 400 |
+| `heading` | 32 px | 1.15 | -0.02em | 400 |
+| `heading-sm` | 24 px | 1.25 | -0.015em | 400 |
+| `subheading` | 18 px | 1.35 | -0.01em | 500 |
+| `body` | 16 px | 1.5 | -0.005em | 400 |
+| `body-sm` | 14 px | 1.45 | 0 | 400 o 500 |
+| `caption` | 12 px | 1.35 | 0.005em | 500 |
+
+La jerarquía la da el tamaño, no el peso: los títulos van en 400. Los campos usan `body` (16 px) para que iOS no haga zoom.
+
+## Tamaños
+
+| Pieza | Medida |
+|---|---|
+| Botón, campo, selector, ítem de navegación | alto 44 px |
+| Botón de ícono | círculo de 44 px |
+| Ícono | 20 px (`size-icon`) en botones de ícono y navegación; 18 px (`size-icon-sm`) dentro de un botón con texto; trazo 1.5; Lucide |
+| Chip | texto `caption`, padding 4 × 10 px, punto de 6 px, separación 6 px; alto 24 px |
+| Tarjeta | padding 24 px, radio 20 px, separación interna 8 px |
+| Panel de vidrio | padding 24 px, radio 28 px |
+| Campo | radio 14 px, padding horizontal 16 px |
+| Listas | 12 px entre tarjetas; 48 px entre secciones |
+
+Espaciado base 4 px: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, más los tokens de componente (`chip-x`, `chip-y`, `chip-gap`, `dot`, `icon`, `icon-sm`, `panel`, `nav-bottom`, `nav-top`). `theme.css` elimina todo lo demás.
 
 ## Componentes
 
-- **Botón principal:** fondo `action`, texto `on-action`, radio 8 px, alto mínimo 44 px, sans 500 15 px.
-- **Botón secundario:** transparente, borde 1 px `action-line`, texto `action-line`.
-- **Botón destacado:** transparente, borde 1 px `accent-line`, texto `accent`, con flecha a la derecha. Uno por pantalla como máximo.
-- **Link:** texto `accent` o `ink-soft`, sin subrayado hasta el hover, flecha opcional.
-- **Input:** fondo `surface-muted`, solo borde inferior `ink-soft`, radio 0, estética de formulario en papel. Foco: borde inferior de 2 px `accent-line`. Alto mínimo 44 px.
-- **Tarjeta:** `surface`, borde `line`, radio 12 px, `shadow-card`, padding 16 px.
-- **Navegación (`FloatingNav`):** una pastilla de vidrio flotante con borde (`bg-glass`, `border-glass-line`, `backdrop-blur-glass`, `shadow-float`), nunca una barra pegada al borde. En celular va abajo, centrada, solo íconos de 22 px (el texto queda como nombre accesible) y respeta el área segura; desde tablet va arriba con ícono y texto. El ítem activo lleva `surface-muted`. Va fuera de `<main>`, y la página le deja espacio con `pb-nav-bottom md:pt-nav-top`. Es la única barra de navegación de la app.
-- **StatusBadge:** punto de color de estado + etiqueta escrita, sans 500 13 px. Nunca solo el color.
-- **Mapa:** ocupa la pantalla completa en celular; los controles y la ficha de la casa flotan encima como hoja inferior (radio 16 px arriba, `shadow-float`).
-- **Tablas (`DataTable`):** sin bordes verticales, divisores horizontales `line`, encabezado `caption` en `ink-muted`, fila seleccionada `surface-muted`.
+| Componente | Forma |
+|---|---|
+| `Button` | Pastilla. `primary` negro sólido (uno por vista), `secondary` de vidrio, `accent` índigo, `ghost` sin relleno. `block` ocupa el ancho. |
+| `IconButton` | Círculo de 44 px de vidrio con `glass-wash`: `surface`, `urgent` y `pending` (vidrio teñido del estado), `solid` (negro), `ghost`. Siempre con `label`. |
+| `Chip` | Pastilla de estado: tinte, punto y texto en tinta. `urgent`, `pending`, `done`, `closed`, `neutral`. |
+| `ButtonGroup` | Tres o más acciones relacionadas en fila van en **una sola pastilla de vidrio**, nunca como botones sueltos. Adentro, botones `ghost`; como mucho uno `primary`/`solid` marca la acción principal. |
+| `SegmentedControl` | Vistas excluyentes: la elegida en negro, las demás en `surface-muted`. |
+| `Card` | Blanca con `glass-wash`, radio 20, sombra suave. `selected` pasa a `accent-tint`; `interactive` se eleva y atrapa la luz al pasar el mouse. |
+| `GlassPanel` | Vidrio con `glass-wash`, para paneles sobre el mapa y hojas inferiores. |
+| `FloatingNav` | Pastilla de vidrio flotante, la única barra de navegación. Celular: abajo, solo íconos. Tablet y escritorio: arriba, ícono y texto. Ítem activo en negro. Va fuera de `<main>` y la página le deja espacio con `pb-nav-bottom md:pt-nav-top`. |
+| `Aurora` | Fondo ambiental. |
+| `Field` + `Input` | Etiqueta, campo relleno sin línea, ayuda o error. Al enfocarlo pasa a blanco con un halo suave de color `accent`, sin contorno. Error: relleno `status-urgent-tint` y texto `status-urgent-text`. |
+| `Skeleton`, `Spinner` | Ver Carga. |
 
-## Haz
+## Movimiento
 
-- Un solo título en serif por pantalla; todo lo demás en sans.
-- Una idea por pantalla en las vistas públicas.
-- Íconos Lucide de trazo 1.5, tamaño 16 o 20 px, del color del texto que acompañan.
-- Estados vacíos con una frase y una acción, sin ilustración.
+Solo existen estos tokens; ningún componente inventa su duración.
+
+| Token | Valor | Uso |
+|---|---|---|
+| Transición por defecto | 150 ms, `ease-standard` | Hover, cambio de estado, selección |
+| `animate-enter` | 250 ms, aparece subiendo 8 px | Una vista al terminar de cargar; un panel al abrirse |
+| `glass-sheen` | 700 ms | Reflejo al pasar el mouse |
+| `animate-shimmer` | 1,4 s en bucle | Solo `Skeleton` |
+| `animate-spin` | 0,8 s en bucle | Solo `Spinner` |
+| `ease-standard` / `ease-exit` | `cubic-bezier(0.2, 0, 0, 1)` / `cubic-bezier(0.3, 0, 1, 1)` | Entrar / salir |
+
+Con `prefers-reduced-motion`, todo movimiento se apaga.
+
+## Carga
+
+**Una vista aparece entera de una vez.** Nunca una lista a los 2 segundos y otra parte de la misma pantalla a los 10.
+
+- Cada ruta tiene **un solo `loading.tsx`**, hecho solo con `Skeleton` en la forma exacta de la vista final. Nada salta cuando llega el contenido.
+- Los datos de una vista se piden **en paralelo y en un solo lugar** (`Promise.all` en la página, o una función de `queries.ts` que trae todo), nunca en cascada componente por componente.
+- Sin `Suspense` anidados dentro de una vista. La única excepción es lo que carga fuera del flujo de la página (el script del mapa), con su propio skeleton del mismo tamaño.
+- Cuando todo llegó, la vista entra con `animate-enter`.
+- `Spinner` es para una acción en curso (un botón guardando), nunca para cargar una página.
+
+## Temas
+
+Claro, oscuro y automático (sigue al sistema; es el valor por defecto). Cada token tiene valor en los dos temas y los componentes no saben en cuál están: `dark:` no se usa fuera de `shared/ui`. Un script en el `<head>` aplica la elección explícita antes del primer pintado, así no hay parpadeo. El mapa toma el tema con `colorScheme` en su próxima carga (ADR 0006).
+
+## Dispositivos
+
+| Rango | Desde | Layout |
+|---|---|---|
+| Celular | 0 | Una columna. Mapa a pantalla completa, detalle en `GlassPanel` abajo, `FloatingNav` abajo. |
+| Tablet | 768 px (`md`) | Horizontal (`landscape:`): lista a un lado y mapa al otro. Vertical (`portrait:`): el panel pasa a hoja inferior. |
+| Escritorio | 1280 px (`xl`) | Lista, mapa y detalle flotante a la vez. |
+
+Se revisa a 375, 768, 1024 y 1440 px, en los dos temas. Objetivos táctiles de 44 px, nada que exista solo con hover, áreas seguras respetadas (`viewportFit: "cover"`).
 
 ## No hagas
 
-- Negro puro `#000000` ni blanco puro como lienzo.
-- Botones con sombra, rellenos azules o en degradé.
-- Acentos de color nuevos fuera de los tokens de estado.
-- Serif en peso 600+ o en textos menores a 27 px.
-- Transparencia en el texto de cuerpo.
-- Fotos de archivo, ilustraciones 3D, emojis.
+- Bordes o contornos para separar o decorar; dos colores en una pieza.
+- Texto rosado chico; un estado dicho solo con color.
+- Más de una frase iridiscente por vista, o luces en piezas que no son tarjetas ni paneles.
+- Valores fuera de la escala; sombras, radios o duraciones inventadas.
+- Spinners para cargar páginas; partes de una vista que llegan a destiempo.
+- Emojis, fotos de archivo, ilustraciones 3D.
 
 ## Para un agente que diseña una pantalla
 
-1. Lee este archivo y revisa qué hay en `src/shared/ui/` (y en `/dev/ui` si la app está corriendo).
-2. Arma la pantalla **solo** con primitivas existentes. Si falta una, propón primero el cambio a `shared/ui/` con sus variantes.
-3. Usa tokens por nombre (`bg-canvas`, `text-ink-soft`, `border-line`, `rounded-card`), nunca un valor.
-4. Revísala a 375, 768, 1024 y 1440 px, en tema claro y oscuro, antes de darla por terminada.
+1. Lee este archivo y abre `/es/dev/ui`.
+2. Arma la pantalla solo con piezas de `src/shared/ui`. Si falta una, agrégala ahí primero, con sus variantes.
+3. Tokens por nombre (`bg-surface-muted`, `text-ink-soft`, `rounded-card`), nunca un valor.
+4. Escribe su `loading.tsx` con `Skeleton` antes que la vista.
+5. Revísala a 375, 768, 1024 y 1440 px, en claro y oscuro.

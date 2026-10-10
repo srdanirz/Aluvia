@@ -185,9 +185,11 @@ Detalle y razones en [ADR 0004](adr/0004-design-system.md). La regla corta: **si
 - **Si falta una primitiva, se agrega a `shared/ui/` en su propio PR**, con sus variantes, antes de usarla. Nunca se crea una versión local en la feature.
 - **Variantes, no overrides.** Un botón distinto es una variante nueva en `button.tsx` (`cva`), no un `className` que lo sobrescribe desde afuera.
 - **Prohibido fuera de `shared/ui/`:** `<table>`, `<button>`, `<input>`, `<select>`, `<dialog>` crudos; el prop `style`; valores arbitrarios de Tailwind (`w-[37px]`, `bg-[#f00]`); el modificador `!` y `!important`; colores, radios o sombras que no sean tokens.
-- **Tablas = `DataTable` del design system.** Nada de tablas armadas a mano por feature.
+- **Tablas = `DataTable` del design system** (se agrega a `shared/ui` cuando la primera pantalla la necesite). Nada de tablas armadas a mano por feature.
 - **Tokens en un solo lugar**: `src/shared/ui/theme.css` (`@theme`), con los valores de [DESIGN.md](DESIGN.md). Ese archivo **resetea la paleta y las escalas por defecto de Tailwind** (`--color-*: initial;` y lo mismo para radio, sombra, espaciado y fuente), así `bg-red-500` o `shadow-lg` dejan de existir y solo quedan nuestros tokens (`bg-surface`, `text-ink-soft`).
-- **Estados de trabajo = un componente `StatusBadge`** que mapea estado → token + etiqueta. Ningún otro archivo decide el color de un estado. (origen: Crisis Cleanup, que tuvo que migrar 20 hex sueltos a tokens)
+- **Estados de trabajo = `Chip`** con su `tone` (`urgent`, `pending`, `done`, `closed`). Ningún otro archivo decide el color de un estado.
+- **Sin bordes y un color por pieza** (DESIGN.md). El lint rechaza `border`, `outline`, `ring` y `divide` fuera de `shared/ui`.
+- **Carga uniforme:** cada ruta tiene un `loading.tsx` hecho con `Skeleton` en la forma de la vista; los datos de la vista se piden en paralelo en un solo lugar y aparecen juntos. Nada de `Suspense` anidados que hagan llegar partes a destiempo.
 - **Temas claro, oscuro y automático desde el día uno** (DESIGN.md). Los componentes usan tokens y no saben en qué tema están: `dark:` solo existe dentro de `src/shared/ui/`.
 - **Celular, tablet y escritorio.** Cada pantalla se diseña para los tres rangos de DESIGN.md y Playwright la recorre a 375, 768, 1024 y 1440 px. La app es una PWA instalable (manifest e íconos), para que el vecino la abra desde la pantalla de inicio.
 

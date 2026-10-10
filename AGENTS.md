@@ -38,14 +38,16 @@ When you adopt a convention, hit a mistake twice, add a module or make a long-ta
 
 ## UI: closed design system
 
-Visual language and tokens: `docs/DESIGN.md` (adapted from General Intelligence Company via Refero). Read it before designing any screen.
+Visual language and tokens: `docs/DESIGN.md` (pills, glass with iridescent light, solid colors, brand black/white/pink/indigo). Read it before designing any screen.
 
 **If it is not in `src/shared/ui/`, it does not exist.** Consistency beats speed here; there are no exceptions "just for this screen".
 
 - Every visual piece comes from `src/shared/ui/`. Features compose primitives; they never restyle them.
 - A missing primitive or variant is added to `src/shared/ui/` first (with a `cva` variant), in its own PR. Never a local one-off inside a feature.
 - Forbidden outside `src/shared/ui/`: raw `<table>`, `<button>`, `<input>`, `<select>`, `<dialog>`; the `style` prop; Tailwind arbitrary values (`w-[37px]`, `bg-[#f00]`); the `!` modifier and `!important`; any color, radius, shadow or spacing that is not a token from `src/shared/ui/theme.css`.
-- Tables are `DataTable`. Status colors come only from `StatusBadge`.
+- Three or more related actions in a row go in one `ButtonGroup` pill, never as loose buttons.
+- Status colors come only from `Chip`. No borders, outlines or rings, and one color per piece (lint enforces it).
+- **Uniform loading:** every route has one `loading.tsx` built from `Skeleton`; a view's data is fetched in parallel in one place and appears all at once. No nested `Suspense` inside a view. Motion uses only the tokens in DESIGN.md.
 - **Light, dark and system themes** are part of the tokens. Components never use `dark:`; the tokens switch.
 - **Phone, tablet (iPad) and desktop** are all first-class. Check every screen at 375, 768, 1024 and 1440 px, in both themes. Touch first: 44 px targets, nothing hover-only.
 - **Translation-ready:** adding a language is adding `messages/<code>.json` plus one line in the locale registry. No concatenated sentences, no hardcoded locale in `Intl`, logical properties (`ms-`/`me-`) instead of left/right.

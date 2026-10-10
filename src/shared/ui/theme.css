@@ -18,73 +18,107 @@
   }
 }
 
+/* Light palette. Brand: black, white, pink #ef318c and indigo #3334e6 (docs/DESIGN.md). */
 :root {
-  --canvas: #fefffc;
+  --canvas: #f5f6fb;
   --surface: #ffffff;
-  --surface-muted: #f9faf7;
-  --ink: #171717;
-  --ink-strong: #2c2c2c;
-  --ink-soft: #444141;
-  --ink-muted: #646464;
-  --line: #dee2de;
-  --line-strong: #b4b8b4;
-  --action: #1f1f29;
+  --surface-muted: #e9ebf5;
+  --ink: #0a0b10;
+  --ink-soft: #3d3f52;
+  --ink-muted: #62657a;
+  --line: #e3e5f0;
+  --line-strong: #b9bdd0;
+  --action: #000000;
   --on-action: #ffffff;
-  --action-line: #282834;
-  --accent: #006a9e;
-  --accent-line: #0081c0;
-  --status-urgent: #b42318;
-  --status-pending: #b54708;
-  --status-done: #067647;
-  --status-closed: #646464;
-  --shadow-card-value: 0 1px 1px rgb(0 0 0 / 0.08), 0 4px 5px rgb(0 0 0 / 0.08);
-  --shadow-float-value: 0 2px 6px rgb(0 0 0 / 0.15);
+  --accent: #3334e6;
+  --on-accent: #ffffff;
+  --accent-tint: #e5e5fc;
+  --brand-pink: #ef318c;
+  --status-urgent: #ef318c;
+  --status-urgent-tint: #fde4f0;
+  --status-urgent-text: #c2186b;
+  --status-pending: #3334e6;
+  --status-pending-tint: #e5e5fc;
+  --status-done: #0f9d58;
+  --status-done-tint: #ddf4e8;
+  --status-closed: #8b8ea3;
+  --status-closed-tint: #eef0f5;
+  --glass-fill: rgb(255 255 255 / 0.62);
+  /* Apple Intelligence glow hues, tuned to the brand; only the ambient background uses them. */
+  --aurora-1: #8d9fff;
+  --aurora-2: #f5b9ea;
+  --aurora-3: #c686ff;
+  --aurora-opacity: 0.5;
+  /* Middle stop of text-iridescent: aurora-3 is too light for text on a light ground. */
+  --iridescent-mid: #7c3aed;
+  --shadow-card-value: 0 1px 2px rgb(16 18 40 / 0.04), 0 8px 24px rgb(16 18 40 / 0.06);
+  --shadow-float-value: 0 12px 32px rgb(16 18 40 / 0.12);
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --canvas: #121214;
-    --surface: #1a1a1e;
-    --surface-muted: #222227;
-    --ink: #ececec;
-    --ink-strong: #f5f5f3;
-    --ink-soft: #c4c4c0;
-    --ink-muted: #9a9a96;
-    --line: #2e2e33;
-    --line-strong: #4a4a50;
-    --action: #f5f5f3;
-    --on-action: #1f1f29;
-    --action-line: #d4d4d8;
-    --accent: #5cb8e6;
-    --accent-line: #41a1cf;
-    --status-urgent: #f97066;
-    --status-pending: #fdb022;
-    --status-done: #47cd89;
-    --status-closed: #9a9a96;
+    --canvas: #0b0c12;
+    --surface: #16171f;
+    --surface-muted: #1e2029;
+    --ink: #f2f3f8;
+    --ink-soft: #c3c6d6;
+    --ink-muted: #9a9db2;
+    --line: #2a2c38;
+    --line-strong: #454859;
+    --action: #ffffff;
+    --on-action: #000000;
+    --accent: #8e8fff;
+    --on-accent: #0b0c12;
+    --accent-tint: #23244a;
+    --brand-pink: #ff5fa8;
+    --status-urgent: #ff5fa8;
+    --status-urgent-tint: #3a1a2b;
+    --status-urgent-text: #ff5fa8;
+    --status-pending: #8e8fff;
+    --status-pending-tint: #23244a;
+    --status-done: #4ad295;
+    --status-done-tint: #143326;
+    --status-closed: #9a9db2;
+    --status-closed-tint: #23252f;
+    --glass-fill: rgb(22 23 31 / 0.6);
+    --aurora-opacity: 0.22;
+    --iridescent-mid: #c686ff;
+    --shadow-card-value: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.35);
+    --shadow-float-value: 0 12px 32px rgb(0 0 0 / 0.5);
     color-scheme: dark;
   }
 }
 
 :root[data-theme="dark"] {
-  --canvas: #121214;
-  --surface: #1a1a1e;
-  --surface-muted: #222227;
-  --ink: #ececec;
-  --ink-strong: #f5f5f3;
-  --ink-soft: #c4c4c0;
-  --ink-muted: #9a9a96;
-  --line: #2e2e33;
-  --line-strong: #4a4a50;
-  --action: #f5f5f3;
-  --on-action: #1f1f29;
-  --action-line: #d4d4d8;
-  --accent: #5cb8e6;
-  --accent-line: #41a1cf;
-  --status-urgent: #f97066;
-  --status-pending: #fdb022;
-  --status-done: #47cd89;
-  --status-closed: #9a9a96;
+  --canvas: #0b0c12;
+  --surface: #16171f;
+  --surface-muted: #1e2029;
+  --ink: #f2f3f8;
+  --ink-soft: #c3c6d6;
+  --ink-muted: #9a9db2;
+  --line: #2a2c38;
+  --line-strong: #454859;
+  --action: #ffffff;
+  --on-action: #000000;
+  --accent: #8e8fff;
+  --on-accent: #0b0c12;
+  --accent-tint: #23244a;
+  --brand-pink: #ff5fa8;
+  --status-urgent: #ff5fa8;
+  --status-urgent-tint: #3a1a2b;
+  --status-urgent-text: #ff5fa8;
+  --status-pending: #8e8fff;
+  --status-pending-tint: #23244a;
+  --status-done: #4ad295;
+  --status-done-tint: #143326;
+  --status-closed: #9a9db2;
+  --status-closed-tint: #23252f;
+  --glass-fill: rgb(22 23 31 / 0.6);
+  --aurora-opacity: 0.22;
+  --iridescent-mid: #c686ff;
+  --shadow-card-value: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.35);
+  --shadow-float-value: 0 12px 32px rgb(0 0 0 / 0.5);
   color-scheme: dark;
 }
 
@@ -96,54 +130,54 @@
   --color-surface: var(--surface);
   --color-surface-muted: var(--surface-muted);
   --color-ink: var(--ink);
-  --color-ink-strong: var(--ink-strong);
   --color-ink-soft: var(--ink-soft);
   --color-ink-muted: var(--ink-muted);
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
   --color-action: var(--action);
   --color-on-action: var(--on-action);
-  --color-action-line: var(--action-line);
   --color-accent: var(--accent);
-  --color-accent-line: var(--accent-line);
+  --color-on-accent: var(--on-accent);
+  --color-accent-tint: var(--accent-tint);
+  --color-brand-pink: var(--brand-pink);
   --color-status-urgent: var(--status-urgent);
+  --color-status-urgent-tint: var(--status-urgent-tint);
+  --color-status-urgent-text: var(--status-urgent-text);
   --color-status-pending: var(--status-pending);
+  --color-status-pending-tint: var(--status-pending-tint);
   --color-status-done: var(--status-done);
+  --color-status-done-tint: var(--status-done-tint);
   --color-status-closed: var(--status-closed);
-  /* Floating chrome: the surface, partly see-through, over whatever scrolls below. */
-  --color-glass: color-mix(in oklab, var(--surface) 72%, transparent);
-  --color-glass-line: color-mix(in oklab, var(--ink) 14%, transparent);
+  --color-status-closed-tint: var(--status-closed-tint);
+  --color-glass: var(--glass-fill);
 
   --font-*: initial;
-  --font-sans: var(--font-geist), system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  /* Helvetica Neue on Apple devices (the reference face); Inter everywhere else. */
+  --font-sans: "Helvetica Neue", var(--font-inter), Arial, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", Menlo, monospace;
 
   --text-*: initial;
-  --text-display: 54px;
-  --text-display--line-height: 1.1;
-  --text-display--letter-spacing: -0.02em;
-  --text-heading-lg: 48px;
-  --text-heading-lg--line-height: 1.1;
-  --text-heading-lg--letter-spacing: -0.02em;
-  --text-heading: 40px;
-  --text-heading--line-height: 1.1;
+  --text-display: 48px;
+  --text-display--line-height: 1.05;
+  --text-display--letter-spacing: -0.03em;
+  --text-heading: 32px;
+  --text-heading--line-height: 1.15;
   --text-heading--letter-spacing: -0.02em;
-  --text-heading-sm: 27px;
-  --text-heading-sm--line-height: 1.5;
-  --text-heading-sm--letter-spacing: -0.04em;
+  --text-heading-sm: 24px;
+  --text-heading-sm--line-height: 1.25;
+  --text-heading-sm--letter-spacing: -0.015em;
   --text-subheading: 18px;
-  --text-subheading--line-height: 1.3;
+  --text-subheading--line-height: 1.35;
   --text-subheading--letter-spacing: -0.01em;
   --text-body: 16px;
   --text-body--line-height: 1.5;
-  --text-body--letter-spacing: -0.01em;
-  --text-body-sm: 15px;
-  --text-body-sm--line-height: 1.4;
-  --text-body-sm--letter-spacing: -0.01em;
-  --text-caption: 13px;
-  --text-caption--line-height: 1.3;
-  --text-caption--letter-spacing: -0.01em;
+  --text-body--letter-spacing: -0.005em;
+  --text-body-sm: 14px;
+  --text-body-sm--line-height: 1.45;
+  --text-body-sm--letter-spacing: 0em;
+  --text-caption: 12px;
+  --text-caption--line-height: 1.35;
+  --text-caption--letter-spacing: 0.005em;
 
   /* 4px base; only the steps of the DESIGN.md scale exist. */
   --spacing: initial;
@@ -161,6 +195,13 @@
   --spacing-16: 64px;
   --spacing-20: 80px;
   --spacing-panel: 360px;
+  /* Component sizes (DESIGN.md, Tamaños). */
+  --spacing-chip-x: 10px;
+  --spacing-chip-y: 4px;
+  --spacing-chip-gap: 6px;
+  --spacing-dot: 6px;
+  --spacing-icon: 20px;
+  --spacing-icon-sm: 18px;
   /* Room a page leaves for FloatingNav: bottom on phones (plus the home indicator), top from md. */
   --spacing-nav-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
   --spacing-nav-top: calc(96px + env(safe-area-inset-top, 0px));
@@ -168,12 +209,12 @@
   --container-*: initial;
   --container-content: 1200px;
   --container-prose: 65ch;
+  --container-narrow: 520px;
 
   --radius-*: initial;
-  --radius-control: 8px;
-  --radius-card: 12px;
-  --radius-panel: 16px;
-  --radius-feature: 24px;
+  --radius-control: 14px;
+  --radius-card: 20px;
+  --radius-panel: 28px;
 
   --shadow-*: initial;
   --shadow-card: var(--shadow-card-value);
@@ -182,13 +223,111 @@
   --drop-shadow-*: initial;
   --text-shadow-*: initial;
 
+  /* Motion: three durations and two curves. Nothing animates outside these. */
+  --ease-*: initial;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-exit: cubic-bezier(0.3, 0, 1, 1);
+  /* Overshoots a little: presses bounce back and indicators stretch, like Apple's liquid controls. */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --default-transition-duration: 150ms;
+  --default-transition-timing-function: var(--ease-standard);
+  --animate-*: initial;
+  --animate-enter: enter 250ms var(--ease-standard) both;
+  --animate-shimmer: shimmer 1.4s linear infinite;
+  --animate-spin: spin 0.8s linear infinite;
+
   --blur-*: initial;
-  --blur-glass: 20px;
+  --blur-glass: 24px;
 
   /* Tracking and leading come with each text-* role; only the label tracking stands alone. */
   --tracking-*: initial;
   --tracking-label: 0.08em;
   --leading-*: initial;
+}
+
+/* Iridescent light: two faint glows in the aurora hues, top-left and bottom-right. */
+@utility glass-wash {
+  position: relative;
+  isolation: isolate;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+      radial-gradient(
+        120% 80% at 0% 0%,
+        color-mix(in oklab, var(--aurora-1) 22%, transparent),
+        transparent 60%
+      ),
+      radial-gradient(
+        100% 70% at 100% 100%,
+        color-mix(in oklab, var(--aurora-2) 20%, transparent),
+        transparent 60%
+      );
+  }
+}
+
+/* Light reflection that sweeps across a glass surface on hover or focus. Interactive pieces only. */
+@utility glass-sheen {
+  position: relative;
+  overflow: hidden;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(115deg, transparent 30%, rgb(255 255 255 / 0.35) 50%, transparent 70%);
+    transform: translateX(-120%);
+    transition: transform 700ms var(--ease-standard);
+  }
+  &:hover::after,
+  &:focus-visible::after {
+    transform: translateX(120%);
+  }
+}
+
+/* Press feedback for every pressable: shrinks while held, springs back on release. */
+@utility press {
+  transition-property: transform, background-color, color, opacity, box-shadow;
+  transition-duration: 250ms;
+  transition-timing-function: var(--ease-spring);
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+/* Gradient text in the aurora hues. One highlighted phrase per view, at heading size or larger. */
+@utility text-iridescent {
+  background: linear-gradient(100deg, var(--accent) 0%, var(--iridescent-mid) 50%, var(--brand-pink) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @layer base {
@@ -202,8 +341,20 @@
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
   }
+  /* Reduced motion has to beat every utility, which is the one place !important belongs. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      /* stylelint-disable declaration-no-important */
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      /* stylelint-enable declaration-no-important */
+    }
+  }
   :focus-visible {
-    outline: 2px solid var(--accent-line);
+    outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
 }

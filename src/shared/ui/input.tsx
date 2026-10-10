@@ -2,12 +2,12 @@ import type { ComponentProps } from "react";
 
 import { cn } from "./cn";
 
-// Paper-form input: bottom rule only, 16px text so iOS does not zoom on focus.
+// 16px text so iOS does not zoom on focus. Focus: white fill plus a soft accent glow, no outline line.
 export function Input({ className, ...props }: ComponentProps<"input">) {
   return (
     <input
       className={cn(
-        "min-h-11 w-full rounded-none border-0 border-b border-ink-soft bg-surface-muted px-3 text-body text-ink placeholder:text-ink-muted focus-visible:border-b-2 focus-visible:border-accent-line focus-visible:outline-none disabled:opacity-50",
+        "min-h-11 w-full rounded-control bg-surface-muted px-4 text-body text-ink placeholder:text-ink-muted outline-none focus:bg-surface focus:shadow-[0_0_0_4px_color-mix(in_oklab,var(--accent)_30%,transparent),var(--shadow-float-value)] aria-invalid:bg-status-urgent-tint disabled:opacity-40",
         className,
       )}
       {...props}

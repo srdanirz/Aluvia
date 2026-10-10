@@ -5,6 +5,8 @@ import { useTranslations } from "next-intl";
 import { useSyncExternalStore } from "react";
 
 import { cn } from "./cn";
+import { handleRadioKeys } from "./radio-keys";
+import { indicatorClassName, indicatorItemClassName, useSlidingIndicator } from "./use-sliding-indicator";
 import { THEME_COOKIE, THEMES, type Theme } from "./theme";
 
 const ICONS = { system: Monitor, light: Sun, dark: Moon } as const;
@@ -36,13 +38,19 @@ function applyTheme(theme: Theme) {
 export function ThemeSwitcher({ className }: { className?: string }) {
   const t = useTranslations("theme");
   const theme = useSyncExternalStore(subscribe, readTheme, () => "system" as const);
+  const { containerRef, indicatorRef } = useSlidingIndicator<HTMLDivElement, HTMLSpanElement>(theme);
 
   return (
     <div
+      ref={containerRef}
       role="radiogroup"
       aria-label={t("label")}
-      className={cn("inline-flex w-fit gap-1 rounded-full border border-line bg-surface p-1", className)}
+      className={cn(
+        "group glass-wash relative inline-flex w-fit gap-1 rounded-full bg-glass p-1 shadow-card backdrop-blur-glass",
+        className,
+      )}
     >
+      <span ref={indicatorRef} aria-hidden className={indicatorClassName} />
       {THEMES.map((option) => {
         const Icon = ICONS[option];
         const selected = theme === option;
@@ -52,12 +60,15 @@ export function ThemeSwitcher({ className }: { className?: string }) {
             type="button"
             role="radio"
             aria-checked={selected}
+            data-active={selected}
+            tabIndex={selected ? 0 : -1}
+            onKeyDown={(event) => handleRadioKeys(event, THEMES, theme, applyTheme)}
             aria-label={t(option)}
             title={t(option)}
             onClick={() => applyTheme(option)}
             className={cn(
-              "inline-flex size-11 items-center justify-center rounded-full text-ink-muted transition-colors hover:text-ink",
-              selected && "bg-surface-muted text-ink",
+              "press inline-flex size-11 items-center justify-center rounded-full text-ink-soft hover:text-ink",
+              indicatorItemClassName,
             )}
           >
             <Icon aria-hidden size={18} strokeWidth={1.5} />
