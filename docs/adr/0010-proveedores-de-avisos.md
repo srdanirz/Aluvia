@@ -20,10 +20,15 @@ Todos se llaman con `fetch` contra su API REST, sin SDK: son una o dos llamadas 
 
 ### Links cortos
 
-Todo aviso enlaza a `<APP_URL>/n/<id>`. Con el link completo (`/es/emergencies/<slug>/worksites/<uuid>`) un SMS no cabe en un segmento. El link corto además marca el aviso como leído (ADR 0007) en cualquier canal, y redirige a la página en el idioma del destinatario.
+Todo aviso enlaza a `<APP_URL>/n/<id>`, que redirige a la página en el idioma del destinatario. Con el link completo (`/es/emergencies/<slug>/worksites/<uuid>`) un SMS no cabe en un segmento.
+
+### Duplicados que aceptamos
+
+La entrega es al menos una vez (ADR 0007). Si un proveedor recibe el mensaje pero la respuesta no llega antes del corte de 10 s, el aviso se reintenta y puede salir dos veces. Email y push lo evitan del lado del proveedor (`Idempotency-Key` en Resend, `Topic` en Web Push). Twilio y Meta no ofrecen esa clave, así que un SMS o WhatsApp puede llegar repetido. Es el costo de no perder un aviso; los topes diarios cuentan cada intento.
 
 ### Reglas por canal
 
+- **Credenciales:** un 401 o 403 de cualquier proveedor es nuestra clave (vencida o revocada), no el mensaje. Se reintenta como `provider_auth` y dispara una alerta (ADR 0008), en vez de cerrar la cola y mandar todo WhatsApp a SMS.
 - **Push:** una suscripción vencida (404 o 410 del servicio de push) se borra en el mismo lote. En iPhone y iPad solo funciona con la app instalada en la pantalla de inicio (iOS 16.4 o superior) y el permiso se pide tras un toque. `VAPID_SUBJECT` es un `mailto:` real: Apple rechaza `localhost`.
 - **Email:** texto plano, asunto y cuerpo desde `messages/*.json`.
 - **Entregado no es aceptado.** Twilio y Meta aceptan un mensaje y avisan después si no llegó (número sin WhatsApp, bloqueado, apagado). Se guarda su id (`provider_message_id`) y el webhook de cada uno llama a `markNotificationUndelivered`, que cierra el aviso y, si era WhatsApp, lo pasa a SMS. Twilio reporta en `POST /api/v1/webhooks/twilio` (`StatusCallback`); Meta manda los estados al mismo webhook que los mensajes entrantes, que es el del bot (#20).

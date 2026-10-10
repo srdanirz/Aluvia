@@ -18,8 +18,9 @@ import type { Database } from "@/shared/db/types";
 // Invented data only (SECURITY.md): reserved-looking numbers and example.org addresses.
 export const APP_URL = "https://aluvia.example.org";
 
-// Random so files sharing the database never collide on a unique phone.
-const inventedPhone = () => `+569${String(randomInt(1e8)).padStart(8, "0")}`;
+// Chile has no reserved fiction range, so tests stay inside one fixed block (+56 9 999x xxxx),
+// random within it so files sharing the database never collide on a unique phone.
+const inventedPhone = () => `+569999${String(randomInt(1e5)).padStart(5, "0")}`;
 
 export function createFixtures(db: Database) {
   let counter = 0;

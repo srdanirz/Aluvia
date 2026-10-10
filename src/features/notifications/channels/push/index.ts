@@ -23,7 +23,13 @@ export function createPushAdapter(
       });
       const results = await Promise.all(
         delivery.subscriptions.map((target) =>
-          sendWebPush(target, payload, { urgent: delivery.urgent }, config),
+          sendWebPush(
+            target,
+            payload,
+            // A uuid without dashes is exactly the 32 characters a Topic allows.
+            { urgent: delivery.urgent, topic: notificationId.replaceAll("-", "") },
+            config,
+          ),
         ),
       );
       const expiredEndpoints = delivery.subscriptions

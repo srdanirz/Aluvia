@@ -10,6 +10,7 @@ import { verifyTwilioSignature } from "@/shared/messaging/twilio";
 const EMPTY_TWIML = '<?xml version="1.0" encoding="UTF-8"?><Response></Response>';
 // Statuses Twilio reports when an SMS it accepted never reached the phone.
 const UNDELIVERED = new Set(["undelivered", "failed"]);
+const TWILIO_OPTED_OUT = "21610";
 
 /**
  * Twilio's webhook (ADR 0007, 0010): delivery status of our SMS, and incoming SMS, where BAJA
@@ -33,6 +34,8 @@ export async function POST(request: Request) {
 
   const params = Object.fromEntries(entries);
   if (params.MessageStatus !== undefined) {
+    // 21610: the person had answered STOP to our number, which Twilio enforces from then on.
+    if (params.ErrorCode === TWILIO_OPTED_OUT && params.To) await optOutFromSms(db, [params.To]);
     if (params.MessageSid && UNDELIVERED.has(params.MessageStatus)) {
       await markNotificationUndelivered(db, {
         channel: "sms",

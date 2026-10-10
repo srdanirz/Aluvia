@@ -5,8 +5,7 @@ import { matchLocale } from "@/shared/i18n/messages";
 
 import { NOTIFICATION_TYPES, isNotificationType } from "../catalog";
 
-// Every notice links to /n/<id>: short enough for a one-segment SMS (ADR 0010), and opening it is
-// what "read" means (ADR 0007), whatever the channel.
+// Every notice links to /n/<id>: short enough for a one-segment SMS (ADR 0010).
 export const notificationLink = (appUrl: string, notificationId: string) => `${appUrl}/n/${notificationId}`;
 
 /** The page a notice is about, under the recipient's locale. Null when the catalog no longer has it. */
@@ -24,12 +23,12 @@ export function notificationPath(input: {
 }
 
 /**
- * Follows a notice's link: marks it read if it was sent, so its SMS or WhatsApp fallback does not
- * go out, and returns where to send the person. One statement. The answer for an unknown id is
- * null, the same as for a stale one, so the link says nothing about which ids exist. The id is
- * the only credential: it reaches only the recipient, and all it reveals is a public page.
+ * Where a notice's short link goes, under the recipient's locale. One read, no write: link
+ * scanners in email and chat previews open links without the person, so opening the link does
+ * not count as read (markNotificationRead does, from the push click). Unknown and stale ids get
+ * the same null, so the link says nothing about which ids exist; all it reveals is a public page.
  */
-export async function openNotification(db: Executor, id: string, now: Date): Promise<string | null> {
+export async function findNotificationLink(db: Executor, id: string): Promise<string | null> {
   const [row] = await db.execute<{
     type: string;
     payload: Record<string, string>;
@@ -37,10 +36,6 @@ export async function openNotification(db: Executor, id: string, now: Date): Pro
     defaultLocale: string;
     locale: string | null;
   }>(sql`
-    WITH marked AS (
-      UPDATE notifications SET read_at = ${now.toISOString()}
-      WHERE id = ${id} AND sent_at IS NOT NULL AND read_at IS NULL
-    )
     SELECT n.type, n.payload, e.slug, e.default_locale AS "defaultLocale", COALESCE(u.locale, c.locale) AS locale
     FROM notifications n
     JOIN emergencies e ON e.id = n.emergency_id
@@ -49,4 +44,14 @@ export async function openNotification(db: Executor, id: string, now: Date): Pro
     WHERE n.id = ${id}`);
   if (!row) return null;
   return notificationPath({ ...row, locale: matchLocale(row.locale, row.defaultLocale) });
+}
+
+/**
+ * Marks a sent notice read (ADR 0007): the person opened its push, so its SMS or WhatsApp
+ * fallback will not go out. Idempotent and silent for unknown ids.
+ */
+export async function markNotificationRead(db: Executor, id: string, now: Date) {
+  await db.execute(sql`
+    UPDATE notifications SET read_at = ${now.toISOString()}
+    WHERE id = ${id} AND sent_at IS NOT NULL AND read_at IS NULL`);
 }

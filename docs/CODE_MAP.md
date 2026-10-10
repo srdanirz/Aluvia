@@ -27,10 +27,12 @@
 | `src/shared/i18n/messages.ts` | `loadMessages(locale)` y `matchLocale(tag)`: textos para escribirle a alguien en su idioma fuera de un request (avisos) |
 | `src/shared/messaging/` | Clientes de proveedores de mensajes (ADR 0010): `sendWebPush`, `sendEmail` (Resend), `sendSms` y `verifyTwilioSignature` (Twilio), `sendWhatsAppTemplate` (Meta); `config.ts` (cada proveedor todo o nada), `gsm.ts` (SMS en un segmento) |
 | `src/features/notifications/` | Avisos (ADR 0007): `catalog.ts` (tipos, nivel, destinatario, params), `enqueueNotification` en la transacción del cambio, worker `dispatchNotifications` (reclamo con `SKIP LOCKED`, horario silencioso, tope diario con reserva, reintentos, escalamiento), `channels/<canal>/` (registro de adaptadores), links cortos `/n/<id>`, respaldo de WhatsApp a SMS, `markNotificationUndelivered` (fallas que el proveedor reporta después), `cancelPendingNotifications`, `listUndeliveredNeighborNotices` (vecinos a llamar), suscripciones push, baja por SMS |
-| `src/app/api/v1/notifications/dispatch/` | Worker del outbox, llamado por Cloud Scheduler con token |
+| `src/app/api/v1/notifications/dispatch/` | Worker del outbox, llamado por Cloud Scheduler |
+| `src/shared/scheduler-auth.ts` | `isSchedulerRequest`: solo Cloud Scheduler (token OIDC de Google para su cuenta de servicio) llama a los jobs por minuto |
 | `src/app/api/v1/webhooks/twilio/` | Estado de entrega de nuestros SMS y SMS entrantes: BAJA apaga el SMS de ese teléfono |
-| `src/app/n/[id]/` | Link corto de un aviso: marca leído y redirige |
-| `public/sw.js` | Service worker: muestra los push y abre su link |
+| `src/app/n/[id]/` | Link corto de un aviso: redirige a su página en el idioma del destinatario |
+| `src/app/api/v1/notifications/[id]/read/` | `POST` del service worker al tocar un push: lo marca leído y cancela su respaldo pagado |
+| `public/sw.js` | Service worker: muestra los push, reporta el toque y abre su link |
 | `src/shared/env.ts` | Variables de entorno validadas con zod al arrancar |
 | `src/shared/public-env.ts` | Variables `NEXT_PUBLIC_` que lee el navegador, sin zod; `next.config.ts` las valida en el build |
 | `src/instrumentation.ts`, `src/instrumentation-client.ts` | Arranque de la observabilidad en servidor y navegador (ADR 0008) |
@@ -48,5 +50,5 @@
 | `tests/setup/` | PostGIS en testcontainers y `createTestDb()` con contador de consultas |
 | `tests/setup/fixtures.ts` | Emergencia de prueba con catálogo inventado y `rejectionCode` |
 | `tests/admin.test.ts` | Admin: concurrencia de ediciones, cierre y aviso; seeds; `admin_events` de solo inserción; conteo de consultas y cursor |
-| `tests/notifications/` | Entrega única, dos workers en paralelo, lease, reintentos, horario silencioso, topes con reserva, escalamiento, proveedores y textos |
+| `tests/notifications/` | Rutas (webhook de Twilio, leído), entrega única, dos workers en paralelo, lease, reintentos, horario silencioso, topes con reserva, escalamiento, proveedores y textos |
 | `tests/schema.test.ts` | Las reglas que decide la base: FKs por emergencia, cupo de turnos, una inscripción activa, un aviso por evento |

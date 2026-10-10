@@ -17,7 +17,9 @@ const TTL_SECONDS = 24 * 60 * 60;
 export async function sendWebPush(
   target: PushTarget,
   payload: string,
-  options: { urgent: boolean },
+  // topic: up to 32 URL-safe characters; the push service keeps only the newest undelivered
+  // message per topic, so a retried notice replaces its first copy instead of showing twice.
+  options: { urgent: boolean; topic?: string },
   config: WebPushConfig | null = getWebPushConfig(),
 ): Promise<SendResult> {
   if (!config) return { ok: false, code: "channel_unavailable", retryable: false };
@@ -30,6 +32,7 @@ export async function sendWebPush(
       },
       TTL: TTL_SECONDS,
       urgency: options.urgent ? "high" : "normal",
+      topic: options.topic,
       timeout: PROVIDER_TIMEOUT_MS,
     });
     return { ok: true };

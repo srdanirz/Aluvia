@@ -1,10 +1,4 @@
-// Postgres aborts one side of a deadlock with this SQLSTATE; drizzle wraps the driver error in `cause`.
-const DEADLOCK_DETECTED = "40P01";
-
-function isDeadlock(error: unknown): boolean {
-  const { code, cause } = error as { code?: string; cause?: { code?: string } };
-  return code === DEADLOCK_DETECTED || cause?.code === DEADLOCK_DETECTED;
-}
+import { DEADLOCK_DETECTED, postgresErrorOf } from "@/shared/db/errors";
 
 /**
  * Runs a transaction again once if Postgres picked it as a deadlock victim. Lock order makes a
@@ -14,7 +8,7 @@ export async function retryOnDeadlock<T>(run: () => Promise<T>): Promise<T> {
   try {
     return await run();
   } catch (error) {
-    if (!isDeadlock(error)) throw error;
+    if (postgresErrorOf(error)?.code !== DEADLOCK_DETECTED) throw error;
     return run();
   }
 }

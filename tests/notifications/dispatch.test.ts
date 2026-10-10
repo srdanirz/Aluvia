@@ -7,7 +7,7 @@ import { enqueueNotification } from "@/features/notifications";
 import { LEASE_SECONDS, claimNotifications } from "@/features/notifications/server/claim";
 import { dispatchNotifications } from "@/features/notifications/server/dispatch";
 import { MAX_ATTEMPTS, recordOutcomes } from "@/features/notifications/server/outcomes";
-import { openNotification } from "@/features/notifications/server/links";
+import { findNotificationLink, markNotificationRead } from "@/features/notifications/server/links";
 import { notificationDailyUsage, notifications, pushSubscriptions } from "@/shared/db/schema";
 
 import { createTestDb } from "../setup/db";
@@ -194,7 +194,7 @@ describe("dispatch", () => {
     const englishNotice = recorder.sent.find((d) => d.message.locale === "en")!;
     expect(englishNotice.message.url).toBe(`${APP_URL}/n/${englishNotice.notificationId}`);
     // The link opens the shift in the recipient's language.
-    expect(await openNotification(db, englishNotice.notificationId, NOW)).toBe(
+    expect(await findNotificationLink(db, englishNotice.notificationId)).toBe(
       `/en/emergencies/${emergency.slug}/shifts/${SHIFT.shiftId}`,
     );
     expect((await rowsFor(eventKey)).every((r) => r.sentAt?.getTime() === NOW.getTime())).toBe(true);
@@ -433,7 +433,7 @@ describe("escalation", () => {
 
     await dispatch(recorder.adapters);
     const push = (await rowsFor(eventKey)).find((r) => r.channel === "push")!;
-    await openNotification(db, push.id, new Date(NOW.getTime() + 60_000));
+    await markNotificationRead(db, push.id, new Date(NOW.getTime() + 60_000));
 
     const later = new Date(NOW.getTime() + 16 * 60_000);
     await dispatch(recorder.adapters, later);
@@ -443,7 +443,7 @@ describe("escalation", () => {
     });
   });
 
-  it("does not count opening an unsent notice as read, and hides unknown ids", async () => {
+  it("does not mark an unsent notice read, and its link hides unknown ids", async () => {
     const emergency = await fixtures.emergency();
     const user = await fixtures.user({ channels: ["push", "sms"], push: 1 });
     const eventKey = `shift_cancelled:${randomUUID()}`;
@@ -457,7 +457,8 @@ describe("escalation", () => {
     });
     const push = (await rowsFor(eventKey)).find((r) => r.channel === "push")!;
 
-    expect(await openNotification(db, push.id, NOW)).toBe(
+    await markNotificationRead(db, push.id, NOW);
+    expect(await findNotificationLink(db, push.id)).toBe(
       `/es/emergencies/${emergency.slug}/shifts/${SHIFT.shiftId}`,
     );
     const [row] = await db
@@ -465,7 +466,7 @@ describe("escalation", () => {
       .from(notifications)
       .where(eq(notifications.id, push.id));
     expect(row?.readAt).toBeNull();
-    expect(await openNotification(db, randomUUID(), NOW)).toBeNull();
+    expect(await findNotificationLink(db, randomUUID())).toBeNull();
   });
 
   it("sends the SMS after 15 minutes when the push was not read", async () => {

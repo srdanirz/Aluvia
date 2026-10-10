@@ -10,8 +10,16 @@ import { allocatePaidMessages } from "@/features/notifications/server/quota";
 import { renderMessage } from "@/features/notifications/server/render";
 import { LOCALES } from "@/shared/i18n/locales";
 import { SMS_SEGMENT_LENGTH, gsm7Length, toGsm7 } from "@/shared/messaging/gsm";
+import { sendEmail } from "@/shared/messaging/resend";
 import { sendSms, verifyTwilioSignature } from "@/shared/messaging/twilio";
 import { sendWhatsAppTemplate } from "@/shared/messaging/whatsapp";
+
+// web-push is mocked so the push adapter's options can be read without a real push service.
+const webPush = vi.hoisted(() => ({ sendNotification: vi.fn() }));
+vi.mock("web-push", () => ({
+  sendNotification: webPush.sendNotification,
+  WebPushError: class extends Error {},
+}));
 
 const TWILIO = {
   TWILIO_ACCOUNT_SID: `AC${"0".repeat(32)}`,
@@ -96,6 +104,16 @@ describe("Twilio", () => {
     });
   });
 
+  // A revoked or expired credential is ours to fix, not the message's: it retries and alerts.
+  it.each([401, 403])("retries a %s as provider_auth instead of closing the notice", async (status) => {
+    stubFetch(status);
+    expect(await sendSms({ to: "+56911111111", body: "x" }, TWILIO)).toEqual({
+      ok: false,
+      code: "provider_auth",
+      retryable: true,
+    });
+  });
+
   it("refuses a body longer than one segment instead of splitting it", async () => {
     const fetch = stubFetch(201);
     expect(await sendSms({ to: "+56911111111", body: "a".repeat(SMS_SEGMENT_LENGTH + 1) }, TWILIO)).toEqual({
@@ -169,9 +187,42 @@ describe("WhatsApp", () => {
   });
 });
 
+describe("Resend", () => {
+  it("sends the notification id as idempotency key, so a retry after a timeout is not a second email", async () => {
+    const fetch = stubFetch(200);
+    await sendEmail(
+      { to: "a@example.org", subject: "s", text: "t", idempotencyKey: "n-1" },
+      { RESEND_API_KEY: "key", EMAIL_FROM: "avisos@example.org" },
+    );
+    const [, init] = fetch.mock.calls[0] as unknown as [string, RequestInit];
+    expect((init.headers as Record<string, string>)["Idempotency-Key"]).toBe("n-1");
+  });
+});
+
 describe("push adapter", () => {
   it("is absent without VAPID keys", () => {
     expect(createPushAdapter(null)).toBeNull();
+  });
+
+  it("sends each notice under a Topic, so a retried copy replaces the first one", async () => {
+    webPush.sendNotification.mockResolvedValue({ statusCode: 201, body: "", headers: {} });
+    const adapter = createPushAdapter({
+      NEXT_PUBLIC_VAPID_PUBLIC_KEY: "public",
+      VAPID_PRIVATE_KEY: "private",
+      VAPID_SUBJECT: "mailto:dev@example.org",
+    })!;
+    const notificationId = "00000000-0000-4000-8000-000000000009";
+    await adapter.send({
+      channel: "push",
+      notificationId,
+      urgent: true,
+      subscriptions: [{ endpoint: "https://push.example.org/a", keys: { p256dh: "k", auth: "a" } }],
+      message: { type: "shift_cancelled", locale: "es", title: "t", body: "b", sms: "s", url: "u" },
+    });
+    expect(webPush.sendNotification.mock.calls[0]?.[2]).toMatchObject({
+      topic: "00000000000040008000000000000009",
+      urgency: "high",
+    });
   });
 });
 

@@ -11,8 +11,6 @@ import { z } from "zod";
 const schema = z.object({
   // Public origin for links in notices and for verifying Twilio's signature.
   APP_URL: z.url({ protocol: /^https?$/ }).transform((url) => url.replace(/\/$/, "")),
-  // Cloud Scheduler sends it as a bearer token on every dispatch call.
-  NOTIFICATIONS_DISPATCH_TOKEN: z.string().min(32),
 });
 
 let cached: z.infer<typeof schema> | undefined;

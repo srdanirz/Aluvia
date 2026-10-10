@@ -8,7 +8,15 @@ export function createEmailAdapter(
 ): ChannelAdapter<"email"> | null {
   if (!config) return null;
   return {
-    send: ({ email, message }) =>
-      sendEmail({ to: email, subject: message.title, text: `${message.body}\n\n${message.url}` }, config),
+    send: ({ notificationId, email, message }) =>
+      sendEmail(
+        {
+          to: email,
+          subject: message.title,
+          text: `${message.body}\n\n${message.url}`,
+          idempotencyKey: notificationId,
+        },
+        config,
+      ),
   };
 }

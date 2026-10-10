@@ -8,8 +8,14 @@ export type SendResult =
 // Providers answer within a second or two; past this the request is retried, not awaited.
 export const PROVIDER_TIMEOUT_MS = 10_000;
 
-/** Maps a provider's HTTP status to our result: 429 and 5xx may pass later, other 4xx will not. */
+/**
+ * Maps a provider's HTTP status to our result: 429 and 5xx may pass later, other 4xx will not.
+ * 401 and 403 are our credentials (an expired or revoked token), not the message: closing the
+ * notice would close the whole queue and push every WhatsApp to SMS. They retry under
+ * `provider_auth`, which the outbox alert watches (ADR 0008) so someone fixes the secret.
+ */
 export function failureFromStatus(status: number): SendResult {
+  if (status === 401 || status === 403) return { ok: false, code: "provider_auth", retryable: true };
   if (status === 429) return { ok: false, code: "rate_limited", retryable: true };
   if (status >= 500) return { ok: false, code: "provider_unavailable", retryable: true };
   return { ok: false, code: "provider_rejected", retryable: false };

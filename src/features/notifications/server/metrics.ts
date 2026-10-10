@@ -1,12 +1,10 @@
-import { metrics } from "@opentelemetry/api";
+import { meter } from "@/shared/observability/metrics";
 
 /**
- * Outbox metrics (ADR 0008). Without an OpenTelemetry SDK registered these are no-ops, so tests
- * and forks without metrics run unchanged. Labels are channel, level and failure code: never a
- * person, a home or an emergency id.
+ * Outbox metrics (ADR 0008), on the app's one meter. Labels are channel, level and failure code:
+ * never a person, a home or an emergency id. In PromQL the dots become `_`, counters gain
+ * `_total` and the unit stays out of the name: `aluvia_notifications_backlog_age`.
  */
-const meter = metrics.getMeter("aluvia.notifications");
-
 export const sentCounter = meter.createCounter("aluvia.notifications.sent", {
   description: "Notifications a provider accepted",
 });

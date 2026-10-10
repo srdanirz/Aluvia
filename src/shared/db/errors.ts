@@ -2,6 +2,8 @@
 export const UNIQUE_VIOLATION = "23505";
 export const FOREIGN_KEY_VIOLATION = "23503";
 export const CHECK_VIOLATION = "23514";
+// Postgres aborted this transaction to break a lock cycle; running it again is safe.
+export const DEADLOCK_DETECTED = "40P01";
 
 /**
  * The Postgres error behind a failed write, if that is what it was. Drizzle wraps the driver's

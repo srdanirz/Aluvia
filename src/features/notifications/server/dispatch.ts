@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 
 import type { Database } from "@/shared/db/types";
+import { logError } from "@/shared/observability/logger";
 import { matchLocale } from "@/shared/i18n/messages";
 
 import type { ChannelAdapters, ChannelResult, Delivery } from "../channels/types";
@@ -95,7 +96,10 @@ async function deliverBatch(options: DispatchOptions, batch: ClaimedNotification
       channel: notification.channel,
     });
   }
-  for (const id of recorded.retried) retriedCounter.add(1, { channel: byId.get(id)!.notification.channel });
+  for (const id of recorded.retried) {
+    const { notification, result } = byId.get(id)!;
+    retriedCounter.add(1, { channel: notification.channel, code: result.ok ? "unknown" : result.code });
+  }
   for (const id of recorded.failed) {
     const { notification, result } = byId.get(id)!;
     failedCounter.add(1, { channel: notification.channel, code: result.ok ? "unknown" : result.code });
@@ -123,7 +127,13 @@ async function send(
       { send: (delivery: Delivery) => Promise<ChannelResult> } | undefined;
     if (!adapter) return { result: fail("channel_unavailable"), phone };
     return { result: await adapter.send(prepared), phone };
-  } catch {
+  } catch (error) {
+    // Ids and enums only (STYLEGUIDE, Datos personales). The error's message can carry a push
+    // endpoint, an email or a provider's reply, so only its name and stack frames are logged.
+    logError("notification_send_threw", withoutMessage(error), {
+      notificationId: notification.id,
+      channel: notification.channel,
+    });
     return { result: { ok: false, code: "adapter_error", retryable: true } };
   }
 }
@@ -185,4 +195,16 @@ async function prepareDelivery(
         ? { ...base, channel: notification.channel, phone: user.phone, message }
         : { code: "no_address" };
   }
+}
+
+function withoutMessage(error: unknown): Error {
+  const safe = new Error(error instanceof Error ? error.name : "non_error");
+  safe.name = safe.message;
+  // V8 opens the stack with "name: message", and a message can span lines: keep only the frames.
+  const frames =
+    error instanceof Error
+      ? error.stack?.split("\n").filter((line) => line.trimStart().startsWith("at "))
+      : [];
+  safe.stack = [safe.name, ...(frames ?? [])].join("\n");
+  return safe;
 }
