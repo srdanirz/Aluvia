@@ -21,25 +21,28 @@ La referencia es un sitio editorial para leer con calma. Aluvia se usa en la cal
 
 ### Color
 
-| Token | Hex | Uso |
-|---|---|---|
-| `canvas` | `#fefffc` | Fondo de página. Nunca `#ffffff` como lienzo. |
-| `surface` | `#ffffff` | Tarjetas, paneles, hojas inferiores. |
-| `surface-muted` | `#f9faf7` | Inputs, franjas de sección, fila seleccionada. |
-| `ink` | `#171717` | Texto principal. Nunca `#000000`. |
-| `ink-strong` | `#2c2c2c` | Títulos. |
-| `ink-soft` | `#444141` | Texto secundario, etiquetas. |
-| `ink-muted` | `#646464` | Ayudas, metadatos. Mínimo para texto. |
-| `line` | `#dee2de` | Bordes de tarjetas, divisores. |
-| `line-strong` | `#b4b8b4` | Bordes deshabilitados. Nunca para texto (2:1). |
-| `action` | `#1f1f29` | Fondo del botón principal. |
-| `action-line` | `#282834` | Borde de botones secundarios, íconos. |
-| `accent` | `#006a9e` | Links y texto de acento. |
-| `accent-line` | `#0081c0` | Borde de la acción destacada, foco. |
-| `status-urgent` | `#b42318` | Sin atender, grave. |
-| `status-pending` | `#b54708` | Tomado, en curso. |
-| `status-done` | `#067647` | Hecho. |
-| `status-closed` | `#646464` | Cerrado sin hacer: duplicado, no quiere ayuda. |
+| Token | Claro | Oscuro | Uso |
+|---|---|---|---|
+| `canvas` | `#fefffc` | `#121214` | Fondo de página. En claro, nunca `#ffffff` como lienzo. |
+| `surface` | `#ffffff` | `#1a1a1e` | Tarjetas, paneles, hojas inferiores. |
+| `surface-muted` | `#f9faf7` | `#222227` | Inputs, franjas de sección, fila seleccionada. |
+| `ink` | `#171717` | `#ececec` | Texto principal. Nunca `#000000`. |
+| `ink-strong` | `#2c2c2c` | `#f5f5f3` | Títulos. |
+| `ink-soft` | `#444141` | `#c4c4c0` | Texto secundario, etiquetas. |
+| `ink-muted` | `#646464` | `#9a9a96` | Ayudas, metadatos. Mínimo para texto. |
+| `line` | `#dee2de` | `#2e2e33` | Bordes de tarjetas, divisores. |
+| `line-strong` | `#b4b8b4` | `#4a4a50` | Bordes deshabilitados. Nunca para texto (2:1). |
+| `action` | `#1f1f29` | `#f5f5f3` | Fondo del botón principal. |
+| `on-action` | `#ffffff` | `#1f1f29` | Texto e íconos sobre `action`. |
+| `action-line` | `#282834` | `#d4d4d8` | Borde de botones secundarios, íconos. |
+| `accent` | `#006a9e` | `#5cb8e6` | Links y texto de acento. |
+| `accent-line` | `#0081c0` | `#41a1cf` | Borde de la acción destacada, foco. |
+| `status-urgent` | `#b42318` | `#f97066` | Sin atender, grave. |
+| `status-pending` | `#b54708` | `#fdb022` | Tomado, en curso. |
+| `status-done` | `#067647` | `#47cd89` | Hecho. |
+| `status-closed` | `#646464` | `#9a9a96` | Cerrado sin hacer: duplicado, no quiere ayuda. |
+
+Todos los pares de texto cumplen AA (4,5:1) contra `canvas` y `surface` en los dos temas; `line-strong` es solo decorativo.
 
 ### Tipografía
 
@@ -71,15 +74,38 @@ En celular, `display` y `heading-lg` bajan a `heading`. El texto de cuerpo nunca
 - **Bordes:** 1 px `line` en tarjetas y secciones. Los bordes hacen el trabajo que en otros sistemas hacen las sombras.
 - Ancho máximo de contenido: 1200 px.
 
+## Temas: claro, oscuro y automático
+
+- Tres opciones para el usuario: **claro, oscuro y automático** (sigue al sistema operativo). Automático es el valor por defecto.
+- Cada token tiene su valor en los dos temas, en `theme.css`. **Los componentes no saben en qué tema están**: usan `bg-surface` y el token cambia solo. Por eso el variante `dark:` no se usa fuera de `src/shared/ui/`.
+- **Automático no necesita nada del servidor:** `theme.css` resuelve el tema con `@media (prefers-color-scheme: dark)`. La cookie solo existe si el usuario eligió claro u oscuro explícito; en ese caso el servidor pone `data-theme` en `<html>` desde el primer byte. Así no hay parpadeo en ningún caso.
+- El mapa toma el tema con la prop `colorScheme` de `@vis.gl/react-google-maps`, que **solo se aplica al crear el mapa**. Cambiar de tema no remonta el mapa (sería otra carga cobrada, ADR 0006): el mapa toma el tema nuevo en la próxima carga. El Map ID necesita un estilo oscuro configurado en el estilo en la nube de Google.
+- Las sombras en oscuro casi no se ven: ahí los bordes `line` hacen el trabajo.
+
+## Dispositivos
+
+Celular primero, pero tablet y escritorio son de primera clase: los coordinadores trabajan en iPad en terreno.
+
+| Rango | Desde | Layout |
+|---|---|---|
+| Celular | 0 | Una columna. Mapa a pantalla completa con hoja inferior. Navegación inferior al alcance del pulgar. |
+| Tablet | 768 px (`md`) | Horizontal (`landscape:`): mapa con panel lateral de 360 px. Vertical (`portrait:`): el panel pasa a hoja inferior. `md` solo mira el ancho y un iPad vertical ya mide 768 px o más, por eso manda la orientación. |
+| Escritorio | 1280 px (`xl`) | Mapa, panel lateral y detalle de la casa a la vez. |
+
+- Se prueba a **375, 768, 1024 (iPad vertical y horizontal) y 1440 px**.
+- Todo se puede hacer con el dedo: objetivos de 44 px o más, sin acciones que solo existan con hover.
+- Se respetan las áreas seguras del iPhone y del iPad (`env(safe-area-inset-*)`) en la barra inferior y en la hoja del mapa. Solo funcionan con `export const viewport = { viewportFit: "cover" }` en el layout raíz; sin eso valen 0.
+- Los inputs usan el teclado correcto (`inputMode="tel"`, `type="email"`) y tienen 16 px o más, para que iOS no haga zoom al tocarlos.
+
 ## Componentes
 
-- **Botón principal:** fondo `action`, texto blanco, radio 8 px, alto mínimo 44 px, sans 500 15 px.
+- **Botón principal:** fondo `action`, texto `on-action`, radio 8 px, alto mínimo 44 px, sans 500 15 px.
 - **Botón secundario:** transparente, borde 1 px `action-line`, texto `action-line`.
 - **Botón destacado:** transparente, borde 1 px `accent-line`, texto `accent`, con flecha a la derecha. Uno por pantalla como máximo.
 - **Link:** texto `accent` o `ink-soft`, sin subrayado hasta el hover, flecha opcional.
 - **Input:** fondo `surface-muted`, solo borde inferior `ink-soft`, radio 0, estética de formulario en papel. Foco: borde inferior de 2 px `accent-line`. Alto mínimo 44 px.
 - **Tarjeta:** `surface`, borde `line`, radio 12 px, `shadow-card`, padding 16 px.
-- **Navegación:** una pastilla flotante centrada (radio `full`, fondo blanco translúcido con `backdrop-blur`, borde `action-line`). Sin barra lateral en las vistas públicas.
+- **Navegación:** una pastilla flotante centrada (radio `full`, fondo `surface` con opacidad y `backdrop-blur`, borde `action-line`). Sin barra lateral en las vistas públicas.
 - **StatusBadge:** punto de color de estado + etiqueta escrita, sans 500 13 px. Nunca solo el color.
 - **Mapa:** ocupa la pantalla completa en celular; los controles y la ficha de la casa flotan encima como hoja inferior (radio 16 px arriba, `shadow-float`).
 - **Tablas (`DataTable`):** sin bordes verticales, divisores horizontales `line`, encabezado `caption` en `ink-muted`, fila seleccionada `surface-muted`.
@@ -105,4 +131,4 @@ En celular, `display` y `heading-lg` bajan a `heading`. El texto de cuerpo nunca
 1. Lee este archivo y revisa qué hay en `src/shared/ui/` (y en `/dev/ui` si la app está corriendo).
 2. Arma la pantalla **solo** con primitivas existentes. Si falta una, propón primero el cambio a `shared/ui/` con sus variantes.
 3. Usa tokens por nombre (`bg-canvas`, `text-ink-soft`, `border-line`, `rounded-card`), nunca un valor.
-4. Revisa la pantalla a 375 px de ancho antes de darla por terminada.
+4. Revísala a 375, 768, 1024 y 1440 px, en tema claro y oscuro, antes de darla por terminada.

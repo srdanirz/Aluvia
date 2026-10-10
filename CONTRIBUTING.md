@@ -5,14 +5,20 @@ Somos dos mantenedores. Cada uno revisa el trabajo del otro, y así los dos sabe
 ## Flujo
 
 1. **Toma o crea un issue** antes de empezar y asígnatelo. Así el otro sabe en qué estás.
-2. **Crea la rama primero**, desde `main` actualizado:
-   `feat/…` `fix/…` `refactor/…` `docs/…` `chore/…` (ej. `feat/mapa-casas`).
+2. **Actualiza `main` y crea la rama**, siempre en ese orden:
+   `git switch main && git pull --ff-only && git switch -c feat/mapa-casas`.
+   Prefijos: `feat/…` `fix/…` `refactor/…` `docs/…` `chore/…`.
 3. **Commits** en inglés con [Conventional Commits](https://www.conventionalcommits.org/):
    `type(scope): subject`, imperativo, sin punto final, menos de 72 caracteres.
    Tipos: `feat` `fix` `chore` `build` `refactor` `docs` `ui` `test`.
 4. **Abre el PR temprano** (como Draft si no está listo). Rellena la plantilla: qué cambia, por qué, cómo probarlo.
-5. **El otro mantenedor revisa.** Nadie aprueba ni mergea su propio PR. `main` está protegida y exige una aprobación.
-6. **Squash and merge** y se borra la rama.
+5. **Rebase sobre `main` antes de pedir revisión**, nunca merge de `main` hacia tu rama:
+   `git fetch origin main && git rebase origin/main`, vuelve a correr los checks y
+   `git push --force-with-lease --force-if-includes`.
+   Ese par de flags evita sobrescribir commits que el otro haya subido a tu rama y que no integraste.
+   Si `main` avanzó después de la aprobación, GitHub no deja mergear hasta rebasear (exige la rama al día), y el rebase descarta la aprobación: se pide de nuevo. Por eso conviene rebasear justo antes de pedir revisión y mergear apenas se aprueba.
+6. **El otro mantenedor revisa.** Nadie aprueba ni mergea su propio PR. `main` está protegida y exige una aprobación.
+7. **Squash and merge** y se borra la rama. Después: `git switch main && git pull --ff-only`.
 
 ## Revisión
 

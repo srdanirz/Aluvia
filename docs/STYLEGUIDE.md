@@ -4,7 +4,7 @@ Convenciones de ingeniería de Aluvia. Vienen de reglas que ya funcionan en nues
 
 Lo que una herramienta puede revisar no se escribe aquí: va en el linter, el typecheck o el CI (ver "Lo que revisa la máquina" al final).
 
-Decisiones de base: [stack](adr/0002-stack.md) · [mapa](adr/0003-mapa.md) · [design system](adr/0004-design-system.md). Lenguaje visual: [DESIGN.md](DESIGN.md).
+Decisiones de base: [stack](adr/0002-stack.md) · [mapa](adr/0006-google-maps.md) · [design system](adr/0004-design-system.md). Lenguaje visual: [DESIGN.md](DESIGN.md).
 
 ## Estructura
 
@@ -19,7 +19,7 @@ Decisiones de base: [stack](adr/0002-stack.md) · [mapa](adr/0003-mapa.md) · [d
         components/         composiciones de primitivas del design system, nunca estilos propios
         schemas.ts          zod, compartido entre cliente y servidor
         index.ts            API pública de la feature
-      work-items/  shifts/  volunteers/  map/
+      work-items/  shifts/  members/  notifications/  map/
     shared/
       ui/                   EL design system: la única carpeta con estilos propios
       db/  i18n/  lib/      solo lo que usan 2 o más features
@@ -93,13 +93,81 @@ Reglas completas en [SECURITY.md](../SECURITY.md). En el código:
 - Logs sin PII: ni teléfono, ni dirección, ni RUT. Se loguea el `id`.
 - Endpoints públicos de reporte con límite de tasa por IP.
 
+## Observabilidad
+
+Detalle en [ADR 0008](adr/0008-observabilidad.md). **Una feature no está terminada si no se puede ver funcionando en producción.**
+
+- Cada feature nueva trae en el mismo PR sus **métricas** (OpenTelemetry), sus **eventos** de producto y, si su falla deja a alguien sin ayuda, su **alerta**.
+- Los eventos salen solo del catálogo `src/shared/analytics/events.ts`: nombre en `snake_case` y en pasado (`work_item_claimed`), con schema zod. Nada de `track("cualquier cosa")` suelto.
+- Ningún evento, métrica, log ni error lleva datos personales. Las etiquetas de una métrica nunca son ids de usuario ni de casa (además de exponer datos, disparan la cardinalidad): se usan ruta, zona, tipo de trabajo, estado.
+- Logs en JSON estructurado con el trace id. Un error se registra una vez, donde se maneja, no en cada capa que lo propaga.
+- Grafana (propio, en Cloud Run) lee la base solo a través de vistas agregadas y con un usuario de solo lectura.
+
 ## Nombres
 
-- Identificadores y comentarios en inglés. Verbo primero y describiendo la operación: `listWorksitesInArea`, `claimWorkItem`, `markWorkItemDone`. Sin metáforas.
-- No se repite el tipo: `worksites.list()`, no `worksites.listWorksites()`.
-- Términos chilenos sin equivalente se quedan en español: `comuna`, `rut`, `fibe`.
-- Constantes de umbral en mayúsculas, arriba del archivo, con el porqué del número.
-- `camelCase` valores y funciones, `PascalCase` tipos y componentes, `snake_case` tablas y columnas.
+Un concepto, un nombre, en todas las capas: la tabla `work_items`, la carpeta `features/work-items/`, el tipo `WorkItem`, la ruta `/api/v1/work-items` y el evento `work_item_claimed` hablan de lo mismo y se encuentran con un solo `grep`.
+
+### Reglas generales
+
+- Identificadores, comentarios, rutas y nombres guardados en **inglés**. Términos chilenos sin equivalente se quedan en español: `comuna`, `rut`, `fibe`.
+- Describir la operación, sin metáforas: `claimWorkItem`, no `grabTask` ni `pickUp`.
+- Funciones planas, verbo + entidad (`getWorksite`, `claimWorkItem`), sin namespaces: se importan sueltas y se encuentran con `grep`.
+- Sin abreviaturas salvo las universales (`id`, `url`): `worksite`, no `ws`.
+- Booleanos con `is`/`has`/`can`: `isVerified`, `hasVulnerablePeople`, `canClaim`.
+- Constantes de umbral en `SCREAMING_SNAKE_CASE`, arriba del archivo, con el porqué del número.
+- **Unidades con nombre propio** (un worker, un servicio, una herramienta interna) llevan un nombre corto con carácter, sin sufijo de función (`Service`, `Manager`, `Worker`): lo proponemos con 2 o 3 opciones y lo eligen los mantenedores. Las funciones y variables nunca llevan nombres así.
+
+### Verbos (uno por concepto)
+
+| Verbo | Significa | Ejemplo |
+|---|---|---|
+| `list` | Varios, paginado | `listWorksitesInArea` |
+| `get` | Uno por id; lanza si no existe | `getWorksite` |
+| `find` | Uno por criterio; puede devolver `null` | `findOpenShift` |
+| `count` | Un número | `countUnclaimedWorkItems` |
+| `create` / `update` | Insertar / modificar | `createWorksite` |
+| `claim` / `release` | Tomar / soltar algo con dueño | `claimWorkItem` |
+| `mark` | Cambiar a un estado (también cerrar: no hay `delete` durante la emergencia) | `markWorkItemDone` |
+| `cancel` | Anular algo propio, dejando registro (`cancelled_at`) | `cancelShiftSignup` |
+| `purge` | El único borrado en duro: datos personales al cerrar la emergencia (ADR 0005) | `purgeEmergencyPersonalData` |
+| `send` | Sale de la app (notificación, email) | `sendShiftReminder` |
+
+### Por capa
+
+| Qué | Forma | Ejemplo |
+|---|---|---|
+| Carpeta de feature | `kebab-case`, inglés. Si es una entidad, el nombre de su tabla en plural; si es una capacidad sin tabla propia, en singular | `features/work-items/`, `features/members/` (tabla `emergency_members`), `features/map/` |
+| Archivos | `kebab-case` | `work-item-card.tsx`, `queries.ts` |
+| Componentes y tipos | `PascalCase`, sin prefijo `I` | `WorkItemCard`, `Worksite` |
+| Funciones, variables, hooks | `camelCase`; hooks con `use` | `listWorksitesInArea`, `useMapBounds` |
+| Schemas zod | nombre + `Schema` | `worksiteReportSchema` |
+| Server Actions | verbo + entidad, exportadas desde `server/actions.ts` | `claimWorkItem` |
+| Tablas | `snake_case`, plural | `work_items`, `shift_signups` |
+| Columnas | `snake_case`; FK `<entidad>_id`; FK a `users` con rol, `<rol>_by`; instantes `_at`; fechas `_on`; booleanos `is_`/`has_` | `worksite_id`, `claimed_by`, `created_at`, `is_verified` |
+| Valores de enum | `snake_case` | `needs_follow_up` |
+| Índices y constraints | `<tabla>_<columnas>_<tipo>` | `work_items_emergency_id_status_idx` |
+| Variables de entorno | `SCREAMING_SNAKE_CASE`; `NEXT_PUBLIC_` solo si el navegador la necesita | `DATABASE_URL`, `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` |
+| Claves de traducción | `feature.pantalla.elemento`, en `camelCase`. Excepción: `errors.<code>` conserva el `snake_case` del código, para traducirlo directo | `workItems.detail.claimButton`, `errors.already_claimed` |
+| Códigos de error | `snake_case`, describen el qué | `already_claimed`, `shift_full` |
+| Eventos de producto | `snake_case`, entidad + verbo en pasado | `work_item_claimed` |
+| Métricas | En código (OpenTelemetry): puntos, prefijo `aluvia.`, unidad aparte. El exportador a Prometheus agrega `_seconds`/`_total`; no se escriben a mano | Código: `aluvia.map.bbox.duration` (unidad `s`). PromQL: `aluvia_map_bbox_duration_seconds` |
+| Ramas | `tipo/descripcion-en-kebab` | `feat/claim-work-item` |
+
+### Rutas y endpoints
+
+- **Páginas:** segmentos en inglés, `kebab-case`, sustantivos en plural, sin verbos: `/worksites`, `/worksites/[id]`, `/shifts/[id]`. Si un idioma necesita URLs traducidas, se hace con los *pathnames* localizados de next-intl, sin renombrar carpetas.
+- **Quién usa qué:**
+  - **Mutaciones de la app → Server Actions** (`claimWorkItem`, `createWorksite`, `subscribeToPush`). No hay endpoint para eso.
+  - **Lecturas del cliente → route handler `GET`**, para lo que el navegador pide solo (el mapa por bbox con TanStack Query). Lo que se lee al renderizar lo hace el Server Component directo con `queries.ts`.
+  - **Terceros y procesos → route handlers**: webhooks de proveedores, exportación para el municipio, el worker de notificaciones.
+- **Route handlers:** versionados y REST, `/api/v1/<recurso-en-plural>`. Ejemplos de cada categoría:
+  - `GET /api/v1/worksites?bbox=…&cursor=…` (lectura del mapa).
+  - `GET /api/v1/exports/worksites` (exportación para el municipio).
+  - `POST /api/v1/webhooks/<proveedor>` (estado de entrega de un SMS).
+  - Una acción que no es CRUD es un subrecurso con verbo, siempre `POST`: `POST /api/v1/notifications/dispatch` (el worker).
+  - Query params en `camelCase` (`pageSize`, `cursor`), igual que el JSON.
+- **Respuestas:** JSON en `camelCase`. Éxito: el recurso, o `{ items, nextCursor }` en listas. Error: `{ code, details? }` con el status HTTP que corresponda (`409` para `already_claimed`, `422` para validación). Nunca una frase: el cliente traduce el `code`.
+- Un cambio que rompe el contrato de `/api/v1` va en `/api/v2`; los clientes de afuera no se rompen.
 
 ## Comentarios
 
@@ -120,7 +188,21 @@ Detalle y razones en [ADR 0004](adr/0004-design-system.md). La regla corta: **si
 - **Tablas = `DataTable` del design system.** Nada de tablas armadas a mano por feature.
 - **Tokens en un solo lugar**: `src/shared/ui/theme.css` (`@theme`), con los valores de [DESIGN.md](DESIGN.md). Ese archivo **resetea la paleta y las escalas por defecto de Tailwind** (`--color-*: initial;` y lo mismo para radio, sombra, espaciado y fuente), así `bg-red-500` o `shadow-lg` dejan de existir y solo quedan nuestros tokens (`bg-surface`, `text-ink-soft`).
 - **Estados de trabajo = un componente `StatusBadge`** que mapea estado → token + etiqueta. Ningún otro archivo decide el color de un estado. (origen: Crisis Cleanup, que tuvo que migrar 20 hex sueltos a tokens)
-- Todo texto visible sale de `messages/{es,en}.json` vía next-intl. Fechas, números y listas por `Intl`.
+- **Temas claro, oscuro y automático desde el día uno** (DESIGN.md). Los componentes usan tokens y no saben en qué tema están: `dark:` solo existe dentro de `src/shared/ui/`.
+- **Celular, tablet y escritorio.** Cada pantalla se diseña para los tres rangos de DESIGN.md y Playwright la recorre a 375, 768, 1024 y 1440 px. La app es una PWA instalable (manifest e íconos), para que el vecino la abra desde la pantalla de inicio.
+
+### Idiomas
+
+Agregar un idioma tiene que ser **agregar un archivo**, sin tocar código.
+
+- Los idiomas viven en un registro (`src/shared/i18n/locales.ts`). Agregar uno es una línea ahí más `messages/<código>.json`.
+- **Todo texto visible sale de `messages/*.json`** vía next-intl, también `alt`, `aria-label`, `title`, mensajes de error y correos.
+- Nada de armar frases concatenando pedazos: una frase es una clave con variables (`"{count, plural, one {# casa} other {# casas}}"`). El orden de las palabras cambia entre idiomas.
+- Fechas, números, monedas y listas por `Intl` con el locale activo, nunca con `"es-CL"` fijo. (origen: sonda)
+- El servidor responde códigos (`already_claimed`), nunca frases.
+- Los layouts aguantan un texto un 40 % más largo que el español: nada de anchos fijos para texto, nada de texto dentro de imágenes.
+- Propiedades lógicas en vez de izquierda/derecha, para que un idioma de derecha a izquierda no obligue a rehacer pantallas: `ms-`/`me-`, `ps-`/`pe-`, `start-`/`end-` (no `inset-s-`/`inset-e-`: una sola forma), `text-start`/`text-end`, `rounded-s`/`rounded-e`, `border-s`/`border-e`, `scroll-ms-`/`scroll-ps-`, `float-start`/`float-end`.
+- Un test verifica que todos los archivos de `messages/` tengan exactamente las mismas claves.
 - Español neutro LATAM. Sin emojis y sin guion largo (`—`) en textos de usuario: usar `·`, dos puntos o punto.
 - Íconos Lucide, monolínea, sin contenedor de fondo.
 - Un estado siempre lleva etiqueta escrita además del color: con sol, en la calle, el color solo no se distingue.
@@ -140,6 +222,6 @@ Va en la configuración del scaffold y el CI lo exige en cada PR:
 
 - `tsc` strict con `noUncheckedIndexedAccess`.
 - ESLint con tipos (`parserOptions.projectService`): `no-await-in-loop`, `no-console`, `@typescript-eslint/no-explicit-any`, `@typescript-eslint/no-floating-promises`, `@typescript-eslint/ban-ts-comment`.
-- ESLint de UI, fuera de `src/shared/ui/`: `no-restricted-syntax` contra los elementos crudos y el prop `style`; `better-tailwindcss/no-restricted-classes` contra valores arbitrarios y el `!` (en v4 va al final, `bg-x!`, y el patrón cubre prefijo y sufijo); `better-tailwindcss/no-unknown-classes`, que con los defaults reseteados en `theme.css` rechaza toda clase que no sea un token.
+- ESLint de UI, fuera de `src/shared/ui/`: `no-restricted-syntax` contra los elementos crudos y el prop `style`; `better-tailwindcss/no-restricted-classes` contra valores arbitrarios y el `!` (en v4 va al final, `bg-x!`, y el patrón cubre prefijo y sufijo), el variante `dark:`, las clases físicas (`ml-`, `mr-`, `-ml-`, `-mr-`, `pl-`, `pr-`, `left-`, `right-`, `text-left`, `text-right`, `rounded-l`, `rounded-r`, `border-l`, `border-r`, `scroll-m[lr]-`, `scroll-p[lr]-`, `float-left`, `float-right`, `clear-left`, `clear-right`) y la forma lógica alternativa `inset-s-`/`inset-e-`; `better-tailwindcss/no-unknown-classes`, que con los defaults reseteados en `theme.css` rechaza toda clase que no sea un token.
 - Stylelint `declaration-no-important`.
 - Prettier, Vitest (incluye conteo de consultas y concurrencia), build de Next.js, gitleaks.
