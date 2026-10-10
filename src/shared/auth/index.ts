@@ -10,5 +10,5 @@ export {
   isMember,
   type MemberRole,
 } from "./access";
-export { getCurrentUser, getEmergencyAccess, requireUser } from "./current-user";
+export { getCurrentUser, getEmergencyAccess } from "./current-user";
 export type { SessionUser } from "./session";

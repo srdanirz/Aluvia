@@ -3,7 +3,7 @@
 import { getLocale } from "next-intl/server";
 import { refresh } from "next/cache";
 
-import { requireUser } from "@/shared/auth";
+import { requireUser } from "@/shared/auth/require-user";
 import { trackServerEvent } from "@/shared/analytics/server";
 import { db } from "@/shared/db/client";
 import { redirect } from "@/shared/i18n/navigation";

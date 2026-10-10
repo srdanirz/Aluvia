@@ -2,7 +2,8 @@ import "server-only";
 
 import { notFound } from "next/navigation";
 
-import { getCurrentUser, requireUser, type SessionUser } from "@/shared/auth";
+import { getCurrentUser, type SessionUser } from "@/shared/auth";
+import { requireUser } from "@/shared/auth/require-user";
 import { db } from "@/shared/db/client";
 
 import { findInvitation, type InvitationView } from "./invitations";
