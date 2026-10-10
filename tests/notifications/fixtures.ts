@@ -20,7 +20,9 @@ export const APP_URL = "https://aluvia.example.org";
 
 // Chile has no reserved fiction range, so tests stay inside one fixed block (+56 9 999x xxxx),
 // random within it so files sharing the database never collide on a unique phone.
-const inventedPhone = () => `+569999${String(randomInt(1e5)).padStart(5, "0")}`;
+// Ten million invented numbers under the unassigned +5690 prefix: each test file loads its own copy
+// of this module, so a per-file counter collided on the unique phone index across files.
+const inventedPhone = () => `+5690${String(randomInt(1e7)).padStart(7, "0")}`;
 
 export function createFixtures(db: Database) {
   let counter = 0;

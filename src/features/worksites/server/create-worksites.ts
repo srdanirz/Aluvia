@@ -12,11 +12,11 @@ import { DUPLICATE_RADIUS_METERS } from "./queries";
 export type CreateWorksitesResult =
   { ok: true; created: string[] } | { ok: false; code: "invalid_work_type" };
 
-class InvalidWorkType extends Error {}
+export class InvalidWorkType extends Error {}
 
 /**
  * The review flags of a new home, decided by the database in the same INSERT: a point outside
- * the emergency's area (a GPS error, swapped coordinates), a fix less precise than
+ * the emergency's area (a GPS error, swapped coordinates), no point or a fix less precise than
  * PRECISE_LOCATION_METERS, another home of the emergency within DUPLICATE_RADIUS_METERS, or
  * someone in danger. Homes of the same batch do not see each other. An official survey import
  * gets no flags: its parcels are distinct by definition (adjacent ones sit closer than the
@@ -28,7 +28,9 @@ function reviewFlagsFor(emergencyId: string, report: NewWorksite, source: Worksi
   const danger = report.isPersonInDanger ? sql`'person_in_danger'` : sql`NULL`;
   const imprecise =
     (report.locationAccuracyMeters ?? 0) > PRECISE_LOCATION_METERS ? sql`'imprecise_location'` : sql`NULL`;
-  if (!report.location) return sql`array_remove(ARRAY[${danger}]::worksite_review_flag[], NULL)`;
+  // No point at all is the least precise location: a coordinator places the pin.
+  if (!report.location)
+    return sql`array_remove(ARRAY['imprecise_location', ${danger}]::worksite_review_flag[], NULL)`;
 
   const point = sql`ST_SetSRID(ST_MakePoint(${report.location.lng}, ${report.location.lat}), 4326)`;
   return sql`array_remove(ARRAY[
@@ -43,11 +45,40 @@ function reviewFlagsFor(emergencyId: string, report: NewWorksite, source: Worksi
   ]::worksite_review_flag[], NULL)`;
 }
 
+/** A contact row is written only when the report carries something to reach or find the home by. */
+export function hasContactData({ name, phone, addressText, notes, notifyChannel }: NewWorksite["contact"]) {
+  return [name, phone, addressText, notes, notifyChannel].some((value) => value !== null);
+}
+
+/**
+ * The worksite_contacts values of a report. The opt-in to a public contact holds only with a
+ * name or a phone to show, so a later report that brings one decides for itself (attachReport).
+ */
+export function contactValues(worksiteId: string, locale: string, contact: NewWorksite["contact"]) {
+  return {
+    worksiteId,
+    ...contact,
+    publicContact: contact.publicContact && (contact.name !== null || contact.phone !== null),
+    locale,
+    notifyConsentAt: contact.notifyChannel ? sql`now()` : null,
+  };
+}
+
 // Postgres caps a statement at 65535 parameters; a home takes about 20 with its flags.
 export const MAX_WORKSITES_PER_CALL = 500;
 
-async function insertWorkItems(tx: Executor, emergencyId: string, pairs: { id: string; key: string }[]) {
-  return tx.execute<{ id: string }>(sql`
+/**
+ * Opens one unclaimed work item per (home, type) pair, with its first event. Only active types of
+ * this emergency's own catalog: one missing pair throws InvalidWorkType, so the caller's
+ * transaction rolls back whole. Two statements for any number of pairs.
+ */
+export async function insertOpenWorkItems(
+  tx: Executor,
+  emergencyId: string,
+  pairs: readonly { id: string; key: string }[],
+): Promise<void> {
+  if (pairs.length === 0) return;
+  const items = await tx.execute<{ id: string }>(sql`
     INSERT INTO work_items (id, emergency_id, worksite_id, work_type_key)
     SELECT gen_random_uuid(), ${emergencyId}, pair.worksite_id, pair.key
     FROM unnest(${sqlArray(
@@ -62,6 +93,10 @@ async function insertWorkItems(tx: Executor, emergencyId: string, pairs: { id: s
       ON wt.emergency_id = ${emergencyId} AND wt.key = pair.key AND wt.is_active
     RETURNING id
   `);
+  if (items.length !== pairs.length) throw new InvalidWorkType();
+  await tx
+    .insert(workItemEvents)
+    .values(items.map((item) => ({ workItemId: item.id, emergencyId, toStatus: "open_unclaimed" as const })));
 }
 
 /**
@@ -114,30 +149,13 @@ export async function createWorksites(
       const pending = reports.filter((report) => fresh.has(report.id));
       const pairs = pending.flatMap((report) => report.workTypeKeys.map((key) => ({ id: report.id, key })));
 
-      // Only active types of this emergency's own catalog; one missing pair rejects the batch.
-      const items = pairs.length === 0 ? [] : await insertWorkItems(tx, emergencyId, pairs);
-      if (items.length !== pairs.length) throw new InvalidWorkType();
+      await insertOpenWorkItems(tx, emergencyId, pairs);
 
-      if (items.length > 0) {
-        await tx
-          .insert(workItemEvents)
-          .values(
-            items.map((item) => ({ workItemId: item.id, emergencyId, toStatus: "open_unclaimed" as const })),
-          );
-      }
-
-      const contacts = pending.filter(({ contact }) =>
-        Object.values(contact).some((value) => value !== null),
-      );
+      const contacts = pending.filter(({ contact }) => hasContactData(contact));
       if (contacts.length > 0) {
-        await tx.insert(worksiteContacts).values(
-          contacts.map(({ id, locale, contact }) => ({
-            worksiteId: id,
-            ...contact,
-            locale,
-            notifyConsentAt: contact.notifyChannel ? sql`now()` : null,
-          })),
-        );
+        await tx
+          .insert(worksiteContacts)
+          .values(contacts.map(({ id, locale, contact }) => contactValues(id, locale, contact)));
       }
       return [...fresh];
     });

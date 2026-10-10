@@ -34,6 +34,9 @@ const schema = z
       .string()
       .optional()
       .transform((value) => value || undefined),
+    // Geocoding API key (server only): places a report's written address on the map. Optional in
+    // every environment: without it, a report matching no official parcel waits for a coordinator.
+    GOOGLE_MAPS_SERVER_KEY: optional(z.string().min(1)),
     // Port for the Prometheus scrape endpoint (ADR 0008). Unset: no metrics server.
     METRICS_PORT: optional(z.coerce.number().int().min(1).max(65_535)),
     // Lets Cloud Logging join each log line to its trace. Unset: logs carry the bare trace id.

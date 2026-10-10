@@ -1,8 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("server-only", () => ({}));
-
-const { createIamTokenSource } = await import("./iam-token");
+import { createIamTokenSource } from "./iam-token";
 
 function tokenResponse(token: string, expiresIn = 3600) {
   return new Response(JSON.stringify({ access_token: token, expires_in: expiresIn }));

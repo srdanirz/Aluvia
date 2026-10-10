@@ -40,7 +40,7 @@ export function MapShell({ map, panel }: { map: ReactNode; panel: ReactNode }) {
         <OpenCellContext value={openCellValue}>
           <div className="relative h-dvh overflow-hidden">
             <div className="absolute inset-0">{map}</div>
-            <div className="absolute inset-x-4 bottom-4 flex max-h-sheet flex-col md:end-auto md:top-4 md:max-h-none md:w-panel">
+            <div className="absolute inset-x-4 bottom-nav-bottom flex max-h-sheet flex-col md:end-auto md:top-nav-top md:bottom-4 md:max-h-none md:w-panel">
               {openCell ? <CellPanel cell={openCell} onClose={() => setOpenCell(null)} /> : panel}
             </div>
           </div>

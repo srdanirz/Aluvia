@@ -44,16 +44,16 @@ Marca: **negro y blanco** para las acciones, y tres familias del territorio, pro
 | `action` / `on-action` | `#000000` / `#FFFFFF` | `#FFFFFF` / `#000000` | Botón principal, ítem activo. |
 | `accent` / `on-accent` | `#3C6880` / `#FFFFFF` | `#9CC4D9` / `#0B0C12` | Acción destacada, foco, links. Es `rain-600`. |
 | `accent-tint` | `#E9F1F5` | `#172129` | Tarjeta seleccionada. Es `rain-100`. |
-| `status-urgent` / `-tint` | `#76563A` / `#F5EDE3` | `#D4B691` / `#241E18` | Sin tomar, grave (tierra). |
-| `status-urgent-text` | `#76563A` | `#D4B691` | Texto de error. |
-| `status-pending` / `-tint` | `#3C6880` / `#E9F1F5` | `#9CC4D9` / `#172129` | Tomado, en curso (lluvia). |
-| `status-done` / `-tint` | `#4A6341` / `#ECF1E7` | `#AAC39D` / `#1B2118` | Hecho (musgo). |
+| `status-urgent` / `-tint` | `#C8372D` / `#FBE9E7` | `#F27A6F` / `#2C1614` | Sin atender o no entrar: rojo de semáforo. |
+| `status-urgent-text` | `#A42A22` | `#F27A6F` | Texto de error. |
+| `status-pending` / `-tint` | `#C96A0A` / `#FDF0E2` | `#F4A650` / `#2B1E10` | Tomado, en curso: naranjo. |
+| `status-done` / `-tint` | `#2F7D3B` / `#E5F2E7` | `#74C483` / `#142519` | Atendida: verde. |
 | `status-closed` / `-tint` | `#8B8EA3` / `#EEF0F5` | `#9A9DB2` / `#23252F` | Cerrado sin hacer. |
 | `glass` | blanco al 62 % | `#16171F` al 60 % | Relleno de lo que flota. |
 | `glass-hover` | blanco al 75 % | blanco al 8 % | Hover de piezas discretas o translúcidas: un vidrio más claro, nunca un gris sólido. |
 | `aurora-1/2/3` | `#BCD3DF`, `#DFC9AD`, `#C4D3B9` | `#2B4252`, `#4B3D2E`, `#384733` | Fondo ambiental y luces: lluvia, tierra y musgo. |
 
-Contraste medido: todo texto cumple AA (4,5:1) sobre `canvas` y `surface` en los dos temas; los `-600` dan 5:1 o más. Un chip lleva **texto en tinta y punto de color**: el color refuerza, el texto dice.
+Contraste medido: todo texto cumple AA (4,5:1) sobre `canvas` y `surface` en los dos temas; los `-600` dan 5:1 o más. Un chip lleva **texto en tinta y punto de color**: el color refuerza, el texto dice. `status-pending` (naranjo) da 3,8:1 en claro: sirve para puntos, íconos y bordes de forma (3:1), nunca para texto.
 
 **Familias ambientales** (`rain-`, `earth-`, `moss-` en 100, 300 y 600): franjas, estados vacíos, zonas del mapa, gráficos e ilustración. Una familia por bloque. Nunca para una acción.
 
@@ -112,7 +112,8 @@ Espaciado base 4 px: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, más los tokens d
 |---|---|
 | `Button` | Pastilla. `primary` negro sólido (uno por vista), `secondary` de vidrio, `accent` lluvia, `ghost` sin relleno. `block` ocupa el ancho. |
 | `IconButton` | Círculo de 44 px de vidrio con `glass-wash`: `surface`, `urgent` y `pending` (vidrio teñido del estado), `solid` (negro), `ghost`. Siempre con `label`. |
-| `Chip` | Pastilla de vidrio teñido con `glass-wash`, punto que brilla con su color y texto en tinta. `urgent`, `pending`, `done`, `closed`, `neutral`. |
+| `Chip` | Pastilla de vidrio teñido con `glass-wash`, punto que brilla con su color y texto en tinta. `urgent`, `pending`, `done`, `closed`, `neutral`. `WorkStatusChip` y `CollectionPointStatusChip` deciden el tono de cada estado (centro de acopio: recibe en musgo, solo algunas en tierra, lleno en gris). |
+| `MapMarker` | Pastilla sólida de 44 px con el ícono del estado. Tonos de semáforo para casas; `shape="sign"` (cuadrado de radio `control`) solo para "No entrar", así el peligro se distingue por la silueta además del ícono; `place` (tinta de marca) para lugares que no son casas, como un centro de acopio, así nunca se confunde con un estado. |
 | `ButtonGroup` | Tres o más acciones relacionadas en fila van en **una sola pastilla de vidrio**, nunca como botones sueltos. Adentro, botones `ghost`; como mucho uno `primary`/`solid` marca la acción principal. |
 | `SegmentedControl` | Vistas excluyentes: la elegida en negro, las demás en `surface-muted`. |
 | `Card` | Blanca con `glass-wash`, radio 20, sombra suave. `selected` pasa a `accent-tint`; `interactive` se eleva y atrapa la luz al pasar el mouse. |
@@ -124,6 +125,21 @@ Espaciado base 4 px: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, más los tokens d
 | `FormError` | El único lugar que decide el color de un error: `field` bajo un campo, `form` para un formulario entero. El lint rechaza `text-status-*` fuera de `shared/ui`. |
 | `Section`, `DescriptionList` | Bloque con título y bajada dentro de una vista; datos como etiqueta chica sobre valor, en dos columnas desde tablet. |
 | `Skeleton`, `Spinner` | Ver Carga. `Skeleton` toma su forma con `shape`: `block`, `pill` o `card`. |
+
+## Estados de una casa
+
+El público ve **cuatro palabras**, no los seis niveles internos de [ADR 0011](adr/0011-mapa-nivel-de-atencion-y-agrupacion.md): un semáforo de tres colores y una marca de peligro aparte. La regla vive en `src/features/map/attention.ts` (`LEVEL_STATE`) y la dice siempre `HomeStateChip`; ningún archivo traduce un nivel a color por su cuenta.
+
+| Estado | Tono | Ícono | Marcador | Niveles internos |
+|---|---|---|---|---|
+| Necesita ayuda | `urgent` (rojo) | mano que pide (`HandHelping`) | pastilla | sin atender, por confirmar, afectada sin pedido |
+| Alguien va | `pending` (naranjo) | pasos (`Footprints`) | pastilla | en curso |
+| Atendida | `done` (verde) | check | pastilla | atendida |
+| No entrar | `urgent` (rojo) | señal de pare (`OctagonX`) | cuadrado (`sign`) | riesgo sin revisar |
+
+- La información no se pierde: el nivel interno sigue ordenando el mapa, los grupos y Reportes, y la ficha de la casa explica en una línea los dos que no se ven en el estado ("por confirmar": nadie la actualiza hace tiempo; "afectada sin pedido": catastro oficial sin pedido).
+- Cada estado se distingue sin color: ícono propio, nombre escrito y, para el peligro, otra silueta (#11).
+- Ficha y tarjetas de Reportes muestran primero los datos con que se decide ir: dirección, estado, daño, qué necesita, cuántos voluntarios van, hace cuánto espera y la última novedad. Personas vulnerables solo para coordinadores; cuántas personas viven en la casa no se publica, porque delataría casas vacías (ADR 0011).
 
 ## Movimiento
 

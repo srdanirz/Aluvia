@@ -92,6 +92,48 @@
       "when": 1791648974267,
       "tag": "0012_review_queue_index",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1791658485432,
+      "tag": "0013_emergency_zones",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1791662439485,
+      "tag": "0014_report_receipts",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1791663231801,
+      "tag": "0015_collection_points",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1791665343530,
+      "tag": "0016_address_key_function",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1791665384759,
+      "tag": "0017_contact_address_key",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1791670389920,
+      "tag": "0018_public_contact",
+      "breakpoints": true
     }
   ]
 }

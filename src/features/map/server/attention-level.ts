@@ -2,10 +2,10 @@ import { type SQL, sql } from "drizzle-orm";
 
 import { workItemStatus } from "@/shared/db/schema";
 
-import { ATTENTION_LEVELS } from "../attention";
+import { ATTENTION_LEVELS, isOpenWorkStatus } from "../attention";
 
-// Work that still needs someone: the enum values prefixed `open_`, read from the enum itself.
-const OPEN_STATUSES = workItemStatus.enumValues.filter((status) => status.startsWith("open_"));
+// Work that still needs someone, read from the enum itself.
+const OPEN_STATUSES = workItemStatus.enumValues.filter(isOpenWorkStatus);
 
 /**
  * Hours without activity after which an unattended home shows "to confirm"; per emergency in
@@ -13,20 +13,22 @@ const OPEN_STATUSES = workItemStatus.enumValues.filter((status) => status.starts
  */
 export const STALE_AFTER_HOURS_DEFAULT = 48;
 
+/** True for a joined work item `wi` that still needs someone (open, claimed or not). */
+export const isOpenWorkItemSql = sql`wi.status IN (${sql.join(
+  OPEN_STATUSES.map((status) => sql`${status}`),
+  sql`, `,
+)})`;
+
 /**
  * A home's attention level, from its work items (ADR 0011). For use inside a GROUP BY worksites.id
  * with worksites as `w` and work_items LEFT JOINed as `wi`. `staleBefore` is the instant before
  * which an unattended home with no activity counts as "to confirm".
  */
 export function attentionLevelSql(staleBefore: SQL): SQL {
-  const isOpen = sql`wi.status IN (${sql.join(
-    OPEN_STATUSES.map((status) => sql`${status}`),
-    sql`, `,
-  )})`;
   return sql`CASE
     WHEN cardinality(w.hazards) > 0 AND w.hazards_reviewed_at IS NULL THEN 'do_not_enter'
-    WHEN coalesce(bool_or(${isOpen} AND wi.claimed_by IS NOT NULL), false) THEN 'in_progress'
-    WHEN count(wi.id) > 0 AND NOT bool_or(${isOpen}) THEN 'attended'
+    WHEN coalesce(bool_or(${isOpenWorkItemSql} AND wi.claimed_by IS NOT NULL), false) THEN 'in_progress'
+    WHEN count(wi.id) > 0 AND NOT bool_or(${isOpenWorkItemSql}) THEN 'attended'
     WHEN count(wi.id) = 0 AND w.source = 'official' THEN 'no_request'
     WHEN ${lastActivitySql} < ${staleBefore} THEN 'unconfirmed'
     ELSE 'unattended'

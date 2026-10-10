@@ -7,6 +7,7 @@ locals {
     "cloudscheduler.googleapis.com",
     "compute.googleapis.com",
     "dns.googleapis.com",
+    "geocoding-backend.googleapis.com",
     "iam.googleapis.com",
     "iamcredentials.googleapis.com",
     "logging.googleapis.com",

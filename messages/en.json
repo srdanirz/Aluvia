@@ -7,7 +7,8 @@
     "eyebrow": "Emergency aid coordination",
     "title": "Coordinating aid, home by home",
     "lead": "Aluvia shows which homes a disaster affected, what each one needs and where volunteers are needed. It is under construction.",
-    "source": "View the code"
+    "source": "View the code",
+    "pick": "Choose an emergency"
   },
   "theme": {
     "label": "Theme",
@@ -97,48 +98,37 @@
   "worksites": {
     "report": {
       "title": "Report a home",
-      "location": {
-        "locating": "Finding your location",
-        "ready": "Location ready",
-        "accuracy": "Accurate to {meters} m",
-        "missing": "No location",
-        "missingHelp": "Write the address so people can find the home.",
-        "addressLabel": "Address",
-        "addressHint": "Street and number, as you would write it on an envelope.",
-        "retry": "Find location again",
-        "approximate": "Approximate location",
-        "approximateHelp": "The GPS is not sure where you are. Write the address too so people can find the home.",
-        "locatingHelp": "If it takes long, write the address. The GPS joins in on its own when it answers."
+      "address": {
+        "label": "Address",
+        "hint": "Street and number; it is what people use to get there."
       },
       "needs": {
-        "title": "What does it need?",
+        "title": "Or tap what it needs",
         "empty": "This emergency has no work types set up yet."
       },
       "details": {
         "toggle": "Add details (optional)",
         "vulnerable": "Elderly people, children or people with disabilities live here",
         "damage": "Damage to the home",
-        "addressLabel": "Address",
-        "addressHint": "Helps people get there if the GPS is off.",
         "nameLabel": "Contact name",
         "phoneLabel": "Phone",
         "phoneHint": "Only coordinators see it.",
+        "phoneHintPublic": "Volunteers see it on the home page to call you.",
+        "publicContact": "Show my name and phone so volunteers can call me",
         "phoneError": "Check the number. If it is from another country, start with + and the code.",
         "notifyLabel": "Let me know when someone takes the job",
         "notifyNone": "No",
         "notifySms": "SMS",
         "notifyWhatsapp": "WhatsApp",
         "notifyHint": "We only write to you about this home. Reply STOP to stop the messages.",
-        "notesLabel": "Notes",
-        "notesHint": "Anything that helps find the home or come prepared.",
         "hazards": "Do not enter: there is a risk of",
         "hazardsHint": "Nobody can take work at this home until a coordinator reviews it."
       },
       "submit": "Send report",
       "sending": "Sending",
       "missing": {
-        "needs": "Pick at least one need.",
-        "location": "The location or the address is missing."
+        "address": "The address is missing.",
+        "needs": "Write what happened or tap what it needs."
       },
       "done": {
         "sentChip": "Received",
@@ -162,6 +152,11 @@
         "callLocal": "Call your country's emergency number first. Aluvia coordinates cleanup and does not replace emergency services.",
         "call": "{label} · {phone}",
         "thenContinue": "Then you can go on with the report: a coordinator will see it first."
+      },
+      "story": {
+        "label": "What happened?",
+        "placeholder": "E.g. mud came up to the kitchen, an 80-year-old woman lives alone.",
+        "hint": "In your own words. Only coordinators see it."
       }
     },
     "damage": {
@@ -248,6 +243,21 @@
       "mapUnavailable": "The map did not load. Without it the pin cannot be placed; try again in a while.",
       "forbidden": "Only approved coordinators of this emergency can place the pin.",
       "reload": "Reload"
+    },
+    "reports": {
+      "title": "Where help is needed most",
+      "lead": "First the homes with someone in danger or an unreviewed hazard, then the ones more neighbors reported, the ones with more work nobody has taken and the ones waiting longest.",
+      "reportedBy": "{count, plural, one {Reported by # neighbor} other {Reported by # neighbors}}",
+      "needs": "Needs: {needs}",
+      "waiting": "Asked for help {relative} · {date}",
+      "noStreet": "Home without a written address",
+      "more": "See more homes",
+      "emptyTitle": "Nobody has reported a home yet",
+      "emptyBody": "If you know a home that needs help, report it: it takes less than a minute and needs no account.",
+      "emptyReport": "Report a home",
+      "contact": "Contact: {name} · {phone}",
+      "vulnerable": "Vulnerable people",
+      "updated": "Last news {relative}"
     }
   },
   "worksiteUpdates": {
@@ -502,19 +512,20 @@
   },
   "map": {
     "title": "Map of {emergency}",
-    "hint": "Tap a point to see what that home needs. Unattended homes first.",
     "legendLabel": "What each color means",
-    "levels": {
-      "unattended": "Unattended",
-      "do_not_enter": "Do not enter",
-      "unconfirmed": "To confirm",
-      "no_request": "Affected, no request",
-      "in_progress": "In progress",
-      "attended": "Attended"
+    "states": {
+      "needs_help": "Needs help",
+      "on_the_way": "Someone is going",
+      "attended": "Helped",
+      "do_not_enter": "Do not enter"
+    },
+    "detail": {
+      "unconfirmed": "Nobody has updated it for a while: it may already be done. If you pass by, confirm it.",
+      "noRequest": "It is in the official survey of affected homes, but nobody has asked for help yet. If you pass by, ask what it needs."
     },
     "marker": {
-      "home": "Home: {level}",
-      "group": "{count, plural, one {# home} other {# homes}}: {doNotEnter} do not enter, {unattended} unattended, {unconfirmed} to confirm, {noRequest} affected with no request, {inProgress} in progress, {attended} attended"
+      "home": "Home: {state}",
+      "group": "{count, plural, one {# home} other {# homes}}: {needsHelp} need help, {onTheWay} with someone going, {attended} helped, {doNotEnter} do not enter"
     },
     "cell": {
       "title": "{count, plural, one {# home} other {# homes}} in this group",
@@ -528,9 +539,6 @@
       "title": "The map is not available",
       "body": "It may be the signal or a problem on our side. Each home's link still works."
     },
-    "modeLabel": "Show the map by",
-    "modeHomes": "Homes",
-    "modeZones": "Zones",
     "updatedAt": "Updated at {time}",
     "errors": {
       "bbox_too_large": "Too much map in view at this zoom. Zoom in a little.",
@@ -539,15 +547,18 @@
     "fallback": {
       "back": "See all zones",
       "zone": "Zone {position} · {count, plural, one {# home} other {# homes}}",
-      "levelCount": "{level}: {count}"
+      "stateCount": "{state}: {count}"
     },
-    "zonesHint": "Each zone takes the color of its most urgent home. Darker: more homes waiting for help.",
-    "panelTitle": "Where help is needed",
-    "truncated": "There are more homes than fit. Zoom in to see them all."
+    "truncated": "There are more homes than fit. Zoom in to see them all.",
+    "summary": "{homes, plural, =0 {No homes reported yet} one {# home reported} other {# homes reported}}",
+    "waiting": "{waiting, plural, =0 {None waiting for help now} one {# waiting for help} other {# waiting for help}}",
+    "askHelp": "Ask for help",
+    "offerHelp": "I want to help",
+    "legendToggle": "What each color means"
   },
   "worksite": {
     "title": "Home in {emergency}",
-    "metaTitle": "Home in {emergency} · {level}",
+    "metaTitle": "Home in {emergency} · {state}",
     "back": "Back to the map",
     "damage": {
       "chip": "Damage: {level}",
@@ -561,14 +572,38 @@
     "share": "Share",
     "copied": "Link copied",
     "directions": "Directions",
-    "unconfirmedHint": "No news for a while: it may already be done. If you pass by, confirm it.",
     "googleMaps": "Google Maps",
     "waze": "Waze",
     "appleMaps": "Apple Maps",
     "shareFailed": "Could not share. Copy the link from the browser.",
-    "meta": "Reported on {date} · updated {relative}",
+    "reported": "Reported on {date}",
+    "facts": {
+      "needs": "Needs",
+      "needsNothing": "Nothing asked for yet",
+      "going": "Who is going",
+      "goingCount": "{count, plural, one {# volunteer took work here} other {# volunteers took work here}}",
+      "goingNobody": "Nobody yet",
+      "present": "Working now",
+      "presentCount": "{count, plural, =0 {Nobody} one {# person} other {# people}}",
+      "waiting": "Asked for help",
+      "updated": "Last news"
+    },
     "noLocation": "This home has no point on the map yet.",
-    "hazardsHint": "Do not go in. A coordinator has to review the risk before anyone claims work."
+    "hazardsHint": "Do not go in. A coordinator has to review the risk before anyone claims work.",
+    "contact": {
+      "title": "Address and contact",
+      "address": "Address",
+      "name": "Name",
+      "phone": "Phone",
+      "notes": "What happened",
+      "logged": "Coordinators only. Your view is logged.",
+      "vulnerable": "Vulnerable people",
+      "vulnerableYes": "Elderly people, children or people with disabilities live here"
+    },
+    "publicContact": {
+      "title": "Contact",
+      "call": "Call {phone}"
+    }
   },
   "workItems": {
     "status": {
@@ -756,10 +791,12 @@
       "signIn": "Sign in to take a job",
       "join": "Join this emergency to take jobs",
       "shifts": "See shifts",
-      "emptyTitle": "No home is waiting right now",
-      "emptyBody": "Every home has someone. Check back later or look at the shifts.",
+      "emptyTitle": "Nobody is waiting for help right now",
+      "emptyBody": "No home has asked for help, or every one already has someone. If you know an affected home, report it; to go out in the field, join a shift.",
       "peoplePresent": "{count, plural, =0 {Nobody working now} one {# person working now} other {# people working now}}",
-      "missing": "Missing: {supplies}"
+      "missing": "Missing: {supplies}",
+      "emptyReport": "Report a home",
+      "emptyShifts": "See shifts"
     },
     "intro": {
       "title": "Go first to the homes that have waited longest",
@@ -830,5 +867,64 @@
     "signIn": "Sign in to sign up",
     "join": "Join this emergency to sign up",
     "help": "Where to help now"
+  },
+  "emergency": {
+    "nav": {
+      "label": "Emergency",
+      "map": "Map",
+      "report": "Report",
+      "reports": "Reports",
+      "help": "Help",
+      "shifts": "Shifts"
+    }
+  },
+  "zones": {
+    "draw": "Draw zone",
+    "drawHint": "{count, plural, =0 {Tap the map to mark the zone's edge.} one {# point. Keep tapping the edge.} other {# points. Save once the edge is closed.}}",
+    "kindLabel": "Zone type",
+    "kinds": {
+      "no_entry": "Do not enter",
+      "restricted": "Restricted access",
+      "meeting_point": "Meeting point"
+    },
+    "noteLabel": "Note (optional)",
+    "toolbar": "Zone drawing",
+    "undo": "Undo",
+    "cancel": "Cancel",
+    "save": "Save",
+    "remove": "Remove zone",
+    "close": "Close",
+    "errors": {
+      "invalid_input": "A zone needs at least 3 points.",
+      "not_found": "That zone no longer exists.",
+      "forbidden": "Only coordinators can draw zones."
+    }
+  },
+  "collectionPoints": {
+    "add": "Add collection point",
+    "placeHint": "Tap the map where the collection point is.",
+    "placedHint": "Point placed. Tap somewhere else to move it.",
+    "nameLabel": "Name",
+    "addressLabel": "Address (optional)",
+    "hoursLabel": "Opening hours (optional)",
+    "phoneLabel": "Public phone of the place (optional)",
+    "acceptsLabel": "What it takes",
+    "acceptsEmpty": "This emergency has no supplies in its catalog yet.",
+    "statusLabel": "Status",
+    "statuses": {
+      "receiving": "Receiving",
+      "only_some": "Only some",
+      "full": "Full"
+    },
+    "statusNoteLabel": "Status note (optional)",
+    "changeStatus": "Change status",
+    "remove": "Remove point",
+    "confirmRemove": "Tap again to remove it",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "actions": "Collection point actions",
+    "call": "Call {phone}",
+    "marker": "Collection point {name}: {status}"
   }
 }

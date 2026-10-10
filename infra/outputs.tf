@@ -17,6 +17,12 @@ output "maps_browser_key" {
   sensitive   = true
 }
 
+output "maps_server_key" {
+  description = "Goes into the GOOGLE_MAPS_SERVER_KEY secret as a version (README). Geocoding only, never shipped to a browser."
+  value       = google_apikeys_key.maps_server.key_string
+  sensitive   = true
+}
+
 output "load_balancer_ips" {
   value = {
     v4 = google_compute_global_address.lb_v4.address

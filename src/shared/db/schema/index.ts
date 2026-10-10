@@ -1,14 +1,17 @@
 // Every table lives here, one file per entity (ADR 0005). Features import tables from "@/shared/db/schema".
 export * from "./audit";
 export * from "./auth";
+export * from "./collection-points";
 export * from "./disaster-types";
 export * from "./emergencies";
 export * from "./emergency-members";
+export * from "./emergency-zones";
 export * from "./emergency-notices";
 export * from "./enums";
 export * from "./invitations";
 export * from "./notifications";
 export * from "./rate-limits";
+export * from "./report-receipts";
 export * from "./shifts";
 export * from "./supply-types";
 export * from "./users";

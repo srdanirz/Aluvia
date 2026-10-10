@@ -6,7 +6,7 @@ import { ShiftList } from "@/features/shifts/components";
 import { shiftsQuerySchema } from "@/features/shifts/schemas";
 import { loadShiftsView } from "@/features/shifts/server";
 import { Link } from "@/shared/i18n/navigation";
-import { Button } from "@/shared/ui";
+import { Button, Page } from "@/shared/ui";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("shifts");
@@ -24,7 +24,7 @@ export default async function ShiftsPage({
   const t = await getTranslations("shifts");
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-narrow animate-enter flex-col gap-8 px-4 py-8 md:py-16">
+    <Page className="animate-enter">
       <header className="flex flex-col gap-3">
         <h1 className="text-heading text-balance text-ink">{t("title")}</h1>
         <p className="text-body text-ink-soft">{t("lead")}</p>
@@ -46,6 +46,6 @@ export default async function ShiftsPage({
       <Button variant="ghost" className="self-start" asChild>
         <Link href={`/emergencies/${slug}/work-items`}>{t("help")}</Link>
       </Button>
-    </main>
+    </Page>
   );
 }

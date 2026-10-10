@@ -35,6 +35,9 @@ export const worksiteContactSchema = z
     notes: optionalText(MAX_NOTES),
     // Choosing a channel is the consent (ADR 0007); without a phone there is nothing to consent to.
     notifyChannel: z.enum(["sms", "whatsapp"]).nullable().default(null),
+    // The reporter's opt-in to show name and phone on the public home (ADR 0017). Off unless sent,
+    // so a report queued by an older form, a batch draft or an official import stays private.
+    publicContact: z.boolean().default(false),
   })
   .refine((contact) => contact.notifyChannel === null || contact.phone !== null, {
     path: ["notifyChannel"],
@@ -50,7 +53,7 @@ const workTypeKeysSchema = (min: number) =>
 
 /**
  * A GPS fix less precise than this (indoors, a phone without GPS falling back to wifi or cell
- * towers) can sit on the wrong block: the form asks for the address too and the home is flagged.
+ * towers) can sit on the wrong block: the home is flagged and never attaches to a parcel by it.
  */
 export const PRECISE_LOCATION_METERS = 100;
 
@@ -74,6 +77,7 @@ const worksiteFields = {
     addressText: null,
     notes: null,
     notifyChannel: null,
+    publicContact: false,
   }),
 };
 
@@ -89,13 +93,49 @@ export const newWorksiteSchema = z
   .object({ ...worksiteFields, workTypeKeys: workTypeKeysSchema(0) })
   .refine(hasPlace.check, hasPlace.params);
 
-/** A report from the form or the batch import: at least one need (DESIGN.md: what does it need). */
+// At least one need or a few words of what happened, whichever the reporter finds easier; a
+// coordinator turns the words into work later.
+const isDescribed = {
+  check: (home: { workTypeKeys: string[]; contact: { notes: string | null } }) =>
+    home.workTypeKeys.length > 0 || home.contact.notes !== null,
+  params: { path: ["workTypeKeys"], message: "need_or_description_required" },
+};
+
+/**
+ * A report from the form: the written address is required, because it is how people get there;
+ * the server places it on the map (submitWorksiteReport). The form sends no `location`. One with
+ * a location and no address can only be a report queued offline by the form that used the GPS;
+ * it is still taken, because the outbox would otherwise keep it rejected forever and the home
+ * would be lost.
+ */
 export const worksiteReportSchema = z
-  .object({ ...worksiteFields, workTypeKeys: workTypeKeysSchema(1) })
-  .refine(hasPlace.check, hasPlace.params);
+  .object({
+    ...worksiteFields,
+    location: pointSchema.nullable().default(null),
+    workTypeKeys: workTypeKeysSchema(0),
+  })
+  .refine((home) => home.contact.addressText !== null || home.location !== null, {
+    path: ["contact", "addressText"],
+    message: "address_required",
+  })
+  .refine(isDescribed.check, isDescribed.params);
+
+/**
+ * A draft of the coordinators' batch import (a social-media post): a post may give a pin or only
+ * a written address, and a coordinator places the rest from the review queue.
+ */
+export const worksiteDraftSchema = z
+  .object({ ...worksiteFields, workTypeKeys: workTypeKeysSchema(0) })
+  .refine(hasPlace.check, hasPlace.params)
+  .refine(isDescribed.check, isDescribed.params);
 
 /** Who a home report came from; decided by the server from the session, never by the body. */
 export type WorksiteSource = (typeof reportSource.enumValues)[number];
 
 export type WorksiteReportInput = z.input<typeof worksiteReportSchema>;
 export type NewWorksite = z.output<typeof newWorksiteSchema>;
+
+/** The reports list's URL: only the page cursor; a bad value reads as the first page. */
+export const reportsQuerySchema = z.object({
+  cursor: z.string().max(400).optional().catch(undefined),
+});

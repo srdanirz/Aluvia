@@ -2,19 +2,19 @@ import { useTranslations } from "next-intl";
 
 import { Chip } from "@/shared/ui";
 
-import { ATTENTION_LEVELS, LEVEL_ICON, LEVEL_TONE } from "../attention";
+import { HOME_STATES, STATE_ICON, STATE_TONE } from "../attention";
 
-/** Every attention level with its icon and name: the map's key, readable without color. */
+/** The map's key: the four public states with their icon and name, readable without color. */
 export function MapLegend() {
   const t = useTranslations("map");
   return (
     <ul aria-label={t("legendLabel")} className="flex flex-wrap gap-2">
-      {ATTENTION_LEVELS.map((level) => {
-        const Icon = LEVEL_ICON[level];
+      {HOME_STATES.map((state) => {
+        const Icon = STATE_ICON[state];
         return (
-          <li key={level}>
-            <Chip tone={LEVEL_TONE[level]} icon={<Icon />}>
-              {t(`levels.${level}`)}
+          <li key={state}>
+            <Chip tone={STATE_TONE[state]} icon={<Icon />}>
+              {t(`states.${state}`)}
             </Chip>
           </li>
         );

@@ -118,12 +118,24 @@ jobs:
           cache-from: type=gha,scope=migrate
           cache-to: type=gha,scope=migrate,mode=max
 
+      - name: Build and push the task image
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          target: task
+          push: true
+          tags: ${{ env.IMAGE_BASE }}/task:${{ env.SHA }}
+          cache-from: type=gha,scope=task
+          cache-to: type=gha,scope=task,mode=max
+
       # Migrations are additive (STYLEGUIDE), so the revision serving traffic keeps working
       # while they run. A failed migration stops the deploy before any traffic moves.
       - name: Run migrations
         run: |
           gcloud run jobs update aluvia-migrate --region "$REGION" --image "$IMAGE_BASE/migrate:$SHA" --quiet
           gcloud run jobs execute aluvia-migrate --region "$REGION" --wait
+          # The one-off scripts job tracks the schema it was built with.
+          gcloud run jobs update aluvia-task --region "$REGION" --image "$IMAGE_BASE/task:$SHA" --quiet
 
       - name: Deploy the service
         id: deploy

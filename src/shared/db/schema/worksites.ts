@@ -68,7 +68,10 @@ export const worksites = pgTable(
   ],
 );
 
-/** Contact and consent of a home. Only coordinators read it, and every read is logged in contact_views. */
+/**
+ * Contact and consent of a home. Coordinators read it and every read is logged in contact_views;
+ * the public reads the address, and name and phone only when public_contact is set (ADR 0017).
+ */
 export const worksiteContacts = pgTable(
   "worksite_contacts",
   {
@@ -78,11 +81,17 @@ export const worksiteContacts = pgTable(
     name: text("name"),
     phone: text("phone"),
     addressText: text("address_text"),
+    // Street and number of address_text, normalized by the SQL function address_key (migration
+    // 0016): a report's typed address finds its official parcel by this, never by fuzzy matching.
+    addressKey: text("address_key").generatedAlwaysAs(sql`address_key(address_text)`),
     notes: text("notes"),
     // Language the neighbor reported in; their notices go out in it (ADR 0007).
     locale: text("locale"),
     notifyChannel: notificationChannel("notify_channel"),
     notifyConsentAt: timestamp("notify_consent_at", { withTimezone: true }),
+    // The reporter chose to show name and phone on the public home (ADR 0017). Rows from before
+    // the option existed stay false: those reporters were promised privacy.
+    publicContact: boolean("public_contact").notNull().default(false),
   },
   (t) => [
     check("worksite_contacts_phone_check", e164(t.phone)),
@@ -90,6 +99,9 @@ export const worksiteContacts = pgTable(
     index("worksite_contacts_phone_idx")
       .on(t.phone)
       .where(sql`${t.notifyChannel} IS NOT NULL`),
+    index("worksite_contacts_address_key_idx")
+      .on(t.addressKey)
+      .where(sql`${t.addressKey} IS NOT NULL`),
     check("worksite_contacts_locale_check", localeTag(t.locale)),
     // A neighbor has no app, so consent is to SMS or WhatsApp, recorded with its time and a phone to reach.
     check(

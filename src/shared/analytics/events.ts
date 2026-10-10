@@ -11,7 +11,7 @@ import { z } from "zod";
 export const EVENTS = {
   worksite_reported: z.strictObject({
     source: z.enum(["neighbor", "coordinator", "social"]),
-    hasLocation: z.boolean(),
+    hasNotes: z.boolean(),
     workTypeCount: z.number().int().nonnegative(),
     // Queued: saved on the phone without signal, sent when it comes back.
     delivery: z.enum(["sent", "queued"]),
@@ -38,6 +38,18 @@ export const EVENTS = {
   worksite_shared: z.strictObject({ method: z.enum(["share_sheet", "clipboard"]) }),
   worksite_directions_opened: z.strictObject({ app: z.enum(["googleMaps", "waze", "appleMaps"]) }),
   map_fallback_shown: z.strictObject({ reason: z.enum(["unavailable", "no_tiles"]) }),
+  // Donation collection points: how many there are, how often their status changes, whether
+  // people go to them. Ids and enums only; names and phones stay in the database.
+  collection_point_created: z.strictObject({
+    emergencyId: z.uuid(),
+    acceptsCount: z.number().int().nonnegative(),
+  }),
+  collection_point_updated: z.strictObject({
+    emergencyId: z.uuid(),
+    status: z.enum(["receiving", "full", "only_some"]),
+  }),
+  collection_point_removed: z.strictObject({ emergencyId: z.uuid() }),
+  collection_point_directions_opened: z.strictObject({ app: z.enum(["googleMaps", "waze", "appleMaps"]) }),
   // Admin (ADR 0009, 0015). Keys and counts only; names and notice text stay in the database.
   disaster_type_created: z.strictObject({
     disasterTypeKey: z.string().min(1).max(64),

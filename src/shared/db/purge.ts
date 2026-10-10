@@ -10,10 +10,14 @@ import type { Database } from "./types";
  */
 export const USER_REFERENCES = {
   "admin_events.actor_id": "anonymized",
+  "collection_points.created_by": "anonymized",
+  "collection_points.updated_by": "anonymized",
   "contact_views.user_id": "deleted",
   "emergency_members.user_id": "deleted",
   "emergency_members.approved_by": "deleted with the row",
   "emergency_notices.published_by": "deleted with the row",
+  "emergency_zones.created_by": "anonymized",
+  "emergency_zones.removed_by": "anonymized",
   "invitations.created_by": "deleted with the row",
   "invitations.revoked_by": "deleted with the row",
   "notification_preferences.user_id": "deleted with the user",
@@ -89,6 +93,15 @@ export async function purgeEmergencyPersonalData(
     );
     await tx.execute(
       sql`UPDATE worksites SET hazards_reviewed_by = NULL WHERE emergency_id = ${emergencyId}`,
+    );
+    // Zones stay (where it was closed is history); who drew or removed them does not.
+    await tx.execute(
+      sql`UPDATE emergency_zones SET created_by = NULL, removed_by = NULL WHERE emergency_id = ${emergencyId}`,
+    );
+    // Collection points stay (where donations went is history); who edited them does not, and
+    // the phone goes too in case someone typed a personal number instead of the place's own.
+    await tx.execute(
+      sql`UPDATE collection_points SET created_by = NULL, updated_by = NULL, phone = NULL WHERE emergency_id = ${emergencyId}`,
     );
     // The admin log keeps the action; who did it and on whom go (the trigger allows only this).
     await tx.execute(
