@@ -54,6 +54,35 @@ export const EVENTS = {
   emergency_notice_published: z.strictObject({ emergencyId: z.uuid(), replaced: z.boolean() }),
   emergency_notice_withdrawn: z.strictObject({ emergencyId: z.uuid() }),
   emergency_closed: z.strictObject({ emergencyId: z.uuid() }),
+  // Login and membership (ADR 0013). Never the phone or the code.
+  login_code_requested: z.strictObject({
+    result: z.enum(["sent", "rate_limited", "code_not_sent", "invalid_phone"]),
+  }),
+  login_code_verified: z.strictObject({ isNewUser: z.boolean() }),
+  login_code_failed: z.strictObject({
+    code: z.enum(["invalid_code", "code_expired", "too_many_attempts", "rate_limited"]),
+  }),
+  user_logged_out: z.strictObject({}),
+  emergency_joined: z.strictObject({ emergencyId: z.uuid() }),
+  member_role_requested: z.strictObject({
+    emergencyId: z.uuid(),
+    role: z.enum(["coordinator", "field_volunteer"]),
+  }),
+  member_role_approved: z.strictObject({
+    emergencyId: z.uuid(),
+    role: z.enum(["coordinator", "field_volunteer"]),
+  }),
+  member_role_rejected: z.strictObject({ emergencyId: z.uuid() }),
+  member_role_revoked: z.strictObject({ emergencyId: z.uuid() }),
+  invitation_created: z.strictObject({
+    emergencyId: z.uuid(),
+    role: z.enum(["volunteer", "coordinator", "field_volunteer"]),
+    withWorksite: z.boolean(),
+  }),
+  invitation_revoked: z.strictObject({ emergencyId: z.uuid() }),
+  invitation_accepted: z.strictObject({ emergencyId: z.uuid() }),
+  worksite_assigned: z.strictObject({ emergencyId: z.uuid() }),
+  worksite_unassigned: z.strictObject({ emergencyId: z.uuid() }),
 };
 
 export type EventName = keyof typeof EVENTS;

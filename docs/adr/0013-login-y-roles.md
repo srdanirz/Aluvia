@@ -23,6 +23,7 @@ Tomar un trabajo pide solo nombre y teléfono, una vez (DESIGN.md, "Primero: sin
 - `sessions` guarda el SHA-256 del token; la cookie es `httpOnly`, `sameSite=lax` (un link de WhatsApp tiene que llegar con sesión) y en producción se llama `__Host-aluvia_session` (solo HTTPS y solo este host). Entrar de nuevo en un aparato cierra la sesión anterior. La sesión dura 30 días desde el último uso.
 - **Excepción al outbox (ADR 0007):** el código se envía directo desde la acción, después de guardar. Tiene que llegar en segundos, no puede guardarse en claro y no hay un cambio de dominio que acompañar en la misma transacción. Es el único mensaje que sale así.
 - Producción no arranca sin WhatsApp o Twilio configurado. En desarrollo, sin proveedor, el código aparece en el log del servidor.
+- Observabilidad (ADR 0008): eventos `login_code_*`, `emergency_joined`, `member_role_*`, `invitation_*` y `worksite_(un)assigned`, sin teléfono ni código. La métrica `aluvia.auth.login_code.deliveries` (canal y resultado) alimenta una **alerta** en Grafana: fallos sobre 20 % de los envíos en 10 minutos, porque si falla nadie entra a ayudar.
 
 ### Roles por emergencia
 

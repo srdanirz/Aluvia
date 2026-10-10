@@ -7,6 +7,7 @@ import { getCurrentUser } from "@/shared/auth";
 import { normalizePhone } from "@/shared/auth/phone";
 import { deleteSession } from "@/shared/auth/session";
 import { clearSessionCookie, readSessionToken, setSessionCookie } from "@/shared/auth/session-cookie";
+import { trackServerEvent } from "@/shared/analytics/server";
 import { db } from "@/shared/db/client";
 import { env } from "@/shared/env";
 import { redirect } from "@/shared/i18n/navigation";
@@ -15,9 +16,6 @@ import { clientIpKey } from "@/shared/rate-limit";
 
 import { codeFormSchema, type LoginState, nameFormSchema, phoneFormSchema } from "../schemas";
 import { requestLoginCode, updateUserName, verifyLoginCode } from "./login";
-
-// TODO(#23): emit login_code_requested / login_code_verified / login_code_failed and the
-// aluvia.auth.login_code.sent counter once the analytics catalog is on main.
 
 /** One step of the login form. The state machine lives here, so the client only renders it. */
 export async function submitLogin(
@@ -36,8 +34,12 @@ export async function submitLogin(
     const input = phoneFormSchema.safeParse(Object.fromEntries(formData));
     const phone = input.success ? normalizePhone(input.data.phone) : null;
     const phoneInput = String(formData.get("phone") ?? "");
-    if (!phone) return { step: "phone", phoneInput, error: "invalid_phone" };
+    if (!phone) {
+      trackServerEvent("login_code_requested", { result: "invalid_phone" });
+      return { step: "phone", phoneInput, error: "invalid_phone" };
+    }
     const sent = await requestLoginCode(db, { phone, ipKey, locale });
+    trackServerEvent("login_code_requested", { result: sent.ok ? "sent" : sent.code });
     return sent.ok ? { step: "code", phone } : { step: "phone", phoneInput, error: sent.code };
   }
 
@@ -49,12 +51,17 @@ export async function submitLogin(
     if (!phone) return { step: "phone", error: "invalid_phone" };
     if (formData.get("intent") === "resend") {
       const sent = await requestLoginCode(db, { phone, ipKey, locale });
+      trackServerEvent("login_code_requested", { result: sent.ok ? "sent" : sent.code });
       return sent.ok ? { step: "code", phone, resent: true } : { step: "code", phone, error: sent.code };
     }
     const input = codeFormSchema.safeParse(Object.fromEntries(formData));
     if (!input.success) return { step: "code", phone, error: "invalid_code" };
     const result = await verifyLoginCode(db, { phone, code: input.data.code, ipKey });
-    if (!result.ok) return { step: "code", phone, error: result.code };
+    if (!result.ok) {
+      trackServerEvent("login_code_failed", { code: result.code });
+      return { step: "code", phone, error: result.code };
+    }
+    trackServerEvent("login_code_verified", { isNewUser: !result.hasName }, { distinctId: result.userId });
     // A device holds one session: logging in again (maybe as someone else) ends the old one.
     const previous = await readSessionToken();
     if (previous) await deleteSession(db, previous);
@@ -75,5 +82,6 @@ export async function logOut(): Promise<void> {
   const token = await readSessionToken();
   if (token) await deleteSession(db, token);
   await clearSessionCookie();
+  trackServerEvent("user_logged_out", {});
   redirect({ href: "/", locale: await getLocale() });
 }

@@ -7,6 +7,7 @@ import { type LoginCodeSender, sendLoginCode } from "@/shared/auth/login-code-se
 import { purgeExpiredAuthData } from "@/shared/auth/purge";
 import { createSession } from "@/shared/auth/session";
 import type { Executor } from "@/shared/db/types";
+import { logError } from "@/shared/observability/logger";
 import { hitRateLimit } from "@/shared/rate-limit";
 
 // A code lives long enough to switch to WhatsApp and back on a weak signal.
@@ -54,10 +55,7 @@ export async function requestLoginCode(
   const [sent] = await Promise.all([
     send({ phone, code, locale }),
     // Housekeeping must never turn a delivered code into an error for the person.
-    purgeExpiredAuthData(db).catch((error: unknown) => {
-      // TODO(#23): logError("auth_purge_failed", error) once the logger is on main.
-      process.stderr.write(`${JSON.stringify({ event: "auth_purge_failed", message: String(error) })}\n`);
-    }),
+    purgeExpiredAuthData(db).catch((error: unknown) => logError("auth_purge_failed", error)),
   ]);
   return sent.ok ? { ok: true } : { ok: false, code: "code_not_sent" };
 }
