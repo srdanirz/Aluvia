@@ -21,9 +21,11 @@
 
 Por orden de prioridad:
 
-1. **Ficha de casa:** ubicación, nivel de daño (leve / moderado / grave / inhabitable), personas vulnerables (sí/no), necesidades (barro, agua, comida, ropa, techo, medicamentos, mano de obra), FIBE aplicada (sí/no).
-2. **Estados por necesidad:** reportada → verificada → en curso → resuelta.
-3. **Mapa** de casas por prioridad, con ubicación aproximada en la vista pública.
+Modelo tomado de Crisis Cleanup: **casa (*worksite*) → trabajos (*work items*) → tomado o no → estado.**
+
+1. **Ficha de casa:** ubicación, nivel de daño (leve / moderado / grave / inhabitable), personas vulnerables (sí/no), FIBE aplicada (sí/no).
+2. **Trabajos por casa**, cada uno de un tipo del catálogo (barro, agua, comida, ropa, techo, medicamentos, mano de obra), con estado. Abiertos: sin tomar, tomado, parcialmente hecho, necesita seguimiento. Cerrados: hecho, hecho por otros, no quiere ayuda, duplicado. Aparte, cada trabajo lleva una marca de **verificado** en terreno (lección de #Verificado19S).
+3. **Mapa** de casas por prioridad, con ubicación aproximada en la vista pública (ADR 0003).
 4. **Turnos de voluntarios** por zona y tipo de tarea, con cupo.
 5. **Panel de coordinador** con filtros y exportación para el municipio.
 

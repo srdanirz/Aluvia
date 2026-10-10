@@ -24,6 +24,11 @@ Somos dos mantenedores. Cada uno revisa el trabajo del otro, y así los dos sabe
 
 ## Reglas de código
 
+Las reglas completas están en [docs/STYLEGUIDE.md](docs/STYLEGUIDE.md). Lo que más se revisa:
+
+- Sin N+1: todo listado trae su test de conteo de consultas.
+- Sin race conditions: tomar o inscribirse es un `UPDATE` condicional, con test de concurrencia.
+- UI solo con el design system (`src/shared/ui/`), sin estilos propios en las features.
 - Identificadores y comentarios en inglés. Texto que lee el usuario final en español, siempre por `t()` (i18n).
 - Términos de dominio chilenos se quedan en español: `comuna`, `rut`, `fibe`.
 - Nada de datos reales en el repo: ni en tests, ni en fixtures, ni en capturas. Ver [SECURITY.md](SECURITY.md).

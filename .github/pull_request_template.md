@@ -11,6 +11,9 @@
 ## Checklist
 
 - [ ] Sin secretos ni datos personales reales (ver SECURITY.md)
-- [ ] Textos de usuario por `t()`, en español neutro
+- [ ] Sin N+1: los listados nuevos traen test de conteo de consultas y `EXPLAIN ANALYZE`
+- [ ] Sin race conditions: lo que dos personas pueden tocar a la vez se decide en la base, con test de concurrencia
+- [ ] UI solo con primitivas de `src/shared/ui/` (sin `style`, valores arbitrarios ni `!important`)
+- [ ] Textos de usuario por next-intl, en español neutro
 - [ ] Probado localmente; pego el output o captura si aplica
 - [ ] Si es una decisión de largo plazo, agregué un ADR en `docs/adr/`

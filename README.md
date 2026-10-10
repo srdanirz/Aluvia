@@ -2,14 +2,17 @@
 
 Plataforma abierta para coordinar la ayuda después de un aluvión: saber **qué casas están afectadas, qué necesita cada una y dónde hace falta gente**, en vez de hacerlo puerta a puerta y por WhatsApp.
 
-Nace del aluvión del 8 de octubre de 2026 en San Carlos de Apoquindo, Las Condes (Santiago de Chile). Está pensada para reutilizarse en cualquier emergencia similar.
+Creada por vecinos de Las Condes, Daniel y Santiago, con mucho cariño para nuestra comuna, después del aluvión del 8 de octubre de 2026 en San Carlos de Apoquindo.
+
+Es open source y no es solo para Las Condes: está pensada para que cualquier comuna o ciudad la use ante un aluvión, una inundación, un incendio u otro desastre parecido.
 
 ## Estado
 
 Fase de investigación y diseño. Todavía no hay código.
 
 - [Investigación y contexto](docs/README.md): qué pasó, cómo se resolvió en otros países y qué requisitos salen de ahí.
-- [Decisiones de arquitectura](docs/adr/): por qué GCP y otras decisiones de largo plazo.
+- [Decisiones de arquitectura](docs/adr/): nube, stack, mapa, design system y modelo de datos.
+- Ingeniería: [STYLEGUIDE](docs/STYLEGUIDE.md) · [DESIGN](docs/DESIGN.md).
 
 ## Cómo trabajamos
 

@@ -30,10 +30,13 @@ La inundación más parecida en escala urbana. Surgieron varias herramientas en 
 
 ## Plataformas open source existentes
 
+- **Crisis Cleanup** (Estados Unidos): **el referente más cercano a Aluvia.** Organizaciones de voluntarios registran cada casa afectada (*worksite*) con sus trabajos (*work types*: barro, árboles, techo, comida); todo aparece en un mapa compartido, cualquier organización puede **tomar** (*claim*) un trabajo y cambiar su estado para que la siguiente sepa dónde quedó. Más de 4,7 millones de horas voluntarias coordinadas. El cliente web (Vue 3 + Leaflet, Apache-2.0) es público y activo; **el backend no es público**, así que no se puede autoalojar, y está pensado para EE.UU. y Australia, en inglés.
+  - Lo que tomamos: el modelo casa → trabajos → tomado/no tomado → estado, y su catálogo de estados como base del nuestro (ver `03-lecciones-y-requisitos.md`).
+  - Lo que evitamos: su paleta de estados vivió años como 20 colores hex sueltos y tuvo que migrarse a tokens. Aluvia parte con tokens (ADR 0004).
 - **Ushahidi** (Kenia, 2008): crowdsourcing de reportes en un mapa. Fuerte en recolección y visualización.
 - **Sahana Eden**: gestión de voluntarios, inventario, albergues y personas desaparecidas. Fuerte en gestión, más pesado de operar.
 
-Vale la pena mirarlas antes de construir desde cero, aunque ambas son complejas de desplegar y adaptar en días.
+Ninguna se puede desplegar y adaptar al español y a Las Condes en días: Crisis Cleanup no publica su backend, y Ushahidi y Sahana son plataformas grandes para un problema acotado. Construimos algo chico tomando el modelo de Crisis Cleanup.
 
 ## Fuentes
 
@@ -49,4 +52,6 @@ Vale la pena mirarlas antes de construir desde cero, aunque ambas son complejas 
 - [GitHub: afetharita-roadmap](https://github.com/acikyazilimagi/afetharita-roadmap)
 - [Infoactivismo: #Verificado19S](https://infoactivismo.org/verificado19s-y-su-labor-de-verificacion-en/)
 - [SocialTIC: tecnología y datos ante el sismo](https://socialtic.org/blog/tecnologia-datos-y-participacion-ante-el-sismo-en-mexico/)
+- [Crisis Cleanup: cómo funciona (GovTech)](https://www.govtech.com/em/disaster/crisis-cleanup-mapping-tool.html)
+- [GitHub: crisiscleanup-4-web](https://github.com/CrisisCleanup/crisiscleanup-4-web)
 - [Ushahidi y Sahana Eden (paper)](https://www.researchgate.net/publication/261798860_Ushahidi_and_Sahana_Eden_Open-Source_Platforms_to_Assist_Disaster_Relief_Geospatial_Components_and_Capabilities)
