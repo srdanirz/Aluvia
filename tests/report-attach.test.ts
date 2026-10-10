@@ -269,6 +269,39 @@ describe("attach edge cases", () => {
     expect(contact?.notifyConsentAt).toBeInstanceOf(Date);
   });
 
+  it("takes the reporter's public contact choice only with a name or phone, never over earlier private data", async () => {
+    const readPublic = async (parcelId: string) => {
+      const [row] = await db
+        .select({ publicContact: worksiteContacts.publicContact })
+        .from(worksiteContacts)
+        .where(eq(worksiteContacts.worksiteId, parcelId));
+      return row?.publicContact;
+    };
+
+    const first = await newEmergency();
+    const own = await importParcel(first);
+    const full = { name: "Vecina de prueba", phone: "+56900000003", publicContact: true };
+    await submit(first, home({ location: north(4), contact: full }));
+    expect(await readPublic(own)).toBe(true);
+
+    // The parcel holds a private phone from earlier: a name-only opt-in must not publish it.
+    const second = await newEmergency();
+    const guarded = await importParcel(second, {
+      contact: { addressText: "Calle Inventada 100", phone: "+56900000004" },
+    });
+    await submit(
+      second,
+      home({ location: north(4), contact: { name: "Vecino de prueba", publicContact: true } }),
+    );
+    expect(await readPublic(guarded)).toBe(false);
+
+    // No name or phone: the opt-in alone changes nothing.
+    const third = await newEmergency();
+    const bare = await importParcel(third);
+    await submit(third, home({ location: north(4), contact: { notes: "Entró barro", publicContact: true } }));
+    expect(await readPublic(bare)).toBe(false);
+  });
+
   it("flags the parcel as a possible duplicate when a reported home already sits next to it", async () => {
     const emergencyId = await newEmergency();
     const parcelId = await importParcel(emergencyId, { location: north(15) });

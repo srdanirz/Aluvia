@@ -10,7 +10,7 @@ import { listReportedWorksites, type ReportedWorksitesPage } from "./reported-wo
 /**
  * The reports screen's data: the emergency's time zone and one page of its reported homes. A
  * coordinator of the emergency or a platform admin also gets the full address, logged as a view;
- * everyone else, signed in or not, gets the street without number. Null for an unknown slug.
+ * everyone else, signed in or not, gets the full written address (ADR 0017). Null for an unknown slug.
  */
 export async function getReportsScreen({
   slug,

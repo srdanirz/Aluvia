@@ -110,7 +110,14 @@ export async function importWorksites(
   // Residents never consented to a post being forwarded: nothing beyond the written address.
   const reports = parsed.data.reports.map((report) => ({
     ...report,
-    contact: { ...report.contact, name: null, phone: null, notes: null, notifyChannel: null },
+    contact: {
+      ...report.contact,
+      name: null,
+      phone: null,
+      notes: null,
+      notifyChannel: null,
+      publicContact: false,
+    },
   }));
   const result = await createWorksites(db, { emergencyId, source: "social", reports });
   if (!result.ok) {

@@ -7,7 +7,13 @@ import { sqlArray } from "@/shared/db/sql-array";
 import type { Executor } from "@/shared/db/types";
 
 import { type NewWorksite, PRECISE_LOCATION_METERS, type WorksiteSource } from "../schemas";
-import { createWorksites, insertOpenWorkItems, InvalidWorkType } from "./create-worksites";
+import {
+  contactValues,
+  createWorksites,
+  hasContactData,
+  insertOpenWorkItems,
+  InvalidWorkType,
+} from "./create-worksites";
 import { locateReport, lockParcelByAddress } from "./locate-report";
 import { DUPLICATE_RADIUS_METERS } from "./queries";
 
@@ -62,7 +68,8 @@ async function lockNearbyParcel(tx: Executor, emergencyId: string, report: NewWo
 /**
  * Turns a locked official parcel into the reported home: the report's work, the reporter's source
  * and contact, the same bookkeeping a new home gets. The parcel keeps its point and its official
- * address unless it had none; the reporter's name, phone, notes and consent are stored when given.
+ * address unless it had none; the reporter's name, phone, notes and consent are stored when given,
+ * and so is the choice to show name and phone publicly, when a name or phone came with it.
  */
 async function attachReport(
   tx: Executor,
@@ -85,15 +92,10 @@ async function attachReport(
   );
 
   const { contact } = report;
-  if (Object.values(contact).some((value) => value !== null)) {
+  if (hasContactData(contact)) {
     await tx
       .insert(worksiteContacts)
-      .values({
-        worksiteId: parcelId,
-        ...contact,
-        locale: report.locale,
-        notifyConsentAt: contact.notifyChannel ? sql`now()` : null,
-      })
+      .values(contactValues(parcelId, report.locale, contact))
       .onConflictDoUpdate({
         target: worksiteContacts.worksiteId,
         set: {
@@ -106,6 +108,13 @@ async function attachReport(
           phone: sql`coalesce(excluded.phone, ${worksiteContacts.phone})`,
           notifyChannel: sql`CASE WHEN excluded.phone IS NULL THEN ${worksiteContacts.notifyChannel} ELSE excluded.notify_channel END`,
           notifyConsentAt: sql`CASE WHEN excluded.phone IS NULL THEN ${worksiteContacts.notifyConsentAt} ELSE excluded.notify_consent_at END`,
+          // Whoever brings a name or a phone decides whether they are public; otherwise the
+          // earlier choice stands. An opt-in never publishes a name or phone an earlier reporter
+          // left private: it holds only if each stored field is this reporter's or empty.
+          publicContact: sql`CASE WHEN excluded.phone IS NULL AND excluded.name IS NULL THEN ${worksiteContacts.publicContact}
+            ELSE excluded.public_contact
+              AND (excluded.name IS NOT NULL OR ${worksiteContacts.name} IS NULL)
+              AND (excluded.phone IS NOT NULL OR ${worksiteContacts.phone} IS NULL) END`,
         },
       });
   }

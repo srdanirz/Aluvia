@@ -8,7 +8,7 @@ import type { Executor } from "@/shared/db/types";
 
 import type { AttentionLevel, WorkItemStatus } from "../attention";
 import { attentionLevelSql, lastActivitySql, staleBeforeSql } from "./attention-level";
-import { streetWithoutNumberSql } from "./street";
+import { publicAddressSql, publicContactSql } from "./public-address";
 
 type DamageLevel = (typeof damageLevel.enumValues)[number];
 type Hazard = (typeof worksiteHazard.enumValues)[number];
@@ -30,8 +30,11 @@ export type PublicWorksite = {
   /** Last time anyone touched the home or its work. */
   updatedAt: Date;
   workItems: { workType: string; status: WorkItemStatus }[];
-  /** The street, without number: enough for a volunteer to find the block, not the door. */
-  street: string | null;
+  /** The written address with its number, so a volunteer finds the door (ADR 0017). */
+  address: string | null;
+  /** Name and phone, only when the reporter chose to show them (ADR 0017); null otherwise. */
+  contactName: string | null;
+  contactPhone: string | null;
 };
 
 type WorksiteRow = {
@@ -47,15 +50,15 @@ type WorksiteRow = {
   created_at: Date | string;
   updated_at: Date | string;
   work_items: { workType: string; status: WorkItemStatus }[] | null;
-  street: string | null;
+  address: string | null;
+  contact_name: string | null;
+  contact_phone: string | null;
 };
 
 /**
  * The public form of a home (STYLEGUIDE, Datos personales): point, attention level, damage, work
- * and the street name with every digit and what follows cut off. Never the house number, name,
- * phone, notes, vulnerability or who claimed what. Null
- * if the id is not a home
- * of this emergency.
+ * and the written address. Name and phone only when the reporter opted in (ADR 0017); never
+ * notes, vulnerability or who claimed what. Null if the id is not a home of this emergency.
  */
 export async function findPublicWorksite(
   { slug, id, locale, now }: { slug: string; id: string; locale: string; now: Date },
@@ -81,7 +84,9 @@ export async function findPublicWorksite(
         )
         ORDER BY wt.sort_order, wt.key, wi.id
       ) FILTER (WHERE wi.id IS NOT NULL) AS work_items,
-      ${streetWithoutNumberSql(sql`c.address_text`)} AS street
+      ${publicAddressSql(sql`c.address_text`)} AS address,
+      ${publicContactSql("c", "name")} AS contact_name,
+      ${publicContactSql("c", "phone")} AS contact_phone
     FROM worksites w
     LEFT JOIN worksite_contacts c ON c.worksite_id = w.id
     JOIN emergencies e ON e.id = w.emergency_id
@@ -104,6 +109,8 @@ export async function findPublicWorksite(
     reportedAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
     workItems: row.work_items ?? [],
-    street: row.street,
+    address: row.address,
+    contactName: row.contact_name,
+    contactPhone: row.contact_phone,
   };
 }

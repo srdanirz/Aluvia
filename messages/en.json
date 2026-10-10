@@ -113,6 +113,8 @@
         "nameLabel": "Contact name",
         "phoneLabel": "Phone",
         "phoneHint": "Only coordinators see it.",
+        "phoneHintPublic": "Volunteers see it on the home page to call you.",
+        "publicContact": "Show my name and phone so volunteers can call me",
         "phoneError": "Check the number. If it is from another country, start with + and the code.",
         "notifyLabel": "Let me know when someone takes the job",
         "notifyNone": "No",
@@ -248,11 +250,12 @@
       "reportedBy": "{count, plural, one {Reported by # neighbor} other {Reported by # neighbors}}",
       "needs": "Needs: {needs}",
       "waiting": "Asked for help {relative} · {date}",
-      "noStreet": "Home without a written street",
+      "noStreet": "Home without a written address",
       "more": "See more homes",
       "emptyTitle": "Nobody has reported a home yet",
       "emptyBody": "If you know a home that needs help, report it: it takes less than a minute and needs no account.",
-      "emptyReport": "Report a home"
+      "emptyReport": "Report a home",
+      "contact": "Contact: {name} · {phone}"
     }
   },
   "worksiteUpdates": {
@@ -578,6 +581,10 @@
       "phone": "Phone",
       "notes": "What happened",
       "logged": "Coordinators only. Your view is logged."
+    },
+    "publicContact": {
+      "title": "Contact",
+      "call": "Call {phone}"
     }
   },
   "workItems": {

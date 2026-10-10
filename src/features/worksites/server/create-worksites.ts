@@ -45,6 +45,25 @@ function reviewFlagsFor(emergencyId: string, report: NewWorksite, source: Worksi
   ]::worksite_review_flag[], NULL)`;
 }
 
+/** A contact row is written only when the report carries something to reach or find the home by. */
+export function hasContactData({ name, phone, addressText, notes, notifyChannel }: NewWorksite["contact"]) {
+  return [name, phone, addressText, notes, notifyChannel].some((value) => value !== null);
+}
+
+/**
+ * The worksite_contacts values of a report. The opt-in to a public contact holds only with a
+ * name or a phone to show, so a later report that brings one decides for itself (attachReport).
+ */
+export function contactValues(worksiteId: string, locale: string, contact: NewWorksite["contact"]) {
+  return {
+    worksiteId,
+    ...contact,
+    publicContact: contact.publicContact && (contact.name !== null || contact.phone !== null),
+    locale,
+    notifyConsentAt: contact.notifyChannel ? sql`now()` : null,
+  };
+}
+
 // Postgres caps a statement at 65535 parameters; a home takes about 20 with its flags.
 export const MAX_WORKSITES_PER_CALL = 500;
 
@@ -132,18 +151,11 @@ export async function createWorksites(
 
       await insertOpenWorkItems(tx, emergencyId, pairs);
 
-      const contacts = pending.filter(({ contact }) =>
-        Object.values(contact).some((value) => value !== null),
-      );
+      const contacts = pending.filter(({ contact }) => hasContactData(contact));
       if (contacts.length > 0) {
-        await tx.insert(worksiteContacts).values(
-          contacts.map(({ id, locale, contact }) => ({
-            worksiteId: id,
-            ...contact,
-            locale,
-            notifyConsentAt: contact.notifyChannel ? sql`now()` : null,
-          })),
-        );
+        await tx
+          .insert(worksiteContacts)
+          .values(contacts.map(({ id, locale, contact }) => contactValues(id, locale, contact)));
       }
       return [...fresh];
     });

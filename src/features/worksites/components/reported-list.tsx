@@ -9,7 +9,9 @@ import type { ReportedWorksite } from "../server";
 
 /**
  * The reported homes in the order the server decided, each a card that opens the home on the map.
- * No positions or numbers: it says where help is needed, it does not rank neighbors.
+ * No positions or numbers: it says where help is needed, it does not rank neighbors. Name and
+ * phone appear only when the reporter chose to show them (ADR 0017); the card is one link, so the
+ * phone is text here and a call link on the home's page.
  */
 export async function ReportedList({
   slug,
@@ -46,13 +48,20 @@ export async function ReportedList({
           <li key={home.id}>
             <Card interactive className="gap-3" asChild>
               <Link href={`/emergencies/${slug}/worksites/${home.id}`}>
-                <CardTitle>{home.addressText ?? home.street ?? t("noStreet")}</CardTitle>
+                <CardTitle>{home.addressText ?? home.address ?? t("noStreet")}</CardTitle>
                 <div className="flex flex-wrap items-center gap-2">
                   <Chip tone={LEVEL_TONE[home.level]} icon={<LevelIcon />}>
                     {tLevels(home.level)}
                   </Chip>
                   {home.reportCount > 1 ? <Chip>{t("reportedBy", { count: home.reportCount })}</Chip> : null}
                 </div>
+                {home.contactName !== null || home.contactPhone !== null ? (
+                  <CardBody>
+                    {home.contactName && home.contactPhone
+                      ? t("contact", { name: home.contactName, phone: home.contactPhone })
+                      : (home.contactName ?? home.contactPhone)}
+                  </CardBody>
+                ) : null}
                 {home.needs.length > 0 ? (
                   <CardBody>{t("needs", { needs: format.list(home.needs, { type: "unit" }) })}</CardBody>
                 ) : null}

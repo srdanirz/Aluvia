@@ -113,6 +113,8 @@
         "nameLabel": "Nombre de contacto",
         "phoneLabel": "Teléfono",
         "phoneHint": "Solo lo ven los coordinadores.",
+        "phoneHintPublic": "Los voluntarios lo ven en la ficha de la casa para llamarte.",
+        "publicContact": "Mostrar mi nombre y teléfono para que me llamen los voluntarios",
         "phoneError": "Revisa el número. Si es de otro país, empieza con + y el código.",
         "notifyLabel": "Avisarme cuando alguien tome el trabajo",
         "notifyNone": "No",
@@ -248,11 +250,12 @@
       "reportedBy": "{count, plural, one {Reportada por # vecino} other {Reportada por # vecinos}}",
       "needs": "Necesita: {needs}",
       "waiting": "Pidió ayuda {relative} · {date}",
-      "noStreet": "Casa sin calle escrita",
+      "noStreet": "Casa sin dirección escrita",
       "more": "Ver más casas",
       "emptyTitle": "Nadie ha reportado una casa todavía",
       "emptyBody": "Si conoces una casa que necesita ayuda, repórtala: toma menos de un minuto y no necesitas cuenta.",
-      "emptyReport": "Reportar una casa"
+      "emptyReport": "Reportar una casa",
+      "contact": "Contacto: {name} · {phone}"
     }
   },
   "worksiteUpdates": {
@@ -578,6 +581,10 @@
       "phone": "Teléfono",
       "notes": "Qué pasa",
       "logged": "Solo coordinadores. Queda registrado que lo viste."
+    },
+    "publicContact": {
+      "title": "Contacto",
+      "call": "Llamar al {phone}"
     }
   },
   "workItems": {

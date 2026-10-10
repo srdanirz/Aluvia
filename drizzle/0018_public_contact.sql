@@ -1,0 +1,1 @@
+ALTER TABLE "worksite_contacts" ADD COLUMN "public_contact" boolean DEFAULT false NOT NULL;
