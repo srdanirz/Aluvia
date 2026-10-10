@@ -5,8 +5,8 @@ import { Card, CardTitle, DescriptionList } from "@/shared/ui";
 import { loadWorksiteContact } from "../server/contact-card";
 
 /**
- * The home's full address and contact, only for coordinators and admins; renders nothing for
- * anyone else. Every render is a logged contact view.
+ * Everything the report holds, for coordinators and admins; renders nothing for anyone else.
+ * The address is public too (ADR 0017); the rest is not. Every render is a logged contact view.
  */
 export async function WorksiteContactCard({
   emergencyId,

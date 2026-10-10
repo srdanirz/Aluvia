@@ -594,7 +594,7 @@
       "name": "Nombre",
       "phone": "Teléfono",
       "notes": "Qué pasa",
-      "logged": "Solo coordinadores. Queda registrado que lo viste.",
+      "logged": "Todos ven la dirección. El nombre y el teléfono, solo si el vecino eligió publicarlos; notas y personas vulnerables, solo coordinadores. Queda registrado que lo viste.",
       "vulnerable": "Personas vulnerables",
       "vulnerableYes": "Viven personas mayores, niños o con discapacidad"
     },
