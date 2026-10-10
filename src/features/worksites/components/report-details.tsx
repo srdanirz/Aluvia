@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 
-import { Field, Input, SegmentedControl, Textarea, ToggleTile } from "@/shared/ui";
+import { Field, Input, SegmentedControl, ToggleTile } from "@/shared/ui";
 
 import { DAMAGE_LEVELS, HAZARDS, type ReportDraft } from "./report-draft";
 
@@ -122,10 +122,6 @@ export function ReportDetails({
           <p className="text-caption text-ink-muted">{t("notifyHint")}</p>
         </div>
       ) : null}
-
-      <Field id="report-notes" label={t("notesLabel")} hint={t("notesHint")}>
-        <Textarea rows={3} value={draft.notes} onChange={(event) => set("notes", event.target.value)} />
-      </Field>
     </div>
   );
 }
