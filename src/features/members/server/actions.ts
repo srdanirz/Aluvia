@@ -1,11 +1,11 @@
 "use server";
 
-import { getLocale } from "next-intl/server";
 import { refresh } from "next/cache";
 
 import { requireUser } from "@/shared/auth/require-user";
 import { trackServerEvent } from "@/shared/analytics/server";
 import { db } from "@/shared/db/client";
+import { toActionLocale } from "@/shared/i18n/action-locale";
 import { redirect } from "@/shared/i18n/navigation";
 
 import {
@@ -31,8 +31,8 @@ import {
 import { findEmergencyBySlug } from "./queries";
 
 /** Joins as a volunteer and opens the emergency. */
-export async function joinEmergencyAction(slug: string): Promise<MemberActionState> {
-  const user = await requireUser(`/emergencies/${slug}/join`);
+export async function joinEmergencyAction(locale: string, slug: string): Promise<MemberActionState> {
+  const user = await requireUser(`/emergencies/${slug}/join`, toActionLocale(locale));
   const emergency = await findEmergencyBySlug(db, slug);
   if (!emergency) return { ok: false, code: "emergency_not_found" };
   const result = await joinEmergency(db, { userId: user.id, emergencyId: emergency.id });
@@ -44,11 +44,12 @@ export async function joinEmergencyAction(slug: string): Promise<MemberActionSta
 }
 
 export async function requestMemberRoleAction(
+  locale: string,
   slug: string,
   _state: MemberActionState,
   formData: FormData,
 ): Promise<MemberActionState> {
-  const user = await requireUser(`/emergencies/${slug}/join`);
+  const user = await requireUser(`/emergencies/${slug}/join`, toActionLocale(locale));
   const role = elevatedRoleSchema.safeParse(formData.get("role"));
   if (!role.success) return { ok: false, code: "invalid_input" };
   const emergency = await findEmergencyBySlug(db, slug);
@@ -65,12 +66,12 @@ export async function requestMemberRoleAction(
   return result;
 }
 
-export async function acceptInvitationAction(token: string): Promise<MemberActionState> {
-  const user = await requireUser(`/invitations/${token}`);
+export async function acceptInvitationAction(locale: string, token: string): Promise<MemberActionState> {
+  const user = await requireUser(`/invitations/${token}`, toActionLocale(locale));
   const result = await acceptInvitation(db, { token, userId: user.id });
   if (!result.ok) return result;
   trackServerEvent("invitation_accepted", { emergencyId: result.emergencyId }, { distinctId: user.id });
-  return redirect({ href: `/emergencies/${result.slug}/join`, locale: await getLocale() });
+  return redirect({ href: `/emergencies/${result.slug}/join`, locale: toActionLocale(locale) });
 }
 
 // Admin actions. Each one re-reads the session and the domain function checks the admin role
@@ -78,8 +79,11 @@ export async function acceptInvitationAction(token: string): Promise<MemberActio
 
 type Target = { emergencyId: string; userId: string };
 
-export async function approveMemberRoleAction(target: Target & { role: string }): Promise<MemberActionState> {
-  const user = await requireUser("/");
+export async function approveMemberRoleAction(
+  locale: string,
+  target: Target & { role: string },
+): Promise<MemberActionState> {
+  const user = await requireUser("/", toActionLocale(locale));
   const input = approvalTargetSchema.safeParse(target);
   if (!input.success) return { ok: false, code: "invalid_input" };
   const result = await approveMemberRole(db, user.id, input.data);
@@ -94,11 +98,12 @@ export async function approveMemberRoleAction(target: Target & { role: string })
 }
 
 async function reviewMember(
+  locale: string,
   review: typeof rejectMemberRole | typeof revokeMemberRole,
   event: "member_role_rejected" | "member_role_revoked",
   target: Target,
 ): Promise<MemberActionState> {
-  const user = await requireUser("/");
+  const user = await requireUser("/", toActionLocale(locale));
   const input = memberTargetSchema.safeParse(target);
   if (!input.success) return { ok: false, code: "invalid_input" };
   const result = await review(db, user.id, input.data);
@@ -108,20 +113,20 @@ async function reviewMember(
   return { ok: true };
 }
 
-export async function rejectMemberRoleAction(target: Target): Promise<MemberActionState> {
-  return reviewMember(rejectMemberRole, "member_role_rejected", target);
+export async function rejectMemberRoleAction(locale: string, target: Target): Promise<MemberActionState> {
+  return reviewMember(locale, rejectMemberRole, "member_role_rejected", target);
 }
 
-export async function revokeMemberRoleAction(target: Target): Promise<MemberActionState> {
-  return reviewMember(revokeMemberRole, "member_role_revoked", target);
+export async function revokeMemberRoleAction(locale: string, target: Target): Promise<MemberActionState> {
+  return reviewMember(locale, revokeMemberRole, "member_role_revoked", target);
 }
 
 export async function createInvitationAction(
-  context: { emergencyId: string; worksiteId?: string },
+  context: { emergencyId: string; worksiteId?: string; locale: string },
   _state: InvitationActionState,
   formData: FormData,
 ): Promise<InvitationActionState> {
-  const user = await requireUser("/");
+  const user = await requireUser("/", toActionLocale(context.locale));
   const scope = invitationContextSchema.safeParse(context);
   if (!scope.success) return { ok: false, code: "invalid_input" };
   const input = invitationInputSchema.safeParse({
@@ -143,15 +148,17 @@ export async function createInvitationAction(
     { distinctId: user.id },
   );
   refresh();
-  const locale = await getLocale();
-  return { ok: true, path: `/${locale}/invitations/${result.token}` };
+  return { ok: true, path: `/${toActionLocale(context.locale)}/invitations/${result.token}` };
 }
 
-export async function revokeInvitationAction(target: {
-  emergencyId: string;
-  invitationId: string;
-}): Promise<MemberActionState> {
-  const user = await requireUser("/");
+export async function revokeInvitationAction(
+  locale: string,
+  target: {
+    emergencyId: string;
+    invitationId: string;
+  },
+): Promise<MemberActionState> {
+  const user = await requireUser("/", toActionLocale(locale));
   const input = invitationTargetSchema.safeParse(target);
   if (!input.success) return { ok: false, code: "invalid_input" };
   const result = await revokeInvitation(db, user.id, input.data);
@@ -163,8 +170,11 @@ export async function revokeInvitationAction(target: {
 
 type AssignmentTarget = Target & { worksiteId: string };
 
-export async function assignWorksiteAction(target: AssignmentTarget): Promise<MemberActionState> {
-  const user = await requireUser("/");
+export async function assignWorksiteAction(
+  locale: string,
+  target: AssignmentTarget,
+): Promise<MemberActionState> {
+  const user = await requireUser("/", toActionLocale(locale));
   const input = assignmentSchema.safeParse(target);
   if (!input.success) return { ok: false, code: "invalid_input" };
   const result = await assignWorksite(db, user.id, input.data);
@@ -174,8 +184,11 @@ export async function assignWorksiteAction(target: AssignmentTarget): Promise<Me
   return { ok: true };
 }
 
-export async function unassignWorksiteAction(target: AssignmentTarget): Promise<MemberActionState> {
-  const user = await requireUser("/");
+export async function unassignWorksiteAction(
+  locale: string,
+  target: AssignmentTarget,
+): Promise<MemberActionState> {
+  const user = await requireUser("/", toActionLocale(locale));
   const input = assignmentSchema.safeParse(target);
   if (!input.success) return { ok: false, code: "invalid_input" };
   const result = await unassignWorksite(db, user.id, input.data);

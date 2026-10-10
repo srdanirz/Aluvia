@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useActionState } from "react";
 
 import { Button, FormError, Spinner } from "@/shared/ui";
@@ -20,9 +20,10 @@ export function WorksiteInviteButton({
   worksiteId: string;
 }) {
   const t = useTranslations("members.assignments");
+  const locale = useLocale();
   const tErrors = useTranslations("errors");
   const [state, dispatch, pending] = useActionState<InvitationActionState, FormData>(
-    createInvitationAction.bind(null, { emergencyId, worksiteId }),
+    createInvitationAction.bind(null, { emergencyId, worksiteId, locale }),
     null,
   );
 

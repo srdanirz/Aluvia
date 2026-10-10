@@ -88,7 +88,7 @@ export async function MembersAdmin({ view }: { view: View }) {
               <CardBody>{t("requestedOn", { date: date(request.createdAt) })}</CardBody>
               <div className="flex flex-wrap gap-2 pt-2">
                 <ActionButton
-                  action={approveMemberRoleAction.bind(null, {
+                  action={approveMemberRoleAction.bind(null, locale, {
                     ...target(request.userId),
                     role: request.requestedRole,
                   })}
@@ -96,7 +96,7 @@ export async function MembersAdmin({ view }: { view: View }) {
                   variant="primary"
                 />
                 <ActionButton
-                  action={rejectMemberRoleAction.bind(null, target(request.userId))}
+                  action={rejectMemberRoleAction.bind(null, locale, target(request.userId))}
                   label={t("reject")}
                 />
               </div>
@@ -121,7 +121,7 @@ export async function MembersAdmin({ view }: { view: View }) {
               ) : null}
               <div className="pt-2">
                 <ActionButton
-                  action={revokeMemberRoleAction.bind(null, target(member.userId))}
+                  action={revokeMemberRoleAction.bind(null, locale, target(member.userId))}
                   label={t("revoke")}
                 />
               </div>
@@ -152,7 +152,7 @@ export async function MembersAdmin({ view }: { view: View }) {
               ) : null}
               <div className="pt-2">
                 <ActionButton
-                  action={revokeInvitationAction.bind(null, {
+                  action={revokeInvitationAction.bind(null, locale, {
                     emergencyId: emergency.id,
                     invitationId: invitation.id,
                   })}

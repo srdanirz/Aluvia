@@ -41,7 +41,7 @@ export async function JoinPanel({ view }: { view: JoinView }) {
 
       {emergency.status === "open" && user && !membership ? (
         <ActionButton
-          action={joinEmergencyAction.bind(null, emergency.slug)}
+          action={joinEmergencyAction.bind(null, locale, emergency.slug)}
           label={t("join")}
           variant="primary"
           block
@@ -67,7 +67,7 @@ export async function JoinPanel({ view }: { view: JoinView }) {
           <h2 className="text-subheading font-medium text-ink">{t("requestTitle")}</h2>
           <p className="text-body-sm text-ink-soft">{t("requestLead")}</p>
           <RoleRequestForm
-            action={requestMemberRoleAction.bind(null, emergency.slug)}
+            action={requestMemberRoleAction.bind(null, locale, emergency.slug)}
             roles={
               membership?.role === "field_volunteer" ? ["coordinator"] : ["coordinator", "field_volunteer"]
             }

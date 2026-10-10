@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useActionState, useState } from "react";
 
 import { Button, Field, Input, SegmentedControl, Spinner } from "@/shared/ui";
@@ -15,12 +15,13 @@ type Hours = `${(typeof INVITATION_HOURS)[number]}`;
 /** Admin form for a new invitation link to an emergency. */
 export function InvitationForm({ emergencyId }: { emergencyId: string }) {
   const t = useTranslations("members.invite");
+  const locale = useLocale();
   const tRoles = useTranslations("roles");
   const tErrors = useTranslations("errors");
   const [role, setRole] = useState<Role>("volunteer");
   const [hours, setHours] = useState<Hours>("24");
   const [state, dispatch, pending] = useActionState<InvitationActionState, FormData>(
-    createInvitationAction.bind(null, { emergencyId }),
+    createInvitationAction.bind(null, { emergencyId, locale }),
     null,
   );
 

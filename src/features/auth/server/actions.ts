@@ -1,6 +1,5 @@
 "use server";
 
-import { getLocale } from "next-intl/server";
 import { headers } from "next/headers";
 
 import { getCurrentUser } from "@/shared/auth";
@@ -10,6 +9,7 @@ import { clearSessionCookie, readSessionToken, setSessionCookie } from "@/shared
 import { trackServerEvent } from "@/shared/analytics/server";
 import { db } from "@/shared/db/client";
 import { env } from "@/shared/env";
+import { toActionLocale } from "@/shared/i18n/action-locale";
 import { redirect } from "@/shared/i18n/navigation";
 import { safePathSchema } from "@/shared/lib/safe-path";
 import { clientIpKey } from "@/shared/rate-limit";
@@ -19,11 +19,12 @@ import { requestLoginCode, updateUserName, verifyLoginCode } from "./login";
 
 /** One step of the login form. The state machine lives here, so the client only renders it. */
 export async function submitLogin(
-  nextPath: string,
+  context: { next: string; locale: string },
   state: LoginState,
   formData: FormData,
 ): Promise<LoginState> {
-  const locale = await getLocale();
+  const locale = toActionLocale(context.locale);
+  const nextPath = context.next;
   const next = safePathSchema.parse(nextPath);
   const ipKey = clientIpKey(await headers(), {
     secret: env.RATE_LIMIT_SECRET,
@@ -78,10 +79,10 @@ export async function submitLogin(
   return redirect({ href: next, locale });
 }
 
-export async function logOut(): Promise<void> {
+export async function logOut(locale: string): Promise<void> {
   const token = await readSessionToken();
   if (token) await deleteSession(db, token);
   await clearSessionCookie();
   trackServerEvent("user_logged_out", {});
-  redirect({ href: "/", locale: await getLocale() });
+  redirect({ href: "/", locale: toActionLocale(locale) });
 }

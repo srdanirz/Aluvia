@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useActionState } from "react";
 
 import { Button, Field, Input, Spinner } from "@/shared/ui";
@@ -11,8 +11,9 @@ import { submitLogin } from "../server/actions";
 /** Phone, then the code we sent, then the name the first time. `next` is where it returns. */
 export function LoginForm({ next, initialState }: { next: string; initialState: LoginState }) {
   const t = useTranslations("auth.login");
+  const locale = useLocale();
   const tErrors = useTranslations("errors");
-  const [state, action, pending] = useActionState(submitLogin.bind(null, next), initialState);
+  const [state, action, pending] = useActionState(submitLogin.bind(null, { next, locale }), initialState);
   const error = state.error ? tErrors(state.error) : undefined;
   const submitLabel = { phone: t("sendCode"), code: t("verify"), name: t("continue") }[state.step];
 

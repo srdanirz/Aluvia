@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { Card, CardBody, CardTitle, Chip } from "@/shared/ui";
 
@@ -21,6 +21,7 @@ export async function WorksiteAssignments({
   const view = await loadWorksiteAssignmentsView({ emergencyId, worksiteId });
   if (!view) return null;
   const t = await getTranslations("members.assignments");
+  const locale = await getLocale();
   const tAdmin = await getTranslations("members.admin");
 
   return (
@@ -41,12 +42,12 @@ export async function WorksiteAssignments({
               </span>
               {volunteer.isAssigned ? (
                 <ActionButton
-                  action={unassignWorksiteAction.bind(null, target)}
+                  action={unassignWorksiteAction.bind(null, locale, target)}
                   label={t("unassign")}
                   variant="ghost"
                 />
               ) : (
-                <ActionButton action={assignWorksiteAction.bind(null, target)} label={t("assign")} />
+                <ActionButton action={assignWorksiteAction.bind(null, locale, target)} label={t("assign")} />
               )}
             </li>
           );

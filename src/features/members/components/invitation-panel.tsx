@@ -36,7 +36,7 @@ export async function InvitationPanel({ view, token }: { view: InvitationPageVie
       </header>
       {user?.name ? (
         <ActionButton
-          action={acceptInvitationAction.bind(null, token)}
+          action={acceptInvitationAction.bind(null, locale, token)}
           label={t("accept")}
           variant="primary"
           block
