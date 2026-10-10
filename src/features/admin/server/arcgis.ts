@@ -5,9 +5,14 @@ import { isIP } from "node:net";
 
 import { z } from "zod";
 
+import { env } from "@/shared/env";
+
 // A survey layer of a few thousand homes is a few pages; more than this is the wrong layer.
 const MAX_FEATURES = 20_000;
 const PAGE_TIMEOUT_MS = 30_000;
+// A page of 2000 parcels is a few MB; a body past this is not a survey layer, and reading it
+// whole would hold that much memory per import.
+const MAX_BODY_BYTES = 50 * 1024 * 1024;
 
 export type Fetch = typeof fetch;
 // Narrower than typeof lookup (which is overloaded): exactly the one shape this module calls,
@@ -29,23 +34,20 @@ export class LayerError extends Error {
 }
 
 /**
- * A FeatureServer layer URL (`https://…/FeatureServer/0`): only https, and a quick syntactic
- * rejection of an IP literal or an obviously local name. This alone does not stop a public
- * hostname that resolves to an internal address; `assertPublicHost` is the real guard, checked
- * on every request against the address actually returned.
+ * A FeatureServer layer URL (`https://…/FeatureServer/0`) on an allowed host (ARCGIS_ALLOWED_HOSTS,
+ * Esri's hosted services by default; a host also allows its subdomains). This is the first fence;
+ * `assertPublicHost` is the second, checked on every request against the address the host resolves to.
  */
-export function parseLayerUrl(raw: string): URL {
+export function parseLayerUrl(raw: string, allowedHosts: readonly string[] = env.ARCGIS_ALLOWED_HOSTS): URL {
   let url: URL;
   try {
     url = new URL(raw.trim());
   } catch {
     throw new LayerError("invalid_layer_url");
   }
-  const host = url.hostname;
-  const isIp = /^[0-9.]+$/.test(host) || host.includes(":");
-  const isLocal =
-    host === "localhost" || host.endsWith(".local") || host.endsWith(".internal") || !host.includes(".");
-  if (url.protocol !== "https:" || isIp || isLocal || !/\/FeatureServer\/\d+$/.test(url.pathname)) {
+  const host = url.hostname.replace(/\.$/, "").toLowerCase();
+  const isAllowed = allowedHosts.some((allowed) => host === allowed || host.endsWith(`.${allowed}`));
+  if (url.protocol !== "https:" || !isAllowed || !/\/FeatureServer\/\d+$/.test(url.pathname)) {
     throw new LayerError("invalid_layer_url");
   }
   url.search = "";
@@ -99,6 +101,36 @@ const pageSchema = z.object({
   exceededTransferLimit: z.boolean().optional(),
 });
 
+/** The body as JSON, refusing it as soon as it passes MAX_BODY_BYTES instead of after reading it all. */
+async function readJsonWithLimit(response: Response): Promise<unknown> {
+  if (Number(response.headers.get("content-length") ?? 0) > MAX_BODY_BYTES) {
+    throw new LayerError("layer_too_large");
+  }
+  const reader = response.body?.getReader();
+  if (!reader) throw new LayerError("layer_unsupported");
+  const stream = reader;
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  // A stream is read chunk after chunk; each read needs the previous one to have finished.
+  async function read(): Promise<void> {
+    const { done, value } = await stream.read();
+    if (done) return;
+    size += value.byteLength;
+    if (size > MAX_BODY_BYTES) {
+      await stream.cancel();
+      throw new LayerError("layer_too_large");
+    }
+    chunks.push(value);
+    return read();
+  }
+  await read();
+  try {
+    return JSON.parse(Buffer.concat(chunks).toString("utf8")) as unknown;
+  } catch {
+    throw new LayerError("layer_unsupported");
+  }
+}
+
 async function getJson(fetchImpl: Fetch, lookupImpl: Lookup, url: URL): Promise<unknown> {
   await assertPublicHost(url.hostname, lookupImpl);
   let response: Response;
@@ -108,16 +140,15 @@ async function getJson(fetchImpl: Fetch, lookupImpl: Lookup, url: URL): Promise<
     throw new LayerError("layer_unreachable");
   }
   if (!response.ok) throw new LayerError("layer_unreachable");
-  const body: unknown = await response.json().catch(() => {
-    throw new LayerError("layer_unsupported");
-  });
+  const body = await readJsonWithLimit(response);
   // ArcGIS answers errors with 200 and an `error` object.
   if (body && typeof body === "object" && "error" in body) throw new LayerError("layer_unreachable");
   return body;
 }
 
 /**
- * Every feature of a layer, page by page, reprojected to WGS 84 by the server (`outSR=4326`).
+ * Every feature of a layer, page by page. ArcGIS reprojects each page to WGS 84 itself because the
+ * query asks `outSR=4326`; nothing here transforms coordinates.
  * Pages are sequential: each needs the previous offset.
  */
 export async function fetchLayerFeatures(
@@ -125,10 +156,11 @@ export async function fetchLayerFeatures(
   {
     fetchImpl = fetch,
     lookupImpl = lookup,
+    allowedHosts,
     expect,
-  }: { fetchImpl?: Fetch; lookupImpl?: Lookup; expect: "polygon" | "any" },
+  }: { fetchImpl?: Fetch; lookupImpl?: Lookup; allowedHosts?: readonly string[]; expect: "polygon" | "any" },
 ): Promise<LayerFeature[]> {
-  const url = parseLayerUrl(rawUrl);
+  const url = parseLayerUrl(rawUrl, allowedHosts);
   const metadataUrl = new URL(url);
   metadataUrl.searchParams.set("f", "json");
   const metadata = metadataSchema.safeParse(await getJson(fetchImpl, lookupImpl, metadataUrl));

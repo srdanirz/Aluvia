@@ -14,6 +14,8 @@ afterAll(close);
 // Invented layers only (STYLEGUIDE, Tests): squares near 0,0 and made-up streets.
 const LAYER = "https://gis.example.test/arcgis/rest/services/Parcels/FeatureServer/0";
 const PAGE_SIZE = 3;
+// The tests' own allowlist; production defaults to Esri's hosted services (env.ts).
+const ALLOWED = ["example.test"];
 
 function square(x: number, y: number, size = 0.0001) {
   return {
@@ -71,16 +73,21 @@ beforeAll(async () => {
 
 describe("layer URLs", () => {
   it("accept an https FeatureServer layer and nothing that reaches the server's own network", () => {
-    expect(parseLayerUrl(`${LAYER}?f=json`).href).toBe(LAYER);
+    expect(parseLayerUrl(`${LAYER}?f=json`, ALLOWED).href).toBe(LAYER);
+    expect(parseLayerUrl("https://services3.arcgis.com/x/arcgis/rest/services/P/FeatureServer/0").host).toBe(
+      "services3.arcgis.com",
+    );
     for (const bad of [
       LAYER.replace("https:", "http:"),
       "https://169.254.169.254/arcgis/rest/services/X/FeatureServer/0",
       "https://localhost/arcgis/rest/services/X/FeatureServer/0",
       "https://metadata.internal/arcgis/rest/services/X/FeatureServer/0",
       "https://gis.example.test/arcgis/rest/services/X/MapServer/0",
+      "https://evil.example.org/arcgis/rest/services/X/FeatureServer/0",
+      "https://example.test.evil.org/arcgis/rest/services/X/FeatureServer/0",
       "not a url",
     ]) {
-      expect(() => parseLayerUrl(bad)).toThrow(LayerError);
+      expect(() => parseLayerUrl(bad, ALLOWED)).toThrow(LayerError);
     }
   });
 });
@@ -98,6 +105,7 @@ describe("importing parcels as homes", () => {
     const result = await importOfficialLayer(db, actorId, input, {
       fetchImpl: fakeServer(PARCELS),
       lookupImpl: fakeLookup,
+      allowedHosts: ALLOWED,
     });
     expect(result).toEqual({ ok: true, data: { featureCount: 7, createdCount: 7 } });
 
@@ -146,11 +154,16 @@ describe("importing parcels as homes", () => {
       addressFields: ["STREET"],
       notesFields: [],
     };
-    await importOfficialLayer(db, actorId, input, { fetchImpl: fakeServer(PARCELS), lookupImpl: fakeLookup });
+    await importOfficialLayer(db, actorId, input, {
+      fetchImpl: fakeServer(PARCELS),
+      lookupImpl: fakeLookup,
+      allowedHosts: ALLOWED,
+    });
     counter.reset();
     const again = await importOfficialLayer(db, actorId, input, {
       fetchImpl: fakeServer(PARCELS),
       lookupImpl: fakeLookup,
+      allowedHosts: ALLOWED,
     });
     expect(again).toEqual({ ok: true, data: { featureCount: 7, createdCount: 0 } });
     const queries = counter.count;
@@ -159,6 +172,7 @@ describe("importing parcels as homes", () => {
     await importOfficialLayer(db, actorId, input, {
       fetchImpl: fakeServer(PARCELS.slice(0, 1)),
       lookupImpl: fakeLookup,
+      allowedHosts: ALLOWED,
     });
     // 7 parcels fit one batch, like 1: the import does not query per home.
     expect(counter.count).toBe(queries);
@@ -175,7 +189,11 @@ describe("importing parcels as homes", () => {
     };
     const failing = (async () => Response.json({ error: { code: 400, message: "Invalid" } })) as typeof fetch;
     expect(
-      await importOfficialLayer(db, actorId, input, { fetchImpl: failing, lookupImpl: fakeLookup }),
+      await importOfficialLayer(db, actorId, input, {
+        fetchImpl: failing,
+        lookupImpl: fakeLookup,
+        allowedHosts: ALLOWED,
+      }),
     ).toEqual({
       ok: false,
       code: "layer_unreachable",
@@ -188,6 +206,7 @@ describe("importing parcels as homes", () => {
       await importOfficialLayer(db, actorId, input, {
         fetchImpl: fakeServer(PARCELS),
         lookupImpl: fakeLookup,
+        allowedHosts: ALLOWED,
       }),
     ).toEqual({
       ok: false,
@@ -204,14 +223,32 @@ describe("importing parcels as homes", () => {
       addressFields: ["STREET"],
       notesFields: [],
     };
-    await importOfficialLayer(db, actorId, input, { fetchImpl: fakeServer(PARCELS), lookupImpl: fakeLookup });
+    await importOfficialLayer(db, actorId, input, {
+      fetchImpl: fakeServer(PARCELS),
+      lookupImpl: fakeLookup,
+      allowedHosts: ALLOWED,
+    });
     const again = await importOfficialLayer(
       db,
       actorId,
       { ...input, layerUrl: ` ${LAYER}?f=json ` },
-      { fetchImpl: fakeServer(PARCELS), lookupImpl: fakeLookup },
+      { fetchImpl: fakeServer(PARCELS), lookupImpl: fakeLookup, allowedHosts: ALLOWED },
     );
     expect(again).toEqual({ ok: true, data: { featureCount: 7, createdCount: 0 } });
+  });
+
+  it("refuses a body past the size cap without reading it all", async () => {
+    const emergencyId = await createEmergency(db, "import-huge");
+    const huge = (async () =>
+      new Response("{}", { headers: { "content-length": String(60 * 1024 * 1024) } })) as typeof fetch;
+    expect(
+      await importOfficialLayer(
+        db,
+        actorId,
+        { kind: "worksites", emergencyId, layerUrl: LAYER, addressFields: ["STREET"], notesFields: [] },
+        { fetchImpl: huge, lookupImpl: fakeLookup, allowedHosts: ALLOWED },
+      ),
+    ).toEqual({ ok: false, code: "layer_too_large" });
   });
 
   it("refuses a public-looking hostname that resolves to a private address", async () => {
@@ -227,6 +264,7 @@ describe("importing parcels as homes", () => {
       await importOfficialLayer(db, actorId, input, {
         fetchImpl: fakeServer(PARCELS),
         lookupImpl: privateLookup,
+        allowedHosts: ALLOWED,
       }),
     ).toEqual({ ok: false, code: "invalid_layer_url" });
   });
@@ -243,7 +281,7 @@ describe("importing the area", () => {
       db,
       actorId,
       { kind: "area", emergencyId, layerUrl: LAYER },
-      { fetchImpl: fakeServer(zone), lookupImpl: fakeLookup },
+      { fetchImpl: fakeServer(zone), lookupImpl: fakeLookup, allowedHosts: ALLOWED },
     );
     expect(result).toEqual({ ok: true, data: { featureCount: 2, createdCount: 0 } });
     const [area] = await db.execute<{ type: string; valid: boolean }>(
@@ -256,9 +294,17 @@ describe("importing the area", () => {
     const emergencyId = await createEmergency(db, "import-area-empty");
     const zone = [{ type: "Feature", id: 1, geometry: square(0, 0, 0.01), properties: { OID: 1 } }];
     const area = { kind: "area" as const, emergencyId, layerUrl: LAYER };
-    await importOfficialLayer(db, actorId, area, { fetchImpl: fakeServer(zone), lookupImpl: fakeLookup });
+    await importOfficialLayer(db, actorId, area, {
+      fetchImpl: fakeServer(zone),
+      lookupImpl: fakeLookup,
+      allowedHosts: ALLOWED,
+    });
     expect(
-      await importOfficialLayer(db, actorId, area, { fetchImpl: fakeServer([]), lookupImpl: fakeLookup }),
+      await importOfficialLayer(db, actorId, area, {
+        fetchImpl: fakeServer([]),
+        lookupImpl: fakeLookup,
+        allowedHosts: ALLOWED,
+      }),
     ).toEqual({ ok: false, code: "layer_unsupported" });
     const [row] = await db.execute<{ has: boolean }>(
       sql`select area is not null as has from emergencies where id = ${emergencyId}`,
@@ -273,7 +319,7 @@ describe("importing the area", () => {
         db,
         actorId,
         { kind: "area", emergencyId, layerUrl: LAYER },
-        { fetchImpl: fakeServer([], "esriGeometryPoint"), lookupImpl: fakeLookup },
+        { fetchImpl: fakeServer([], "esriGeometryPoint"), lookupImpl: fakeLookup, allowedHosts: ALLOWED },
       ),
     ).toEqual({ ok: false, code: "layer_unsupported" });
   });

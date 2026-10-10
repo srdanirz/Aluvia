@@ -86,6 +86,7 @@ function joinFields(attributes: Record<string, string>, fields: string[], labele
 async function importHomesBatch(
   db: Database,
   input: OfficialLayerInput & { kind: "worksites" },
+  layerKey: string,
   locale: string,
   batch: LayerFeature[],
 ): Promise<number> {
@@ -94,9 +95,6 @@ async function importHomesBatch(
     FROM jsonb_array_elements(${JSON.stringify(batch.map((f) => f.geometry))}::jsonb) WITH ORDINALITY AS t (g, ord),
       LATERAL (SELECT ST_PointOnSurface(ST_MakeValid(ST_SetSRID(ST_GeomFromGeoJSON(t.g::text), 4326))) AS p) AS s
   `);
-  // The normalized URL, not the typed one: "…/0?f=json" and "…/0 " are the same layer and must
-  // give the same ids, or a second import would duplicate every home.
-  const layerKey = parseLayerUrl(input.layerUrl).href;
   const pointByOrd = new Map(points.map((row) => [row.ord, { lng: row.lng, lat: row.lat }]));
   const reports = batch.map((feature, index) =>
     newWorksiteSchema.parse({
@@ -126,17 +124,22 @@ export async function importOfficialLayer(
   db: Database,
   actorId: string | null,
   input: OfficialLayerInput,
-  { fetchImpl, lookupImpl }: { fetchImpl?: Fetch; lookupImpl?: Lookup } = {},
+  {
+    fetchImpl,
+    lookupImpl,
+    allowedHosts,
+  }: { fetchImpl?: Fetch; lookupImpl?: Lookup; allowedHosts?: readonly string[] } = {},
 ): Promise<Result<ImportSummary>> {
   const emergency = await findOpenEmergency(db, input.emergencyId);
   if (!emergency) return { ok: false, code: "not_found" };
-  if (emergency.status === "closed") return { ok: false, code: "emergency_closed" };
+  if (emergency.status !== "open") return { ok: false, code: "emergency_closed" };
 
   let features: LayerFeature[];
   try {
     features = await fetchLayerFeatures(input.layerUrl, {
       fetchImpl,
       lookupImpl,
+      allowedHosts,
       expect: input.kind === "area" ? "polygon" : "any",
     });
   } catch (error) {
@@ -144,6 +147,9 @@ export async function importOfficialLayer(
     throw error;
   }
   const withGeometry = features.filter((feature) => feature.geometry);
+  // The normalized URL, not the typed one: "…/0?f=json" and "…/0 " are the same layer and must
+  // give the same ids, or a second import would duplicate every home.
+  const layerKey = parseLayerUrl(input.layerUrl, allowedHosts).href;
 
   let summary: ImportSummary;
   if (input.kind === "area") {
@@ -158,7 +164,7 @@ export async function importOfficialLayer(
     const importBatches = async (offset: number, created: number): Promise<number> => {
       const batch = withGeometry.slice(offset, offset + MAX_WORKSITES_PER_CALL);
       if (batch.length === 0) return created;
-      const count = await importHomesBatch(db, input, emergency.defaultLocale, batch);
+      const count = await importHomesBatch(db, input, layerKey, emergency.defaultLocale, batch);
       return importBatches(offset + batch.length, created + count);
     };
     summary = { featureCount: withGeometry.length, createdCount: await importBatches(0, 0) };
