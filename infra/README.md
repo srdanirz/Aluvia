@@ -9,7 +9,7 @@ Producción de Aluvia en GCP como código (Terraform). Las decisiones y su porqu
 | `database.tf` | Cloud SQL Postgres 17, base `aluvia`, usuarios IAM del migrador (dueño del schema) y de la app |
 | `secrets.tf` | Secretos de la app y config del sidecar |
 | `registry.tf` | Artifact Registry y su limpieza |
-| `run.tf` | Servicio `aluvia` con sidecar de Prometheus, job `aluvia-migrate`, variables de entorno |
+| `run.tf` | Servicio `aluvia` con sidecar de Prometheus, jobs `aluvia-migrate` y `aluvia-task`, variables de entorno |
 | `loadbalancer.tf` | Balanceador HTTPS, certificado, redirecciones, registros DNS |
 | `github.tf` | Workload Identity Federation y la cuenta `aluvia-deploy` |
 | `monitoring.tf` | Chequeo de disponibilidad, alerta, presupuesto |
@@ -79,5 +79,13 @@ El certificado queda `ACTIVE` entre 15 y 60 minutos después de que el dominio r
 - **Ver qué corre:** `gcloud run services describe aluvia --region southamerica-west1`.
 - **Volver a la versión anterior:** `gcloud run services update-traffic aluvia --region southamerica-west1 --to-revisions <revisión>=100`. Las migraciones son aditivas, así que el código anterior funciona con el schema nuevo. El próximo deploy vuelve a mandar el tráfico a la revisión nueva. Si el chequeo de `/api/health` falla tras un deploy, el workflow vuelve solo a la revisión anterior.
 - **Una migración falló:** el deploy se detiene antes de mover tráfico. Logs: `gcloud run jobs executions list --job aluvia-migrate --region southamerica-west1`.
-- **Entrar a la base:** Cloud SQL Studio en la consola. No hay contraseñas de base: para una consulta puntual, el job `aluvia-migrate` con `--args` (ver el historial de ejecuciones). La base no tiene IP pública.
+- **Scripts contra la base de producción** (`pnpm db:seed`, `pnpm admin:grant`): el job `aluvia-task` corre `pnpm run <script>` con la imagen del último deploy y la identidad de la app (login IAM, solo filas: no puede cambiar el schema). Los argumentos van separados por comas:
+
+  ```bash
+  gcloud run jobs execute aluvia-task --region southamerica-west1 --wait --args=db:seed
+  gcloud run jobs execute aluvia-task --region southamerica-west1 --wait --args=admin:grant,+56912345678
+  ```
+
+  La salida queda en Cloud Logging (`resource.labels.job_name="aluvia-task"`).
+- **Entrar a la base:** Cloud SQL Studio en la consola. No hay contraseñas de base: para una consulta puntual, un script en `scripts/` corrido con `aluvia-task`. La base no tiene IP pública.
 - **Alerta "Aluvia caída":** `/api/health` no llega a la base o la app no responde. Revisa la revisión activa, el estado de Cloud SQL y los logs con `severity>=ERROR`.

@@ -1,5 +1,3 @@
-import "server-only";
-
 const METADATA_TOKEN_URL =
   "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token";
 // Refresh ahead of expiry so a connection opened at the edge never carries a dead token.
@@ -10,7 +8,8 @@ type Fetch = typeof fetch;
 /**
  * Returns a function that yields an OAuth access token for the runtime service account, used as
  * the Postgres password under Cloud SQL IAM authentication (ADR 0012). Only works on GCP, where
- * the metadata server exists. Tokens are cached until close to expiry; concurrent callers share
+ * the metadata server exists. No server-only guard: one-off scripts (scripts/connect.mts) use it
+ * too, and it holds nothing secret. Tokens are cached until close to expiry; concurrent callers share
  * one in-flight request.
  */
 export function createIamTokenSource(fetchImpl: Fetch = fetch, now: () => number = Date.now) {

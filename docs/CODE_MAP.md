@@ -66,6 +66,6 @@
 | `tests/schema.test.ts` | Las reglas que decide la base: FKs por emergencia, cupo de turnos, una inscripción activa, un aviso por evento |
 | `src/app/api/health/` | `GET /api/health`: 200 si la app llega a la base; lo usa el chequeo de disponibilidad |
 | `infra/` | Producción en GCP como código (Terraform, ADR 0012); runbook en `infra/README.md` |
-| `Dockerfile` | Imagen de producción: targets `app` (Cloud Run) y `migrate` (job de migraciones) |
+| `Dockerfile` | Imagen de producción: targets `app` (Cloud Run), `migrate` (job de migraciones) y `task` (scripts de `scripts/` contra producción) |
 | `scripts/migrate.mjs` | Aplica `drizzle/` y da permisos al rol de la app; corre en cada deploy |
 | `.github/workflows/deploy.yml` | Deploy a producción cuando CI pasa en `main` |
