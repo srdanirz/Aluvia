@@ -38,6 +38,17 @@ const schema = z
     METRICS_PORT: optional(z.coerce.number().int().min(1).max(65_535)),
     // Lets Cloud Logging join each log line to its trace. Unset: logs carry the bare trace id.
     GOOGLE_CLOUD_PROJECT: optional(z.string().min(1)),
+    // Hosts an admin may import official layers from (issue #44), comma separated; each one also
+    // allows its subdomains. Unset: Esri's hosted services only.
+    ARCGIS_ALLOWED_HOSTS: z
+      .string()
+      .optional()
+      .transform((value) =>
+        (value || "arcgis.com,arcgisonline.com")
+          .split(",")
+          .map((host) => host.trim().toLowerCase())
+          .filter(Boolean),
+      ),
     // Cloud SQL IAM authentication: the password is the runtime service account's access token,
     // fetched from the GCP metadata server. Production only (ADR 0012).
     DATABASE_IAM_AUTH: z.stringbool().default(false),

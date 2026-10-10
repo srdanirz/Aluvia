@@ -7,6 +7,7 @@ export { EmergencySettingsForm } from "./components/emergency-settings-form";
 export { LoadMore } from "./components/load-more";
 export { MissingTranslations } from "./components/missing-translations";
 export { NoticeForm } from "./components/notice-form";
+export { OfficialLayerForm } from "./components/official-layer-form";
 export { OfficialNotice } from "./components/official-notice";
 export { PageHeader } from "./components/page-header";
 export { FormSkeleton, ListSkeleton } from "./components/skeletons";

@@ -115,6 +115,12 @@ export const EVENTS = {
     code: z.enum(["shift_full", "already_signed_up", "not_member", "shift_started", "emergency_closed"]),
   }),
   shift_signup_cancelled: z.strictObject({ emergencyId: z.uuid() }),
+  official_layer_imported: z.strictObject({
+    emergencyId: z.uuid(),
+    kind: z.enum(["area", "worksites"]),
+    featureCount: z.number().int().nonnegative(),
+    createdCount: z.number().int().nonnegative(),
+  }),
 };
 
 export type EventName = keyof typeof EVENTS;

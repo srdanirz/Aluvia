@@ -15,7 +15,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio --port 3003",
-    "db:seed": "tsx scripts/seed.mts",
+    "db:seed": "tsx --conditions=react-server scripts/seed.mts",
     "admin:grant": "tsx scripts/admin-grant.mts",
     "check": "pnpm typecheck && pnpm lint && pnpm format"
   },

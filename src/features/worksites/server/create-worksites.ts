@@ -18,9 +18,13 @@ class InvalidWorkType extends Error {}
  * The review flags of a new home, decided by the database in the same INSERT: a point outside
  * the emergency's area (a GPS error, swapped coordinates), a fix less precise than
  * PRECISE_LOCATION_METERS, another home of the emergency within DUPLICATE_RADIUS_METERS, or
- * someone in danger. Homes of the same batch do not see each other.
+ * someone in danger. Homes of the same batch do not see each other. An official survey import
+ * gets no flags: its parcels are distinct by definition (adjacent ones sit closer than the
+ * radius) and the survey, not the drawn area, is the authority on what was hit. A later report
+ * next to an official home is still flagged as a possible duplicate.
  */
-function reviewFlagsFor(emergencyId: string, report: NewWorksite) {
+function reviewFlagsFor(emergencyId: string, report: NewWorksite, source: WorksiteSource) {
+  if (source === "official") return sql`'{}'::worksite_review_flag[]`;
   const danger = report.isPersonInDanger ? sql`'person_in_danger'` : sql`NULL`;
   const imprecise =
     (report.locationAccuracyMeters ?? 0) > PRECISE_LOCATION_METERS ? sql`'imprecise_location'` : sql`NULL`;
@@ -95,7 +99,7 @@ export async function createWorksites(
             damageLevel: report.damageLevel,
             hasVulnerablePeople: report.hasVulnerablePeople,
             hazards: report.hazards,
-            reviewFlags: reviewFlagsFor(emergencyId, report),
+            reviewFlags: reviewFlagsFor(emergencyId, report, source),
             source,
             // Every work item starts open and unclaimed, so the home starts waiting now (ADR 0005);
             // a home without work (an official survey import) is not waiting for anyone.

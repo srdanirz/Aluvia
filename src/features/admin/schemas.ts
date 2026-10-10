@@ -149,3 +149,28 @@ export function fieldErrorsOf(error: z.ZodError): Record<string, string> {
   }
   return errors;
 }
+
+// ArcGIS attribute names: letters, digits and underscores.
+const layerField = z
+  .string()
+  .trim()
+  .regex(/^[A-Za-z0-9_]{1,64}$/, { error: "invalid_field" });
+const layerFields = z.array(layerField).max(5, { error: "too_many" });
+
+export const officialLayerSchema = z.discriminatedUnion("kind", [
+  z.object({
+    kind: z.literal("area"),
+    emergencyId: z.uuid(),
+    layerUrl: z.url({ error: "invalid_layer_url" }),
+  }),
+  z.object({
+    kind: z.literal("worksites"),
+    emergencyId: z.uuid(),
+    layerUrl: z.url({ error: "invalid_layer_url" }),
+    // Joined with spaces into the written address (street, number).
+    addressFields: layerFields.min(1, { error: "address_fields_required" }),
+    // Kept as "FIELD: value" in the contact notes (a land registry id, for example).
+    notesFields: layerFields,
+  }),
+]);
+export type OfficialLayerInput = z.infer<typeof officialLayerSchema>;
