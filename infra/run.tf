@@ -237,3 +237,61 @@ resource "google_cloud_run_v2_job" "migrate" {
 
   depends_on = [google_project_iam_member.migrate]
 }
+
+# One-off scripts against the private database (pnpm db:seed, pnpm admin:grant). Runs as the
+# app's identity, with its IAM login and row-only rights: a script can change data, never the
+# schema, and it needs no secret of its own. Run with
+# `gcloud run jobs execute aluvia-task --args=db:seed` (infra/README.md).
+resource "google_cloud_run_v2_job" "task" {
+  name                = "aluvia-task"
+  location            = var.region
+  deletion_protection = true
+
+  template {
+    task_count = 1
+
+    template {
+      service_account = google_service_account.app.email
+      max_retries     = 0
+      timeout         = "1800s"
+
+      # Private ranges reach Cloud SQL; everything else (seed layers from public sources) goes out
+      # through Cloud Run's own internet access.
+      vpc_access {
+        egress = "PRIVATE_RANGES_ONLY"
+        network_interfaces {
+          network    = google_compute_network.main.id
+          subnetwork = google_compute_subnetwork.run.id
+        }
+      }
+
+      containers {
+        image = local.placeholder_image
+
+        env {
+          name  = "DATABASE_URL"
+          value = local.app_database_url
+        }
+
+        env {
+          name  = "DATABASE_IAM_AUTH"
+          value = "true"
+        }
+
+        resources {
+          limits = { cpu = "1", memory = "1Gi" }
+        }
+      }
+    }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      template[0].template[0].containers[0].image,
+      client,
+      client_version,
+    ]
+  }
+
+  depends_on = [google_project_iam_member.app]
+}
