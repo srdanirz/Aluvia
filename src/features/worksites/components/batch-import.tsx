@@ -8,7 +8,18 @@ import { track } from "@/shared/analytics/client";
 import { useErrorMessage } from "@/shared/i18n/use-error-message";
 import type { Locale } from "@/shared/i18n/locales";
 import { usePersistedState } from "@/shared/offline/use-persisted-state";
-import { Button, Card, Chip, Field, IconButton, Input, Spinner, Textarea, ToggleTile } from "@/shared/ui";
+import {
+  Button,
+  Card,
+  Chip,
+  Field,
+  FormError,
+  IconButton,
+  Input,
+  Spinner,
+  Textarea,
+  ToggleTile,
+} from "@/shared/ui";
 
 import { extractDrafts, importWorksites } from "../server/actions";
 
@@ -107,11 +118,7 @@ export function BatchImport({ slug, workTypes }: BatchImportProps) {
         </Button>
       </Card>
 
-      {error ? (
-        <p role="alert" className="text-body-sm text-status-urgent-text">
-          {errorMessage(error)}
-        </p>
-      ) : null}
+      {error ? <FormError>{errorMessage(error)}</FormError> : null}
 
       {created !== null ? (
         <Card className="animate-enter gap-3">

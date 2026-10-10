@@ -284,7 +284,7 @@ describe("creating an emergency", () => {
     const input = await newEmergency();
     expect(await createEmergency(db, actorId, { ...input, slug: "t-otro-slug" })).toEqual({
       ok: true,
-      data: { slug: input.slug },
+      data: { slug: input.slug, created: false },
     });
   });
 

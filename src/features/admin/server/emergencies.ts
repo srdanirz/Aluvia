@@ -52,7 +52,7 @@ export async function createEmergency(
   db: Database,
   actorId: string,
   input: EmergencyInput,
-): Promise<Result<{ slug: string }>> {
+): Promise<Result<{ slug: string; created: boolean }>> {
   try {
     return await db.transaction(async (tx) => {
       const [created] = await tx
@@ -72,7 +72,7 @@ export async function createEmergency(
         .onConflictDoUpdate({ target: emergencies.id, set: { id: sql`excluded.id` } })
         .returning({ id: emergencies.id, slug: emergencies.slug, isNew: sql<boolean>`xmax = 0` });
       if (!created) throw new Error("insert returned no row");
-      if (!created.isNew) return { ok: true, data: { slug: created.slug } };
+      if (!created.isNew) return { ok: true, data: { slug: created.slug, created: false } };
 
       // An emergency without work types cannot receive a single report.
       if ((await copyWorkTypeTemplates(tx, [created.id])) === 0) tx.rollback();
@@ -86,7 +86,7 @@ export async function createEmergency(
         emergencyId: created.id,
         payload: { slug: input.slug, disasterTypeKey: input.disasterTypeKey, hasArea: input.area !== null },
       });
-      return { ok: true, data: { slug: input.slug } };
+      return { ok: true, data: { slug: input.slug, created: true } };
     });
   } catch (error) {
     if (error instanceof TransactionRollbackError) return { ok: false, code: "empty_work_catalog" };

@@ -9,17 +9,17 @@ export function ReportSkeleton({ tiles = 6 }: { tiles?: number }) {
         <Skeleton className="h-10 w-3/4" />
       </div>
       <Card className="gap-4">
-        <Skeleton className="h-6 w-1/3 rounded-full" />
+        <Skeleton shape="pill" className="h-6 w-1/3" />
       </Card>
       <div className="flex flex-col gap-4">
         <Skeleton className="h-6 w-1/2" />
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
           {Array.from({ length: tiles }, (_, index) => (
-            <Skeleton key={index} className="h-16 rounded-card" />
+            <Skeleton key={index} shape="card" className="h-16" />
           ))}
         </div>
       </div>
-      <Skeleton className="h-11 w-full rounded-full" />
+      <Skeleton shape="pill" className="h-11 w-full" />
     </main>
   );
 }

@@ -8,7 +8,7 @@ import { track } from "@/shared/analytics/client";
 import { useErrorMessage } from "@/shared/i18n/use-error-message";
 import { discardOutboxEntry, enqueue } from "@/shared/offline/outbox";
 import { usePersistedState } from "@/shared/offline/use-persisted-state";
-import { Button, Card, Spinner, ToggleTile } from "@/shared/ui";
+import { Button, Card, FormError, Spinner, ToggleTile } from "@/shared/ui";
 
 import { toE164 } from "../phone";
 import type { WorksiteReportInput, WorksiteSource } from "../schemas";
@@ -201,9 +201,9 @@ export function ReportForm({ slug, workTypes, emergencyNumbers, source }: Report
           <p className="text-center text-caption text-ink-muted">{t(`missing.${missing}`)}</p>
         ) : null}
         {rejection ? (
-          <p role="alert" className="text-center text-caption text-status-urgent-text">
+          <FormError size="field" className="text-center">
             {errorMessage(rejection)}
-          </p>
+          </FormError>
         ) : null}
       </div>
     </form>

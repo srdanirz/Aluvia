@@ -6,7 +6,7 @@ function HeaderSkeleton({ withAction = false }: { withAction?: boolean }) {
   return (
     <div className="flex flex-wrap items-end justify-between gap-4">
       <Skeleton className="h-10 w-2/3 max-w-narrow" />
-      {withAction ? <Skeleton className="h-11 w-1/2 md:w-1/4 rounded-full" /> : null}
+      {withAction ? <Skeleton shape="pill" className="h-11 w-1/2 md:w-1/4" /> : null}
     </div>
   );
 }
@@ -20,7 +20,7 @@ export function ListSkeleton() {
           <Card key={row}>
             <div className="flex items-center justify-between gap-3">
               <Skeleton className="h-5 w-1/2" />
-              <Skeleton className="h-6 w-20 rounded-full" />
+              <Skeleton shape="pill" className="h-6 w-20" />
             </div>
             <Skeleton className="h-4 w-1/3" />
           </Card>
@@ -51,7 +51,7 @@ export function FormSkeleton({ cards = 2 }: { cards?: number }) {
             <FieldSkeleton />
           </Card>
         ))}
-        <Skeleton className="h-11 w-1/2 md:w-1/4 rounded-full" />
+        <Skeleton shape="pill" className="h-11 w-1/2 md:w-1/4" />
       </div>
     </div>
   );

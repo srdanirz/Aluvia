@@ -16,34 +16,43 @@ type TemplateRow = TemplateItem & { rowId: number };
 
 /** The rows of one template (work types or supplies) and the edits on them. */
 export function useTemplateRows(initial: TemplateItem[]) {
-  const [rows, setRows] = useState<TemplateRow[]>(() => initial.map((item, rowId) => ({ ...item, rowId })));
-  const [nextRowId, setNextRowId] = useState(initial.length);
+  // Rows and the next id live in one state, so two edits in the same batch never reuse an id.
+  const [state, setState] = useState(() => ({
+    rows: initial.map((item, rowId): TemplateRow => ({ ...item, rowId })),
+    nextRowId: initial.length,
+  }));
+  const setRows = (change: (rows: TemplateRow[]) => TemplateRow[]) =>
+    setState((current) => ({ ...current, rows: change(current.rows) }));
 
   return {
-    rows,
-    items: rows.map(({ key, name }) => ({ key, name })),
+    rows: state.rows,
+    items: state.rows.map(({ key, name }) => ({ key, name })),
     add() {
-      setRows((current) => [...current, { rowId: nextRowId, key: "", name: {} }]);
-      setNextRowId(nextRowId + 1);
+      setState(({ rows, nextRowId }) => ({
+        rows: [...rows, { rowId: nextRowId, key: "", name: {} }],
+        nextRowId: nextRowId + 1,
+      }));
     },
     update(index: number, change: Partial<TemplateItem>) {
-      setRows((current) => current.map((row, i) => (i === index ? { ...row, ...change } : row)));
+      setRows((rows) => rows.map((row, i) => (i === index ? { ...row, ...change } : row)));
     },
     move(index: number, by: -1 | 1) {
-      setRows((current) => {
-        const next = [...current];
+      setRows((rows) => {
+        const next = [...rows];
         const [row] = next.splice(index, 1);
         if (row) next.splice(index + by, 0, row);
         return next;
       });
     },
     remove(index: number) {
-      setRows((current) => current.filter((_, i) => i !== index));
+      setRows((rows) => rows.filter((_, i) => i !== index));
     },
     /** Replaces every row, for when a newer version arrives from the server. Call during render. */
     replace(items: TemplateItem[]) {
-      setRows(items.map((item, i) => ({ ...item, rowId: nextRowId + i })));
-      setNextRowId(nextRowId + items.length);
+      setState(({ nextRowId }) => ({
+        rows: items.map((item, i) => ({ ...item, rowId: nextRowId + i })),
+        nextRowId: nextRowId + items.length,
+      }));
     },
   };
 }

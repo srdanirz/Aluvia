@@ -208,7 +208,7 @@ export default async function DesignSystemPage() {
           <Card className="max-w-narrow">
             <div className="flex items-center justify-between gap-3">
               <Skeleton className="h-5 w-1/3" />
-              <Skeleton className="h-6 w-1/4 rounded-full" />
+              <Skeleton shape="pill" className="h-6 w-1/4" />
             </div>
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-2/3" />
