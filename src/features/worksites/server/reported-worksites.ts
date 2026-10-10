@@ -64,7 +64,7 @@ type Row = {
 const printedTimestamp = z.iso.datetime({ precision: 6 });
 const pgInt = z.int().min(0).max(2_147_483_647);
 const cursorSchema = z.strictObject({
-  flag: z.union([z.literal(0), z.literal(1)]),
+  flag: z.union([z.literal(0), z.literal(1), z.literal(2)]),
   reports: pgInt,
   open: pgInt,
   waiting: z.union([z.literal("infinity"), printedTimestamp]),
@@ -75,7 +75,7 @@ type Cursor = z.infer<typeof cursorSchema>;
 
 function encodeCursor(row: Row): string {
   const cursor: Cursor = {
-    flag: row.flag_key === 0 ? 0 : 1,
+    flag: row.flag_key === 0 ? 0 : row.flag_key === 1 ? 1 : 2,
     reports: row.report_count,
     open: row.open_unclaimed,
     waiting: row.waiting_key,
@@ -131,8 +131,12 @@ export async function listReportedWorksites(
         w.id,
         w.created_at,
         ${attentionLevelSql(staleBeforeSql(now))} AS level,
+        -- 0: someone in danger or an unreviewed hazard; 2: attended, so it sinks below every home
+        -- still waiting however many neighbors reported it; 1: everything else.
         CASE WHEN (cardinality(w.hazards) > 0 AND w.hazards_reviewed_at IS NULL)
-          OR 'person_in_danger' = ANY(w.review_flags) THEN 0 ELSE 1 END AS flag_key,
+          OR 'person_in_danger' = ANY(w.review_flags) THEN 0
+          WHEN ${attentionLevelSql(staleBeforeSql(now))} = 'attended' THEN 2
+          ELSE 1 END AS flag_key,
         greatest(
           (SELECT count(*) FROM report_receipts r WHERE r.worksite_id = w.id),
           (w.source <> 'official')::int
