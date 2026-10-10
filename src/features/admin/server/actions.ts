@@ -1,7 +1,9 @@
 "use server";
 
+import { updateTag } from "next/cache";
 import type { z } from "zod";
 
+import { OPEN_EMERGENCIES_TAG } from "@/features/emergencies/server";
 import { trackServerEvent } from "@/shared/analytics/server";
 import { db } from "@/shared/db/client";
 import { meter } from "@/shared/observability/metrics";
@@ -113,7 +115,7 @@ export async function updateDisasterTypeAction(input: unknown) {
 }
 
 export async function createEmergencyAction(input: unknown) {
-  return run(
+  const result = await run(
     "create_emergency",
     emergencySchema,
     input,
@@ -127,6 +129,9 @@ export async function createEmergencyAction(input: unknown) {
         { distinctId },
       ),
   );
+  // The home redirects to the only open emergency; a new one changes where it sends people.
+  if (result.ok) updateTag(OPEN_EMERGENCIES_TAG);
+  return result;
 }
 
 export async function updateEmergencySettingsAction(input: unknown) {
@@ -152,7 +157,7 @@ export async function updateEmergencyAreaAction(input: unknown) {
 }
 
 export async function closeEmergencyAction(input: unknown) {
-  return run(
+  const result = await run(
     "close_emergency",
     closeEmergencySchema,
     input,
@@ -160,6 +165,8 @@ export async function closeEmergencyAction(input: unknown) {
     (data, _, distinctId) =>
       trackServerEvent("emergency_closed", { emergencyId: data.emergencyId }, { distinctId }),
   );
+  if (result.ok) updateTag(OPEN_EMERGENCIES_TAG);
+  return result;
 }
 
 export async function publishNoticeAction(input: unknown) {

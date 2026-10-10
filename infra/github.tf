@@ -45,7 +45,7 @@ resource "google_service_account_iam_member" "deploy_wif" {
   member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.repository_id/${var.github_repository.id}"
 }
 
-# Least privilege: push images to one repository, update one service and one job, and act as
+# Least privilege: push images to one repository, update one service and two jobs, and act as
 # the two runtime service accounts while doing so.
 resource "google_artifact_registry_repository_iam_member" "deploy" {
   location   = google_artifact_registry_repository.app.location
@@ -62,7 +62,12 @@ resource "google_cloud_run_v2_service_iam_member" "deploy" {
 }
 
 resource "google_cloud_run_v2_job_iam_member" "deploy" {
-  name     = google_cloud_run_v2_job.migrate.name
+  for_each = {
+    migrate = google_cloud_run_v2_job.migrate.name
+    task    = google_cloud_run_v2_job.task.name
+  }
+
+  name     = each.value
   location = var.region
   role     = "roles/run.developer"
   member   = google_service_account.deploy.member
@@ -77,4 +82,9 @@ resource "google_service_account_iam_member" "deploy_acts_as" {
   service_account_id = each.value
   role               = "roles/iam.serviceAccountUser"
   member             = google_service_account.deploy.member
+}
+
+moved {
+  from = google_cloud_run_v2_job_iam_member.deploy
+  to   = google_cloud_run_v2_job_iam_member.deploy["migrate"]
 }

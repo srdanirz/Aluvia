@@ -34,10 +34,16 @@ function writeRaw(key: string, raw: string | null) {
   window.dispatchEvent(new Event(CHANGE_EVENT));
 }
 
+const isPlainObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
 function parse<T>(raw: string | null, initial: T): T {
   if (raw === null) return initial;
   try {
-    return JSON.parse(raw) as T;
+    const saved: unknown = JSON.parse(raw);
+    // A value saved by an older version lacks the fields added since: they take their initial value.
+    if (isPlainObject(initial) && isPlainObject(saved)) return { ...initial, ...saved } as T;
+    return saved as T;
   } catch {
     return initial;
   }

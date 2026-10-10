@@ -22,10 +22,13 @@ export type MapEmergency = {
   area: AreaPolygon[] | null;
   /** Where the map opens: the emergency's area, else its homes, else null (the whole world). */
   bounds: Bbox | null;
+  /** IANA zone the emergency's times are shown in, whatever the viewer's device says. */
+  timeZone: string;
 };
 
 type EmergencyRow = {
   name: string;
+  time_zone: string;
   area: string | null;
   west: number | null;
   south: number | null;
@@ -56,6 +59,7 @@ export async function findMapEmergencyUncached(
   const [row] = await database.execute<EmergencyRow>(sql`
     SELECT
       coalesce(e.name ->> ${locale}, e.name ->> e.default_locale) AS name,
+      e.time_zone,
       ST_AsGeoJSON(ST_Multi(ST_SimplifyPreserveTopology(e.area, ${AREA_SIMPLIFY_DEGREES})), 6) AS area,
       ST_XMin(b.box) AS west, ST_YMin(b.box) AS south, ST_XMax(b.box) AS east, ST_YMax(b.box) AS north
     FROM emergencies e
@@ -71,5 +75,11 @@ export async function findMapEmergencyUncached(
   const { west, south, east, north } = row;
   const bounds =
     west === null || south === null || east === null || north === null ? null : { west, south, east, north };
-  return { slug, name: row.name, area: row.area ? toAreaPolygons(row.area) : null, bounds };
+  return {
+    slug,
+    name: row.name,
+    area: row.area ? toAreaPolygons(row.area) : null,
+    bounds,
+    timeZone: row.time_zone,
+  };
 }

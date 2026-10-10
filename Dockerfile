@@ -1,6 +1,7 @@
-# Production image for Cloud Run (ADR 0012). Two targets from one build:
+# Production image for Cloud Run (ADR 0012). Three targets from one build:
 #   app      Next standalone server, the service "aluvia"
 #   migrate  drizzle migrations, the job "aluvia-migrate"
+#   task     the repo's one-off scripts (pnpm db:seed, pnpm admin:grant), the job "aluvia-task"
 # Pinned by digest; bump it on purpose (node 22 LTS, matches engines in package.json).
 FROM node:22-slim@sha256:c3de60bf2f9dd0ac6370e6117950ff62d6e339527e7472301c9c78a017978392 AS base
 ENV PNPM_HOME=/pnpm PATH=/pnpm:$PATH NEXT_TELEMETRY_DISABLED=1
@@ -39,6 +40,16 @@ COPY drizzle ./drizzle
 COPY scripts/migrate.mjs ./scripts/
 USER node
 CMD ["node", "scripts/migrate.mjs"]
+
+# Full source and dev dependencies, because the scripts run with tsx and import src/. pnpm is
+# fetched at build so a run needs no download; the job passes the script name as args.
+FROM deps AS task
+ENV COREPACK_HOME=/corepack
+COPY . .
+RUN pnpm --version >/dev/null && chown -R node:node /corepack
+USER node
+# Without a script name the run fails instead of listing scripts and passing as a success.
+ENTRYPOINT ["sh", "-c", "test -n \"$1\" || { echo 'Usage: --args=<script>[,arg...]' >&2; exit 2; }; exec pnpm run \"$@\"", "task"]
 
 FROM node:22-slim@sha256:c3de60bf2f9dd0ac6370e6117950ff62d6e339527e7472301c9c78a017978392 AS app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=8080 HOSTNAME=0.0.0.0

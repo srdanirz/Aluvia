@@ -127,6 +127,16 @@ describe("outbox", () => {
     expect(listOutbox().map((e) => e.id)).toEqual(["n"]);
   });
 
+  it("hands back the server's answer to a sent write, and survives a body that is not JSON", async () => {
+    const parcelId = "0b7d0c58-3b8e-4c8e-9a51-2f3c1d4e5a6b";
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({ id: parcelId }, { status: 201 })));
+    expect(await enqueue(entry("p"))).toEqual({ status: "sent", response: { id: parcelId } });
+    expect(listOutbox()).toEqual([]);
+
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("ok", { status: 200 })));
+    expect(await enqueue(entry("q"))).toEqual({ status: "sent", response: null });
+  });
+
   it("stops a round at the first failed send", async () => {
     const fetchMock = vi.fn().mockRejectedValue(new TypeError("offline"));
     vi.stubGlobal("fetch", fetchMock);

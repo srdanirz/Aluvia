@@ -16,3 +16,19 @@ resource "google_apikeys_key" "maps_browser" {
 
   depends_on = [google_project_service.this]
 }
+
+# Server key for the Geocoding API: the report route places a written address on the map. It never
+# reaches a browser, so the restriction is the API alone (Cloud Run has no fixed egress IP). Its
+# value goes into the GOOGLE_MAPS_SERVER_KEY secret by hand (README), like every credential.
+resource "google_apikeys_key" "maps_server" {
+  name         = "maps-server-prod"
+  display_name = "Maps server geocoding (Cloud Run)"
+
+  restrictions {
+    api_targets {
+      service = "geocoding-backend.googleapis.com"
+    }
+  }
+
+  depends_on = [google_project_service.this]
+}

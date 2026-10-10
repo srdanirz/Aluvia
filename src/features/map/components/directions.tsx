@@ -19,19 +19,23 @@ const APPS = [
   { key: "appleMaps", url: (point: LatLng) => `https://maps.apple.com/?daddr=${coordinates(point)}` },
 ] as const;
 
-/** "Cómo llegar" to a home's point in the navigation app the volunteer already uses. */
-export function Directions({ point }: { point: LatLng }) {
+/**
+ * "Cómo llegar" to a point in the navigation app the person already uses: a home, or a collection
+ * point (features/collection-points), each counted under its own event.
+ */
+export function Directions({
+  point,
+  event = "worksite_directions_opened",
+}: {
+  point: LatLng;
+  event?: "worksite_directions_opened" | "collection_point_directions_opened";
+}) {
   const t = useTranslations("worksite");
   return (
     <ButtonGroup label={t("directions")} className="w-full justify-between">
       {APPS.map(({ key, url }) => (
         <Button key={key} variant="ghost" size="compact" className="flex-1" asChild>
-          <a
-            href={url(point)}
-            target="_blank"
-            rel="noreferrer"
-            onClick={() => track("worksite_directions_opened", { app: key })}
-          >
+          <a href={url(point)} target="_blank" rel="noreferrer" onClick={() => track(event, { app: key })}>
             {t(key)}
           </a>
         </Button>

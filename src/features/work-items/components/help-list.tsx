@@ -31,6 +31,14 @@ export async function HelpList({ slug, emergencyId, homes, viewer, now }: HelpLi
       <Card>
         <CardTitle>{t("help.emptyTitle")}</CardTitle>
         <CardBody>{t("help.emptyBody")}</CardBody>
+        <div className="flex flex-wrap gap-2 pt-2">
+          <Button variant="primary" asChild>
+            <Link href={`/emergencies/${slug}/worksites/new`}>{t("help.emptyReport")}</Link>
+          </Button>
+          <Button variant="secondary" asChild>
+            <Link href={`/emergencies/${slug}/shifts`}>{t("help.emptyShifts")}</Link>
+          </Button>
+        </div>
       </Card>
     );
   }

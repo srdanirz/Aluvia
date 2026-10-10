@@ -10,14 +10,20 @@ import type { Executor } from "@/shared/db/types";
 export type ReviewFlag = (typeof worksiteReviewFlag.enumValues)[number];
 
 /**
- * Whether a home may have its work claimed: not while it carries a "do not enter" hazard nobody
- * reviewed. The claim's conditional UPDATE puts this in its WHERE, so the database decides it
+ * Whether a home may have its work claimed. Not while it carries a "do not enter" hazard nobody
+ * reviewed. Not while it lies inside an active "no entry" zone a coordinator drew; that check uses
+ * the zones' GiST index and runs per row only on paginated lists. The claim's conditional UPDATE puts this in its WHERE, so the database decides it
  * (STYLEGUIDE, Concurrencia): `... AND claimed_by IS NULL AND ${worksiteAcceptsClaims(workItems.worksiteId)}`.
  */
 export function worksiteAcceptsClaims(worksiteId: AnyPgColumn | SQL): SQL {
   return sql`NOT EXISTS (
     SELECT 1 FROM worksites hz
     WHERE hz.id = ${worksiteId} AND cardinality(hz.hazards) > 0 AND hz.hazards_reviewed_at IS NULL
+  ) AND NOT EXISTS (
+    SELECT 1 FROM worksites zw
+    JOIN emergency_zones z ON z.emergency_id = zw.emergency_id
+    WHERE zw.id = ${worksiteId} AND z.kind = 'no_entry' AND z.removed_at IS NULL
+      AND ST_Intersects(z.area, zw.location)
   )`;
 }
 

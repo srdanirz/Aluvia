@@ -7,7 +7,8 @@
     "eyebrow": "Coordinación de ayuda en emergencias",
     "title": "Coordinar la ayuda, casa por casa",
     "lead": "Aluvia muestra qué casas están afectadas por un desastre, qué necesita cada una y dónde hace falta gente. Está en construcción.",
-    "source": "Ver el código"
+    "source": "Ver el código",
+    "pick": "Elige una emergencia"
   },
   "theme": {
     "label": "Tema",
@@ -97,48 +98,37 @@
   "worksites": {
     "report": {
       "title": "Reportar una casa",
-      "location": {
-        "locating": "Buscando tu ubicación",
-        "ready": "Ubicación lista",
-        "accuracy": "Precisión de {meters} m",
-        "missing": "Sin ubicación",
-        "missingHelp": "Escribe la dirección para que puedan encontrar la casa.",
-        "addressLabel": "Dirección",
-        "addressHint": "Calle y número, como la escribirías en un sobre.",
-        "retry": "Volver a buscar ubicación",
-        "approximate": "Ubicación aproximada",
-        "approximateHelp": "El GPS no está seguro de dónde estás. Escribe también la dirección para que encuentren la casa.",
-        "locatingHelp": "Si tarda, escribe la dirección. El GPS se suma solo cuando responda."
+      "address": {
+        "label": "Dirección",
+        "hint": "Calle y número; es lo que usan para llegar."
       },
       "needs": {
-        "title": "¿Qué necesita?",
+        "title": "O toca lo que necesita",
         "empty": "Esta emergencia todavía no tiene trabajos configurados."
       },
       "details": {
         "toggle": "Agregar detalles (opcional)",
         "vulnerable": "Viven personas mayores, niños o con discapacidad",
         "damage": "Daño de la casa",
-        "addressLabel": "Dirección",
-        "addressHint": "Ayuda a llegar si el GPS no es exacto.",
         "nameLabel": "Nombre de contacto",
         "phoneLabel": "Teléfono",
         "phoneHint": "Solo lo ven los coordinadores.",
+        "phoneHintPublic": "Los voluntarios lo ven en la ficha de la casa para llamarte.",
+        "publicContact": "Mostrar mi nombre y teléfono para que me llamen los voluntarios",
         "phoneError": "Revisa el número. Si es de otro país, empieza con + y el código.",
         "notifyLabel": "Avisarme cuando alguien tome el trabajo",
         "notifyNone": "No",
         "notifySms": "SMS",
         "notifyWhatsapp": "WhatsApp",
         "notifyHint": "Solo te escribimos sobre esta casa. Responde BAJA para dejar de recibir avisos.",
-        "notesLabel": "Notas",
-        "notesHint": "Lo que ayude a encontrar la casa o a llegar preparado.",
         "hazards": "No entrar: hay riesgo de",
         "hazardsHint": "Nadie podrá tomar trabajos en esta casa hasta que un coordinador la revise."
       },
       "submit": "Enviar reporte",
       "sending": "Enviando",
       "missing": {
-        "needs": "Elige al menos una necesidad.",
-        "location": "Falta la ubicación o la dirección."
+        "address": "Falta la dirección.",
+        "needs": "Escribe qué pasa o toca lo que necesita."
       },
       "done": {
         "sentChip": "Recibido",
@@ -162,6 +152,11 @@
         "callLocal": "Llama primero al número de emergencias de tu país. Aluvia coordina la limpieza y no reemplaza a los servicios de emergencia.",
         "call": "{label} · {phone}",
         "thenContinue": "Después puedes seguir con el reporte: un coordinador lo verá primero."
+      },
+      "story": {
+        "label": "¿Qué pasa?",
+        "placeholder": "Ej: entró barro hasta la cocina, vive una señora sola de 80 años.",
+        "hint": "Con tus palabras. Solo lo ven los coordinadores."
       }
     },
     "damage": {
@@ -248,6 +243,21 @@
       "mapUnavailable": "El mapa no cargó. Sin mapa no se puede poner el pin; vuelve a intentarlo en un rato.",
       "forbidden": "Solo los coordinadores aprobados de esta emergencia pueden poner el pin.",
       "reload": "Recargar"
+    },
+    "reports": {
+      "title": "Dónde más se necesita ayuda",
+      "lead": "Primero las casas con alguien en peligro o un riesgo sin revisar, después las que más vecinos reportaron, las que tienen más trabajos sin tomar y las que llevan más tiempo esperando.",
+      "reportedBy": "{count, plural, one {Reportada por # vecino} other {Reportada por # vecinos}}",
+      "needs": "Necesita: {needs}",
+      "waiting": "Pidió ayuda {relative} · {date}",
+      "noStreet": "Casa sin dirección escrita",
+      "more": "Ver más casas",
+      "emptyTitle": "Nadie ha reportado una casa todavía",
+      "emptyBody": "Si conoces una casa que necesita ayuda, repórtala: toma menos de un minuto y no necesitas cuenta.",
+      "emptyReport": "Reportar una casa",
+      "contact": "Contacto: {name} · {phone}",
+      "vulnerable": "Personas vulnerables",
+      "updated": "Última novedad {relative}"
     }
   },
   "worksiteUpdates": {
@@ -506,19 +516,20 @@
   },
   "map": {
     "title": "Mapa de {emergency}",
-    "hint": "Toca un punto para ver qué necesita esa casa. Primero las que están sin atender.",
     "legendLabel": "Qué significa cada color",
-    "levels": {
-      "unattended": "Sin atender",
-      "do_not_enter": "No entrar",
-      "unconfirmed": "Por confirmar",
-      "no_request": "Afectada, sin pedido",
-      "in_progress": "En curso",
-      "attended": "Atendida"
+    "states": {
+      "needs_help": "Necesita ayuda",
+      "on_the_way": "Alguien va",
+      "attended": "Atendida",
+      "do_not_enter": "No entrar"
+    },
+    "detail": {
+      "unconfirmed": "Nadie la actualiza hace tiempo: puede que ya esté lista. Si pasas por ahí, confírmalo.",
+      "noRequest": "Está en el catastro oficial de casas afectadas, pero nadie ha pedido ayuda todavía. Si pasas por ahí, pregunta qué necesita."
     },
     "marker": {
-      "home": "Casa: {level}",
-      "group": "{count, plural, one {# casa} other {# casas}}: {doNotEnter} no entrar, {unattended} sin atender, {unconfirmed} por confirmar, {noRequest} afectadas sin pedido, {inProgress} en curso, {attended} atendidas"
+      "home": "Casa: {state}",
+      "group": "{count, plural, one {# casa} other {# casas}}: {needsHelp} necesitan ayuda, {onTheWay} con alguien que va, {attended} atendidas, {doNotEnter} no entrar"
     },
     "cell": {
       "title": "{count, plural, one {# casa} other {# casas}} en este grupo",
@@ -532,9 +543,6 @@
       "title": "El mapa no está disponible",
       "body": "Puede ser la señal o un problema nuestro. Los links de cada casa siguen funcionando."
     },
-    "modeLabel": "Ver el mapa por",
-    "modeHomes": "Casas",
-    "modeZones": "Zonas",
     "updatedAt": "Actualizado a las {time}",
     "errors": {
       "bbox_too_large": "Hay demasiado mapa a la vista para este acercamiento. Acerca un poco el mapa.",
@@ -543,15 +551,18 @@
     "fallback": {
       "back": "Ver todas las zonas",
       "zone": "Zona {position} · {count, plural, one {# casa} other {# casas}}",
-      "levelCount": "{level}: {count}"
+      "stateCount": "{state}: {count}"
     },
-    "zonesHint": "Cada zona toma el color de su casa más urgente. Más oscura: más casas esperando ayuda.",
-    "panelTitle": "Dónde hace falta ayuda",
-    "truncated": "Hay más casas de las que caben. Acerca el mapa para verlas todas."
+    "truncated": "Hay más casas de las que caben. Acerca el mapa para verlas todas.",
+    "summary": "{homes, plural, =0 {Aún no hay casas reportadas} one {# casa reportada} other {# casas reportadas}}",
+    "waiting": "{waiting, plural, =0 {Ninguna espera ayuda ahora} one {# espera ayuda} other {# esperan ayuda}}",
+    "askHelp": "Pedir ayuda",
+    "offerHelp": "Quiero ayudar",
+    "legendToggle": "Qué significa cada color"
   },
   "worksite": {
     "title": "Casa en {emergency}",
-    "metaTitle": "Casa en {emergency} · {level}",
+    "metaTitle": "Casa en {emergency} · {state}",
     "back": "Volver al mapa",
     "damage": {
       "chip": "Daño: {level}",
@@ -565,14 +576,38 @@
     "share": "Compartir",
     "copied": "Link copiado",
     "directions": "Cómo llegar",
-    "unconfirmedHint": "Sin novedades hace tiempo: puede que ya esté lista. Si pasas por ahí, confírmalo.",
     "googleMaps": "Google Maps",
     "waze": "Waze",
     "appleMaps": "Apple Maps",
     "shareFailed": "No se pudo compartir. Copia el link desde el navegador.",
-    "meta": "Reportada el {date} · actualizada {relative}",
+    "reported": "Reportada el {date}",
+    "facts": {
+      "needs": "Necesita",
+      "needsNothing": "Nada pedido todavía",
+      "going": "Quién va",
+      "goingCount": "{count, plural, one {# voluntario tomó trabajo aquí} other {# voluntarios tomaron trabajo aquí}}",
+      "goingNobody": "Nadie todavía",
+      "present": "Trabajando ahora",
+      "presentCount": "{count, plural, =0 {Nadie} one {# persona} other {# personas}}",
+      "waiting": "Pidió ayuda",
+      "updated": "Última novedad"
+    },
     "noLocation": "Esta casa todavía no tiene su punto en el mapa.",
-    "hazardsHint": "No entrar. Un coordinador tiene que revisar el riesgo antes de que alguien tome trabajos."
+    "hazardsHint": "No entrar. Un coordinador tiene que revisar el riesgo antes de que alguien tome trabajos.",
+    "contact": {
+      "title": "Dirección y contacto",
+      "address": "Dirección",
+      "name": "Nombre",
+      "phone": "Teléfono",
+      "notes": "Qué pasa",
+      "logged": "Solo coordinadores. Queda registrado que lo viste.",
+      "vulnerable": "Personas vulnerables",
+      "vulnerableYes": "Viven personas mayores, niños o con discapacidad"
+    },
+    "publicContact": {
+      "title": "Contacto",
+      "call": "Llamar al {phone}"
+    }
   },
   "workItems": {
     "status": {
@@ -760,10 +795,12 @@
       "signIn": "Entra para tomar un trabajo",
       "join": "Súmate a esta emergencia para tomar trabajos",
       "shifts": "Ver turnos",
-      "emptyTitle": "Ninguna casa espera ahora",
-      "emptyBody": "Todas tienen a alguien. Vuelve más tarde o revisa los turnos.",
+      "emptyTitle": "Nadie está esperando ayuda ahora",
+      "emptyBody": "Ninguna casa ha pedido ayuda o todas ya tienen a alguien. Si conoces una casa afectada, repórtala; si quieres ir a terreno, súmate a un turno.",
       "peoplePresent": "{count, plural, =0 {Nadie trabajando ahora} one {# persona trabajando ahora} other {# personas trabajando ahora}}",
-      "missing": "Falta: {supplies}"
+      "missing": "Falta: {supplies}",
+      "emptyReport": "Reportar una casa",
+      "emptyShifts": "Ver turnos"
     },
     "intro": {
       "title": "Ve primero a las casas que esperan hace más tiempo",
@@ -834,5 +871,64 @@
     "signIn": "Entra para inscribirte",
     "join": "Súmate a esta emergencia para inscribirte",
     "help": "Dónde ayudar ahora"
+  },
+  "emergency": {
+    "nav": {
+      "label": "Emergencia",
+      "map": "Mapa",
+      "report": "Reportar",
+      "reports": "Reportes",
+      "help": "Ayudar",
+      "shifts": "Turnos"
+    }
+  },
+  "zones": {
+    "draw": "Dibujar zona",
+    "drawHint": "{count, plural, =0 {Toca el mapa para marcar el borde de la zona.} one {# punto. Sigue tocando el borde.} other {# puntos. Guarda cuando cierres el borde.}}",
+    "kindLabel": "Tipo de zona",
+    "kinds": {
+      "no_entry": "No entrar",
+      "restricted": "Acceso restringido",
+      "meeting_point": "Punto de encuentro"
+    },
+    "noteLabel": "Nota (opcional)",
+    "toolbar": "Dibujo de zona",
+    "undo": "Deshacer",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "remove": "Quitar zona",
+    "close": "Cerrar",
+    "errors": {
+      "invalid_input": "La zona necesita al menos 3 puntos.",
+      "not_found": "Esa zona ya no existe.",
+      "forbidden": "Solo los coordinadores pueden dibujar zonas."
+    }
+  },
+  "collectionPoints": {
+    "add": "Agregar centro de acopio",
+    "placeHint": "Toca el mapa donde está el centro de acopio.",
+    "placedHint": "Punto marcado. Toca otro lugar para moverlo.",
+    "nameLabel": "Nombre",
+    "addressLabel": "Dirección (opcional)",
+    "hoursLabel": "Horario (opcional)",
+    "phoneLabel": "Teléfono público del lugar (opcional)",
+    "acceptsLabel": "Qué recibe",
+    "acceptsEmpty": "Esta emergencia todavía no tiene insumos en su catálogo.",
+    "statusLabel": "Estado",
+    "statuses": {
+      "receiving": "Recibe",
+      "only_some": "Solo algunas",
+      "full": "Lleno"
+    },
+    "statusNoteLabel": "Nota del estado (opcional)",
+    "changeStatus": "Cambiar estado",
+    "remove": "Quitar centro",
+    "confirmRemove": "Toca de nuevo para quitarlo",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "close": "Cerrar",
+    "actions": "Acciones del centro de acopio",
+    "call": "Llamar al {phone}",
+    "marker": "Centro de acopio {name}: {status}"
   }
 }

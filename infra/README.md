@@ -9,12 +9,12 @@ Producción de Aluvia en GCP como código (Terraform). Las decisiones y su porqu
 | `database.tf` | Cloud SQL Postgres 17, base `aluvia`, usuarios IAM del migrador (dueño del schema) y de la app |
 | `secrets.tf` | Secretos de la app y config del sidecar |
 | `registry.tf` | Artifact Registry y su limpieza |
-| `run.tf` | Servicio `aluvia` con sidecar de Prometheus, job `aluvia-migrate`, variables de entorno |
+| `run.tf` | Servicio `aluvia` con sidecar de Prometheus, jobs `aluvia-migrate` y `aluvia-task`, variables de entorno |
 | `loadbalancer.tf` | Balanceador HTTPS, certificado, redirecciones, registros DNS |
 | `github.tf` | Workload Identity Federation y la cuenta `aluvia-deploy` |
 | `monitoring.tf` | Chequeo de disponibilidad, alerta, presupuesto |
 | `scheduler.tf` | Llamadas cada minuto con OIDC: outbox de avisos y reservas vencidas |
-| `maps.tf` | Llave de Google Maps de producción |
+| `maps.tf` | Llaves de Google Maps de producción: la del navegador y la del servidor (solo Geocoding) |
 
 ## Aplicar un cambio
 
@@ -43,7 +43,7 @@ openssl rand -base64 32 | tr -d '\n' | gcloud secrets versions add AUTH_SECRET -
 printf '%s' "$VALOR" | gcloud secrets versions add TWILIO_AUTH_TOKEN --project aluvia-app --data-file=-
 ```
 
-Los secretos de proveedores (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM`, `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `RESEND_API_KEY`, `VAPID_PRIVATE_KEY`, `ANTHROPIC_API_KEY`) los crea Terraform vacíos. Con la versión agregada, el nombre va a `provider_secrets` en `terraform.tfvars` y se aplica: Cloud Run lo recibe como variable de entorno del mismo nombre. El deploy falla si faltan `AUTH_SECRET`, `RATE_LIMIT_SECRET` o los dos de WhatsApp, que es el canal del código de login; Twilio es el respaldo por SMS y se monta cuando tenga versión. Una versión nueva de un secreto existente llega con el próximo deploy.
+Los secretos de proveedores (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM`, `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `RESEND_API_KEY`, `VAPID_PRIVATE_KEY`, `ANTHROPIC_API_KEY`, `GOOGLE_MAPS_SERVER_KEY`) los crea Terraform vacíos. La versión de `GOOGLE_MAPS_SERVER_KEY` sale de Terraform: `terraform output -raw maps_server_key | gcloud secrets versions add GOOGLE_MAPS_SERVER_KEY --project aluvia-app --data-file=-`. Sin ella, un reporte cuya dirección no coincide con un predio oficial queda sin punto, en la cola de revisión. Con la versión agregada, el nombre va a `provider_secrets` en `terraform.tfvars` y se aplica: Cloud Run lo recibe como variable de entorno del mismo nombre. El deploy falla si faltan `AUTH_SECRET`, `RATE_LIMIT_SECRET` o los dos de WhatsApp, que es el canal del código de login; Twilio es el respaldo por SMS y se monta cuando tenga versión. Una versión nueva de un secreto existente llega con el próximo deploy.
 
 ## Variables del repositorio (deploy)
 
@@ -79,5 +79,16 @@ El certificado queda `ACTIVE` entre 15 y 60 minutos después de que el dominio r
 - **Ver qué corre:** `gcloud run services describe aluvia --region southamerica-west1`.
 - **Volver a la versión anterior:** `gcloud run services update-traffic aluvia --region southamerica-west1 --to-revisions <revisión>=100`. Las migraciones son aditivas, así que el código anterior funciona con el schema nuevo. El próximo deploy vuelve a mandar el tráfico a la revisión nueva. Si el chequeo de `/api/health` falla tras un deploy, el workflow vuelve solo a la revisión anterior.
 - **Una migración falló:** el deploy se detiene antes de mover tráfico. Logs: `gcloud run jobs executions list --job aluvia-migrate --region southamerica-west1`.
-- **Entrar a la base:** Cloud SQL Studio en la consola. No hay contraseñas de base: para una consulta puntual, el job `aluvia-migrate` con `--args` (ver el historial de ejecuciones). La base no tiene IP pública.
+- **Scripts contra la base de producción** (`pnpm db:seed`, `pnpm admin:grant`): el job `aluvia-task` corre `pnpm run <script>` con la imagen del último deploy y la identidad de la app (login IAM, solo filas: no puede cambiar el schema). Los argumentos van separados por comas:
+
+  ```bash
+  gcloud run jobs execute aluvia-task --region southamerica-west1 --wait --args=db:seed
+  gcloud run jobs execute aluvia-task --region southamerica-west1 --wait --args=admin:grant,+56912345678
+  gcloud run jobs execute aluvia-task --region southamerica-west1 --wait --args=db:geocode-backfill
+  ```
+
+  `db:geocode-backfill` ubica las casas reportadas con dirección y sin punto (ADR 0016) y solo imprime conteos. Usa `GOOGLE_MAPS_SERVER_KEY`, que el job monta desde `terraform apply` con el secreto en `provider_secrets`.
+
+  La salida queda en Cloud Logging (`resource.labels.job_name="aluvia-task"`).
+- **Entrar a la base:** Cloud SQL Studio en la consola. No hay contraseñas de base: para una consulta puntual, un script en `scripts/` corrido con `aluvia-task`. La base no tiene IP pública.
 - **Alerta "Aluvia caída":** `/api/health` no llega a la base o la app no responde. Revisa la revisión activa, el estado de Cloud SQL y los logs con `severity>=ERROR`.

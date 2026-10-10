@@ -4,7 +4,7 @@ import type { ComponentProps, ReactNode } from "react";
 import { cn } from "./cn";
 
 const mapMarkerVariants = cva(
-  "inline-flex h-11 min-w-11 items-center justify-center gap-1 rounded-full text-body-sm font-medium text-surface tabular-nums shadow-float [&>svg]:size-icon-sm [&>svg]:stroke-[1.5]",
+  "inline-flex h-11 min-w-11 items-center justify-center gap-1 text-body-sm font-medium text-surface tabular-nums shadow-float [&>svg]:size-icon-sm [&>svg]:stroke-[1.5]",
   {
     variants: {
       tone: {
@@ -12,6 +12,15 @@ const mapMarkerVariants = cva(
         pending: "bg-status-pending",
         done: "bg-status-done",
         closed: "bg-status-closed",
+        // A place, not a home with a status (a donation collection point): brand ink, so it never
+        // reads as one of the traffic-light levels.
+        place: "bg-ink",
+      },
+      // The silhouette carries the danger mark without color (issue #11): a square sign among
+      // round pills.
+      shape: {
+        pill: "rounded-full",
+        sign: "rounded-control",
       },
       grouped: {
         true: "px-3",
@@ -22,7 +31,7 @@ const mapMarkerVariants = cva(
         false: "",
       },
     },
-    defaultVariants: { tone: "urgent", grouped: false, selected: false },
+    defaultVariants: { tone: "urgent", shape: "pill", grouped: false, selected: false },
   },
 );
 
@@ -40,10 +49,14 @@ type MapMarkerProps = Omit<ComponentProps<"span">, "children"> &
  * marker element receives the tap and keyboard focus and carries the spoken name (`title`), since
  * Google's marker sits above its content and swallows the click.
  */
-export function MapMarker({ className, tone, selected, icon, count, ...props }: MapMarkerProps) {
+export function MapMarker({ className, tone, shape, selected, icon, count, ...props }: MapMarkerProps) {
   const grouped = count !== undefined;
   return (
-    <span aria-hidden className={cn(mapMarkerVariants({ tone, grouped, selected }), className)} {...props}>
+    <span
+      aria-hidden
+      className={cn(mapMarkerVariants({ tone, shape, grouped, selected }), className)}
+      {...props}
+    >
       {icon}
       {grouped ? <span>{count}</span> : null}
     </span>

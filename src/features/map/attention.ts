@@ -1,4 +1,4 @@
-import { Check, CircleHelp, House, type LucideIcon, OctagonX, Shovel, TriangleAlert } from "lucide-react";
+import { Check, Footprints, HandHelping, type LucideIcon, OctagonX } from "lucide-react";
 
 import type { workItemStatus } from "@/shared/db/schema/enums";
 
@@ -25,27 +25,60 @@ export const ATTENTION_LEVELS = [
 ] as const;
 export type AttentionLevel = (typeof ATTENTION_LEVELS)[number];
 
-type StatusTone = "urgent" | "pending" | "done" | "closed";
+type StatusTone = "urgent" | "pending" | "done";
 
-export const LEVEL_TONE = {
-  do_not_enter: "urgent",
-  unattended: "urgent",
-  unconfirmed: "closed",
-  no_request: "closed",
-  in_progress: "pending",
+/**
+ * What the public reads (docs/DESIGN.md, "Estados de una casa"): three traffic-light states plus
+ * a danger mark. Six internal levels were too many to tell apart in the street; the internal level
+ * still orders the map and the lists and explains itself in the home's page (`LEVEL_DETAIL`).
+ * Legend order: the danger mark last, apart from the traffic light.
+ */
+export const HOME_STATES = ["needs_help", "on_the_way", "attended", "do_not_enter"] as const;
+export type HomeState = (typeof HOME_STATES)[number];
+
+export const LEVEL_STATE = {
+  do_not_enter: "do_not_enter",
+  unattended: "needs_help",
+  // Nobody knows if it is done: someone should still go, so it reads as needing help.
+  unconfirmed: "needs_help",
+  no_request: "needs_help",
+  in_progress: "on_the_way",
+  attended: "attended",
+} as const satisfies Record<AttentionLevel, HomeState>;
+
+export const STATE_TONE = {
+  needs_help: "urgent",
+  on_the_way: "pending",
   attended: "done",
-} as const satisfies Record<AttentionLevel, StatusTone>;
+  do_not_enter: "urgent",
+} as const satisfies Record<HomeState, StatusTone>;
 
-// Silhouettes that differ without color (issue #11): a warning, a question, a house, a shovel, a
-// check.
-export const LEVEL_ICON: Record<AttentionLevel, LucideIcon> = {
-  do_not_enter: OctagonX,
-  unattended: TriangleAlert,
-  unconfirmed: CircleHelp,
-  no_request: House,
-  in_progress: Shovel,
+// Shapes that differ without color (issue #11): a hand asking, footsteps, a check, a stop sign.
+// The danger mark also changes the marker's silhouette (`MapMarker shape="sign"`).
+export const STATE_ICON: Record<HomeState, LucideIcon> = {
+  needs_help: HandHelping,
+  on_the_way: Footprints,
   attended: Check,
+  do_not_enter: OctagonX,
 };
+
+/** Levels whose state needs one more line to be understood; the home's page shows it. */
+export const LEVEL_DETAIL: Partial<Record<AttentionLevel, "unconfirmed" | "noRequest">> = {
+  unconfirmed: "unconfirmed",
+  no_request: "noRequest",
+};
+
+/** Work that still needs someone, claimed or not: the `open_*` statuses. */
+export function isOpenWorkStatus(status: WorkItemStatus): boolean {
+  return status.startsWith("open_");
+}
+
+/** Homes per public state, from a group's counts per internal level. */
+export function countByState(levels: Record<AttentionLevel, number>): Record<HomeState, number> {
+  const counts: Record<HomeState, number> = { needs_help: 0, on_the_way: 0, attended: 0, do_not_enter: 0 };
+  for (const level of ATTENTION_LEVELS) counts[LEVEL_STATE[level]] += levels[level];
+  return counts;
+}
 
 /** The level a group of homes shows: its most urgent one. */
 export function mostUrgentLevel(levels: Record<AttentionLevel, number>): AttentionLevel {

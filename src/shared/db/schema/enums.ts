@@ -44,3 +44,8 @@ export const worksiteReviewFlag = pgEnum("worksite_review_flag", [
 ]);
 // "Do not enter" risks: a home with any of them cannot be claimed until a coordinator reviews it.
 export const worksiteHazard = pgEnum("worksite_hazard", ["electricity", "gas", "structure"]);
+// A perimeter a coordinator draws on the map: "do not enter" also blocks claiming homes inside it.
+export const zoneKind = pgEnum("zone_kind", ["no_entry", "restricted", "meeting_point"]);
+
+// Whether a donation collection point takes what people bring: everything it lists, nothing, or only part.
+export const collectionPointStatus = pgEnum("collection_point_status", ["receiving", "full", "only_some"]);
