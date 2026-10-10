@@ -1,0 +1,13 @@
+# Scrape config for the Managed Prometheus sidecar on Cloud Run (ADR 0008). The app exposes
+# OpenTelemetry metrics on METRICS_PORT (run.tf) at /metrics.
+apiVersion: monitoring.googleapis.com/v1beta
+kind: RunMonitoring
+metadata:
+  name: aluvia
+spec:
+  endpoints:
+    - port: ${metrics_port}
+      path: /metrics
+      interval: 30s
+  targetLabels:
+    metadata: [service, revision]
