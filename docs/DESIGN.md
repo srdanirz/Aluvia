@@ -112,7 +112,8 @@ Espaciado base 4 px: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, más los tokens d
 |---|---|
 | `Button` | Pastilla. `primary` negro sólido (uno por vista), `secondary` de vidrio, `accent` lluvia, `ghost` sin relleno. `block` ocupa el ancho. |
 | `IconButton` | Círculo de 44 px de vidrio con `glass-wash`: `surface`, `urgent` y `pending` (vidrio teñido del estado), `solid` (negro), `ghost`. Siempre con `label`. |
-| `Chip` | Pastilla de vidrio teñido con `glass-wash`, punto que brilla con su color y texto en tinta. `urgent`, `pending`, `done`, `closed`, `neutral`. |
+| `Chip` | Pastilla de vidrio teñido con `glass-wash`, punto que brilla con su color y texto en tinta. `urgent`, `pending`, `done`, `closed`, `neutral`. `WorkStatusChip` y `CollectionPointStatusChip` deciden el tono de cada estado (centro de acopio: recibe en musgo, solo algunas en tierra, lleno en gris). |
+| `MapMarker` | Pastilla sólida de 44 px con el ícono del nivel. Tonos de semáforo para casas; `place` (tinta de marca) para lugares que no son casas, como un centro de acopio, así nunca se confunde con un nivel. |
 | `ButtonGroup` | Tres o más acciones relacionadas en fila van en **una sola pastilla de vidrio**, nunca como botones sueltos. Adentro, botones `ghost`; como mucho uno `primary`/`solid` marca la acción principal. |
 | `SegmentedControl` | Vistas excluyentes: la elegida en negro, las demás en `surface-muted`. |
 | `Card` | Blanca con `glass-wash`, radio 20, sombra suave. `selected` pasa a `accent-tint`; `interactive` se eleva y atrapa la luz al pasar el mouse. |

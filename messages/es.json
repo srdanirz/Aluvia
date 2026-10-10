@@ -872,5 +872,32 @@
       "not_found": "Esa zona ya no existe.",
       "forbidden": "Solo los coordinadores pueden dibujar zonas."
     }
+  },
+  "collectionPoints": {
+    "add": "Agregar centro de acopio",
+    "placeHint": "Toca el mapa donde está el centro de acopio.",
+    "placedHint": "Punto marcado. Toca otro lugar para moverlo.",
+    "nameLabel": "Nombre",
+    "addressLabel": "Dirección (opcional)",
+    "hoursLabel": "Horario (opcional)",
+    "phoneLabel": "Teléfono público del lugar (opcional)",
+    "acceptsLabel": "Qué recibe",
+    "acceptsEmpty": "Esta emergencia todavía no tiene insumos en su catálogo.",
+    "statusLabel": "Estado",
+    "statuses": {
+      "receiving": "Recibe",
+      "only_some": "Solo algunas",
+      "full": "Lleno"
+    },
+    "statusNoteLabel": "Nota del estado (opcional)",
+    "changeStatus": "Cambiar estado",
+    "remove": "Quitar centro",
+    "confirmRemove": "Toca de nuevo para quitarlo",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "close": "Cerrar",
+    "actions": "Acciones del centro de acopio",
+    "call": "Llamar al {phone}",
+    "marker": "Centro de acopio {name}: {status}"
   }
 }

@@ -11,6 +11,7 @@ import type { AreaPolygon } from "../server/map-emergency";
 import { CellsLayer } from "./cells-layer";
 import type { Viewport } from "./fetch-cells";
 import { startTilesWatchdog } from "../tiles-watchdog";
+import { MapControlsColumn } from "./map-controls";
 import { MapFallbackList } from "./map-fallback-list";
 
 const WORLD = { west: -180, south: -85, east: 180, north: 85 };
@@ -72,7 +73,10 @@ export function WorksiteMap({
   bounds: Bbox | null;
   area: AreaPolygon[] | null;
   timeZone: string;
-  /** Drawn inside the map, over the homes: the emergency's zones (features/zones). */
+  /**
+   * Drawn inside the map, over the homes: the emergency's zones (features/zones) and collection
+   * points (features/collection-points). Their controls go in one column through `MapControl`.
+   */
   overlay?: ReactNode;
 }) {
   const status = useGoogleMapsStatus();
@@ -114,7 +118,7 @@ export function WorksiteMap({
             paused={tiles.timedOut}
           />
         ) : null}
-        {overlay}
+        {overlay ? <MapControlsColumn>{overlay}</MapControlsColumn> : null}
       </Map>
       {tiles.timedOut ? (
         <div className="absolute inset-0">
