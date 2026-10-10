@@ -111,6 +111,24 @@ El logo es una persona cavando con una pala, en silueta de tinta con la cabeza s
 - Siempre de una sola tinta. Sin color, sombra, borde ni contenedor; la cabeza no se acerca ni se aleja del cuerpo.
 - Aire mínimo alrededor: el alto de la cabeza de la figura. Tamaño mínimo: 24 px de alto la figura sola, 120 px de ancho el logo completo.
 
+### Figura y movimiento
+
+La figura del logo es también el sistema de ilustración: la misma persona en distintas tareas. Mismas reglas que el logo: tinta `#1f1f29`, cabeza redonda separada del cuerpo a la distancia del logo, tierra y barro en `earth-600`, sin caras ni otros colores.
+
+| Archivo | Qué muestra | Formato |
+|---|---|---|
+| [`brand/figura/aluvia-saludo.png`](brand/figura/aluvia-saludo.png) | De frente, saludando | PNG 2048 px, fondo transparente |
+| [`brand/figura/aluvia-carretilla.png`](brand/figura/aluvia-carretilla.png) | Llevando una carretilla con tierra | PNG 2048 px, fondo transparente |
+| [`brand/figura/aluvia-baldes.png`](brand/figura/aluvia-baldes.png) | Llevando dos baldes con barro | PNG 2048 px, fondo transparente |
+| [`brand/motion/aluvia-logo-cavando.mp4`](brand/motion/aluvia-logo-cavando.mp4) | La figura cava, cae tierra y entra el logotipo | 1080 x 1920, 9,5 s |
+| [`brand/motion/aluvia-saludo.mp4`](brand/motion/aluvia-saludo.mp4) | Saludo en loop | 1080 x 1080, 3 loops |
+| [`brand/motion/aluvia-carretilla.mp4`](brand/motion/aluvia-carretilla.mp4) | Caminata con carretilla en loop | 1080 x 1080, 3 loops |
+| [`brand/motion/aluvia-baldes.mp4`](brand/motion/aluvia-baldes.mp4) | Caminata con baldes en loop | 1080 x 1080, 3 loops |
+
+- El movimiento va "a dos": 15 dibujos por segundo con un leve temblor del contorno, como tinta dibujada a mano. La cabeza no tiembla ni cambia de distancia.
+- Los videos no tienen audio. Las versiones con fondo transparente (ProRes 4444) quedan fuera del repositorio por peso; se piden a los mantenedores.
+- Son piezas de comunicación, no de la app: dentro de la UI no hay ilustraciones (estados vacíos con una frase y una acción).
+
 ## Temas: claro, oscuro y automático
 
 - Tres opciones para el usuario: **claro, oscuro y automático** (sigue al sistema operativo). Automático es el valor por defecto.
