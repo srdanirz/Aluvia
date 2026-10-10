@@ -348,7 +348,13 @@
     "shift_full": "Se llenaron los cupos de este turno.",
     "shift_started": "Este turno ya empezó.",
     "already_signed_up": "Ya estás inscrito en este turno.",
-    "not_signed_up": "No tienes inscripción en este turno."
+    "not_signed_up": "No tienes inscripción en este turno.",
+    "invalid_layer_url": "Usa la URL https de una capa, terminada en /FeatureServer/ y un número.",
+    "layer_unreachable": "No pudimos leer la capa. Revisa la URL o intenta más tarde.",
+    "layer_too_large": "La capa tiene demasiados elementos para importarla.",
+    "layer_unsupported": "Esa capa no tiene el formato esperado (para el área, polígonos).",
+    "invalid_field": "Usa nombres de campo con letras, números y guion bajo.",
+    "address_fields_required": "Indica al menos un campo de dirección."
   },
   "admin": {
     "meta": {
@@ -448,7 +454,20 @@
       "membersLead": "Aprueba coordinadores y voluntarios de terreno, e invita por WhatsApp.",
       "membersLink": "Ver miembros",
       "claimHoldLabel": "Minutos que dura una reserva",
-      "claimHoldHint": "Si quien tocó Voy para allá no llega ni renueva en este tiempo, el trabajo vuelve a quedar libre. De 1 a 1440."
+      "claimHoldHint": "Si quien tocó Voy para allá no llega ni renueva en este tiempo, el trabajo vuelve a quedar libre. De 1 a 1440.",
+      "layerTitle": "Importar capa oficial",
+      "layerLead": "Una capa pública de ArcGIS: su polígono como área, o sus predios como casas afectadas y sin pedido, hasta que alguien pida algo.",
+      "layerKindLabel": "Qué importar",
+      "layerKindWorksites": "Casas afectadas",
+      "layerKindArea": "Área",
+      "layerUrlLabel": "URL de la capa",
+      "layerUrlHint": "Termina en /FeatureServer/0. Solo https.",
+      "layerAddressLabel": "Campos de la dirección",
+      "layerAddressHint": "Nombres de los campos, separados por coma, en el orden de la dirección. Por ejemplo, calle y número.",
+      "layerNotesLabel": "Campos para las notas",
+      "layerNotesHint": "Opcional. Se guardan junto al contacto de la casa, que solo ven los coordinadores.",
+      "layerSubmit": "Importar",
+      "layerImported": "{features, plural, one {# elemento leído} other {# elementos leídos}} · {created, plural, one {# casa nueva} other {# casas nuevas}}"
     },
     "disasterTypes": {
       "title": "Tipos de desastre",

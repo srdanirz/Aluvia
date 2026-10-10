@@ -17,10 +17,12 @@ import {
   fieldErrorsOf,
   noticeSchema,
   noticeWithdrawalSchema,
+  officialLayerSchema,
 } from "../schemas";
 import { createDisasterType, updateDisasterType } from "./disaster-types";
 import { closeEmergency, createEmergency, updateEmergencyArea, updateEmergencySettings } from "./emergencies";
 import { publishNotice, withdrawNotice } from "./notices";
+import { importOfficialLayer } from "./official-import";
 import { findPlatformAdminId } from "./policy";
 
 // One counter for every admin action, labeled by action and outcome code: low cardinality.
@@ -176,5 +178,20 @@ export async function withdrawNoticeAction(input: unknown) {
     (actorId, data) => withdrawNotice(db, actorId, data),
     (data, _, distinctId) =>
       trackServerEvent("emergency_notice_withdrawn", { emergencyId: data.emergencyId }, { distinctId }),
+  );
+}
+
+export async function importOfficialLayerAction(input: unknown) {
+  return run(
+    "import_official_layer",
+    officialLayerSchema,
+    input,
+    (actorId, data) => importOfficialLayer(db, actorId, data),
+    (data, summary, distinctId) =>
+      trackServerEvent(
+        "official_layer_imported",
+        { emergencyId: data.emergencyId, kind: data.kind, ...summary },
+        { distinctId },
+      ),
   );
 }

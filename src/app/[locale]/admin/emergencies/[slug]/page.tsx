@@ -7,6 +7,7 @@ import {
   loadEmergency,
   MissingTranslations,
   NoticeForm,
+  OfficialLayerForm,
   PageHeader,
 } from "@/features/admin";
 import { readLocalizedText } from "@/shared/i18n/localized-text";
@@ -92,6 +93,9 @@ export default async function EmergencyPage({ params }: PageProps<"/[locale]/adm
         <>
           <Section title={t("areaTitle")}>
             <EmergencyAreaForm emergencyId={emergency.id} version={emergency.version} />
+          </Section>
+          <Section title={t("layerTitle")} lead={t("layerLead")}>
+            <OfficialLayerForm emergencyId={emergency.id} />
           </Section>
           <Section title={t("closeTitle")}>
             <CloseEmergency emergencyId={emergency.id} />

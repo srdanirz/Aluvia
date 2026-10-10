@@ -1,3 +1,5 @@
+import { inArray } from "drizzle-orm";
+
 import { copySupplyTypeTemplates, copyWorkTypeTemplates } from "../catalog";
 import {
   disasterTypes,
@@ -68,4 +70,18 @@ export async function seedDatabase(db: Database): Promise<void> {
     await copyWorkTypeTemplates(tx, createdIds);
     await copySupplyTypeTemplates(tx, createdIds);
   });
+}
+
+/** The seeded emergencies' ids by slug, for the layer import that follows the seed. */
+export async function findSeededEmergencyIds(db: Database): Promise<Map<string, string>> {
+  const rows = await db
+    .select({ id: emergencies.id, slug: emergencies.slug })
+    .from(emergencies)
+    .where(
+      inArray(
+        emergencies.slug,
+        EMERGENCIES.map((e) => e.slug),
+      ),
+    );
+  return new Map(rows.map((row) => [row.slug, row.id]));
 }
