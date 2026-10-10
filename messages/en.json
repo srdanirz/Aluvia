@@ -364,7 +364,8 @@
     "layer_too_large": "The layer has too many features to import.",
     "layer_unsupported": "That layer is not in the expected format (polygons, for the area).",
     "invalid_field": "Use field names with letters, numbers and underscores.",
-    "address_fields_required": "Give at least one address field."
+    "address_fields_required": "Give at least one address field.",
+    "emergency_open": "The emergency is still open. Close it before deleting its data."
   },
   "admin": {
     "meta": {
@@ -477,7 +478,12 @@
       "layerNotesLabel": "Fields for notes",
       "layerNotesHint": "Optional. Stored with the home's contact, which only coordinators see.",
       "layerSubmit": "Import",
-      "layerImported": "{features, plural, one {# feature read} other {# features read}} · {created, plural, one {# new home} other {# new homes}}"
+      "layerImported": "{features, plural, one {# feature read} other {# features read}} · {created, plural, one {# new home} other {# new homes}}",
+      "purgeTitle": "Delete personal data",
+      "purgeLead": "Deletes this emergency's contacts, sign-ups, members and notices, and the people no longer in any open emergency. Counts of homes and work stay. This cannot be undone.",
+      "purgeButton": "Delete personal data",
+      "purgeConfirm": "Yes, delete it",
+      "purgeDone": "Data deleted · {count, plural, one {# person removed} other {# people removed}}"
     },
     "disasterTypes": {
       "title": "Disaster types",
