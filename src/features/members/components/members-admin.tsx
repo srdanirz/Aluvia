@@ -1,10 +1,11 @@
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 
+import { PageHeader } from "@/features/admin";
 import { LogOutButton } from "@/features/auth";
 import { readLocalizedText } from "@/shared/i18n/localized-text";
 import { Link } from "@/shared/i18n/navigation";
 import type { Page } from "@/shared/lib/pagination";
-import { Button, Card, CardBody, CardTitle, Chip } from "@/shared/ui";
+import { Button, Card, CardBody, CardTitle, Chip, Section } from "@/shared/ui";
 
 import {
   approveMemberRoleAction,
@@ -17,15 +18,6 @@ import { ActionButton } from "./action-button";
 import { InvitationForm } from "./invitation-form";
 
 type View = Awaited<ReturnType<typeof loadMembersAdminView>>;
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="flex flex-col gap-3">
-      <h2 className="text-subheading font-medium text-ink">{title}</h2>
-      {children}
-    </section>
-  );
-}
 
 /** "Show more" for one list; keeps the other lists where they were. */
 async function MoreLink({
@@ -65,15 +57,11 @@ export async function MembersAdmin({ view }: { view: View }) {
 
   return (
     <div className="flex flex-col gap-12">
-      <header className="flex flex-col gap-2">
-        <h1 className="text-heading text-ink">
-          {t("title", { emergency: readLocalizedText(emergency.name, locale, emergency.defaultLocale) })}
-        </h1>
-        <p className="max-w-prose text-body text-ink-soft">{t("lead")}</p>
-        <div>
-          <LogOutButton />
-        </div>
-      </header>
+      <PageHeader
+        title={t("title", { emergency: readLocalizedText(emergency.name, locale, emergency.defaultLocale) })}
+        lead={t("lead")}
+        action={<LogOutButton />}
+      />
 
       <Section title={t("requests")}>
         {pending.items.length === 0 ? <p className="text-body-sm text-ink-muted">{t("noRequests")}</p> : null}

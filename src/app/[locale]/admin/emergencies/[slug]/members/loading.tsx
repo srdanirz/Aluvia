@@ -12,7 +12,7 @@ function CardSkeleton() {
 
 export default function Loading() {
   return (
-    <main className="mx-auto flex max-w-content flex-col gap-12 px-4 pt-16 pb-nav-bottom md:px-8 md:pt-nav-top md:pb-16">
+    <div className="flex flex-col gap-12">
       <div className="flex flex-col gap-2">
         <Skeleton className="h-10 w-2/3" />
         <Skeleton className="h-6 w-full max-w-prose" />
@@ -26,6 +26,6 @@ export default function Loading() {
           </div>
         </div>
       ))}
-    </main>
+    </div>
   );
 }

@@ -34,6 +34,7 @@ import { seedDatabase } from "@/shared/db/seeds";
 import { PAGE_SIZE } from "@/shared/lib/pagination";
 
 import { createTestDb } from "./setup/db";
+import { rejectionCode } from "./setup/fixtures";
 
 const RACERS = 8;
 const { db, counter, close } = createTestDb({ connections: RACERS + 2 });
@@ -509,12 +510,11 @@ describe("admin_events", () => {
 });
 
 describe("platform admins", () => {
-  it("grants nobody when a phone is shared by two people", async () => {
-    await db.insert(users).values([
-      { name: "Uno", phone: "+56900000002" },
-      { name: "Dos", phone: "+56900000002" },
-    ]);
-    expect(await grantPlatformAdmin(db, "+56900000002")).toEqual({ ok: false, code: "user_not_found" });
+  it("keeps one person per phone, so a phone grants exactly one admin", async () => {
+    await db.insert(users).values({ name: "Uno", phone: "+56900000002" });
+    expect(await rejectionCode(db.insert(users).values({ name: "Dos", phone: "+56900000002" }))).toBe(
+      "23505",
+    );
   });
 
   it("grants the role to an existing person by email or phone, never creating one", async () => {

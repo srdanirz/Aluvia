@@ -43,6 +43,7 @@ async function createEmergency(slug: string, status: "open" | "closed" = "open")
       timeZone: "America/Santiago",
       startedAt: NOW,
       status,
+      closedAt: status === "closed" ? NOW : null,
     })
     .returning({ id: emergencies.id });
   if (!row) throw new Error("emergency not created");

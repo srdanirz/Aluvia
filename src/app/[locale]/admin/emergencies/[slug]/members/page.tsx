@@ -13,8 +13,8 @@ export default async function MembersAdminPage({
     invitations: single(query.invitations),
   });
   return (
-    <main className="mx-auto flex max-w-content animate-enter flex-col px-4 pt-16 pb-nav-bottom md:px-8 md:pt-nav-top md:pb-16">
+    <div className="animate-enter">
       <MembersAdmin view={view} />
-    </main>
+    </div>
   );
 }

@@ -382,7 +382,10 @@
       "numberLabelIn": "Name in {language}",
       "numberAdd": "Add number",
       "suppliesTerm": "Supplies",
-      "supplyTypeCount": "{count, plural, one {# supply} other {# supplies}}"
+      "supplyTypeCount": "{count, plural, one {# supply} other {# supplies}}",
+      "membersTitle": "Members",
+      "membersLead": "Approve coordinators and field volunteers, and invite by WhatsApp.",
+      "membersLink": "View members"
     },
     "disasterTypes": {
       "title": "Disaster types",

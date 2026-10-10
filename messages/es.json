@@ -382,7 +382,10 @@
       "numberLabelIn": "Nombre en {language}",
       "numberAdd": "Agregar número",
       "suppliesTerm": "Insumos",
-      "supplyTypeCount": "{count, plural, one {# insumo} other {# insumos}}"
+      "supplyTypeCount": "{count, plural, one {# insumo} other {# insumos}}",
+      "membersTitle": "Miembros",
+      "membersLead": "Aprueba coordinadores y voluntarios de terreno, e invita por WhatsApp.",
+      "membersLink": "Ver miembros"
     },
     "disasterTypes": {
       "title": "Tipos de desastre",
