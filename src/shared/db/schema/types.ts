@@ -32,3 +32,6 @@ export const localeTag = (column: AnyPgColumn) => sql`${column} ~ '^[a-z]{2,3}(-
 
 /** E.164 phone check (ADR 0007): `+` and 8 to 15 digits. */
 export const e164 = (column: AnyPgColumn) => sql`${column} ~ '^\\+[1-9][0-9]{7,14}$'`;
+
+/** Stable machine key of a catalog row (`mud_removal`): stored, so English snake_case (STYLEGUIDE, Datos). */
+export const catalogKey = (column: AnyPgColumn) => sql`${column} ~ '^[a-z][a-z0-9_]{1,39}$'`;

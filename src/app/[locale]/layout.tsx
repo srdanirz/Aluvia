@@ -5,6 +5,7 @@ import * as rootParams from "next/root-params";
 import type { ReactNode } from "react";
 
 import { routing } from "@/shared/i18n/routing";
+import { OutboxSync } from "@/shared/offline/outbox-sync";
 import { Aurora, ThemeScript } from "@/shared/ui";
 import { fontVariables } from "@/shared/ui/fonts";
 import "@/shared/ui/theme.css";
@@ -34,6 +35,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       <body className="min-h-dvh text-ink">
         <Aurora />
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <OutboxSync />
       </body>
     </html>
   );

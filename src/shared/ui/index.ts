@@ -15,5 +15,8 @@ export { LogoMark } from "./logo-mark";
 export { SegmentedControl } from "./segmented-control";
 export { Skeleton } from "./skeleton";
 export { Spinner } from "./spinner";
+export { Stepper } from "./stepper";
+export { Textarea } from "./textarea";
 export { ThemeScript } from "./theme-script";
 export { ThemeSwitcher } from "./theme-switcher";
+export { ToggleTile } from "./toggle-tile";

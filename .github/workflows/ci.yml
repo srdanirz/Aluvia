@@ -31,6 +31,10 @@ jobs:
       # Integration tests start their own PostGIS container (testcontainers); runners ship Docker.
       - run: pnpm test
       - run: pnpm build
+        env:
+          # Pages import the db client, which validates its URL at import. The build never
+          # connects (postgres-js dials lazily); runtime secrets are checked at server start.
+          DATABASE_URL: postgres://build:build@localhost:5432/build
 
   secrets:
     runs-on: ubuntu-latest

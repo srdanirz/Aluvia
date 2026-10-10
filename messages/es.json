@@ -61,11 +61,173 @@
     "groups": "Grupos de acciones",
     "groupLabel": "Acciones de la casa",
     "directions": "Cómo llegar",
-    "share": "Compartir"
+    "share": "Compartir",
+    "tiles": "Selección con un toque",
+    "tileMud": "Barro",
+    "tileWater": "Agua",
+    "tileFood": "Comida",
+    "tileRoof": "Techo",
+    "stepperLabel": "Personas trabajando",
+    "stepperLess": "Una menos",
+    "stepperMore": "Una más",
+    "notesLabel": "Notas"
   },
   "notFound": {
     "title": "No encontramos esta página",
     "body": "Puede que el link esté mal escrito o que la página ya no exista.",
     "back": "Volver al inicio"
+  },
+  "worksites": {
+    "report": {
+      "title": "Reportar una casa",
+      "location": {
+        "locating": "Buscando tu ubicación",
+        "ready": "Ubicación lista",
+        "accuracy": "Precisión de {meters} m",
+        "missing": "Sin ubicación",
+        "missingHelp": "Escribe la dirección para que puedan encontrar la casa.",
+        "addressLabel": "Dirección",
+        "addressHint": "Calle y número, como la escribirías en un sobre.",
+        "retry": "Volver a buscar ubicación",
+        "approximate": "Ubicación aproximada",
+        "approximateHelp": "El GPS no está seguro de dónde estás. Escribe también la dirección para que encuentren la casa."
+      },
+      "needs": {
+        "title": "¿Qué necesita?",
+        "empty": "Esta emergencia todavía no tiene trabajos configurados."
+      },
+      "details": {
+        "toggle": "Agregar detalles (opcional)",
+        "vulnerable": "Viven personas mayores, niños o con discapacidad",
+        "damage": "Daño de la casa",
+        "addressLabel": "Dirección",
+        "addressHint": "Ayuda a llegar si el GPS no es exacto.",
+        "nameLabel": "Nombre de contacto",
+        "phoneLabel": "Teléfono",
+        "phoneHint": "Solo lo ven los coordinadores.",
+        "phoneError": "Revisa el número. Si es de otro país, empieza con + y el código.",
+        "notifyLabel": "Avisarme cuando alguien tome el trabajo",
+        "notifyNone": "No",
+        "notifySms": "SMS",
+        "notifyWhatsapp": "WhatsApp",
+        "notifyHint": "Solo te escribimos sobre esta casa. Responde BAJA para dejar de recibir avisos.",
+        "notesLabel": "Notas",
+        "notesHint": "Lo que ayude a encontrar la casa o a llegar preparado.",
+        "hazards": "No entrar: hay riesgo de",
+        "hazardsHint": "Nadie podrá tomar trabajos en esta casa hasta que un coordinador la revise."
+      },
+      "submit": "Enviar reporte",
+      "sending": "Enviando",
+      "missing": {
+        "needs": "Elige al menos una necesidad.",
+        "location": "Falta la ubicación o la dirección."
+      },
+      "done": {
+        "sentChip": "Recibido",
+        "sentTitle": "La casa quedó reportada",
+        "sentBody": "Ya aparece para los voluntarios. Comparte el link para que llegue la ayuda.",
+        "queuedChip": "Esperando señal",
+        "queuedTitle": "Guardado en tu teléfono",
+        "queuedBody": "No hay señal. Se enviará solo apenas vuelva, aunque cierres la página.",
+        "actions": "Qué hacer ahora",
+        "view": "Ver la casa",
+        "share": "Compartir",
+        "shareTitle": "Casa que necesita ayuda",
+        "copied": "Link copiado",
+        "shareFailed": "No pudimos compartir el link. Ábrelo con Ver la casa y cópialo desde ahí.",
+        "another": "Reportar otra casa"
+      },
+      "danger": {
+        "toggle": "Alguien está en peligro ahora",
+        "chip": "Emergencia",
+        "callFirst": "Llama primero. Aluvia coordina la limpieza y no reemplaza a los servicios de emergencia.",
+        "callLocal": "Llama primero al número de emergencias de tu país. Aluvia coordina la limpieza y no reemplaza a los servicios de emergencia.",
+        "call": "{label} · {phone}",
+        "thenContinue": "Después puedes seguir con el reporte: un coordinador lo verá primero."
+      }
+    },
+    "damage": {
+      "minor": "Leve",
+      "moderate": "Moderado",
+      "severe": "Grave",
+      "uninhabitable": "Inhabitable"
+    },
+    "batch": {
+      "title": "Cargar varias casas",
+      "lead": "Pega el texto de una historia o un mensaje. Revisa cada casa antes de crearla.",
+      "textLabel": "Texto pegado",
+      "textHint": "No se guarda. Los nombres y teléfonos que traiga se ignoran.",
+      "extract": "Buscar casas",
+      "extracting": "Leyendo el texto",
+      "draftsTitle": "{count, plural, one {# casa por revisar} other {# casas por revisar}}",
+      "draftChip": "Casa {number}",
+      "remove": "Quitar esta casa",
+      "addressLabel": "Dirección",
+      "vulnerable": "Viven personas mayores, niños o con discapacidad",
+      "needsMissing": "Elige al menos una necesidad.",
+      "create": "{count, plural, one {Crear # casa} other {Crear # casas}}",
+      "creating": "Creando",
+      "createHint": "Quedan marcadas como de redes sociales y sin verificar, sin ubicar hasta que pongas su pin en el mapa.",
+      "createdChip": "Creadas",
+      "created": "{count, plural, =0 {Esas casas ya estaban creadas.} one {Se creó # casa.} other {Se crearon # casas.}}",
+      "forbidden": "Solo los coordinadores aprobados de esta emergencia pueden cargar casas en lote.",
+      "dangerChip": "Persona en peligro: llama a emergencias"
+    },
+    "hazard": {
+      "electricity": "Electricidad",
+      "gas": "Gas",
+      "structure": "Estructura dañada"
+    },
+    "trust": {
+      "noMoney": "Aluvia nunca pide dinero. Si alguien te cobra en su nombre, es una estafa."
+    }
+  },
+  "worksiteUpdates": {
+    "form": {
+      "title": "Personas e insumos",
+      "lead": "Cuenta a quienes trabajan ahora y marca lo que falta.",
+      "openLink": "Actualizar personas e insumos",
+      "people": "Personas trabajando ahora",
+      "decrement": "Una persona menos",
+      "increment": "Una persona más",
+      "lastUpdate": "Último conteo {time}",
+      "supplies": "¿Qué falta?",
+      "suppliesEmpty": "Esta emergencia todavía no tiene insumos configurados.",
+      "submit": "Enviar",
+      "sending": "Enviando",
+      "sentChip": "Enviado",
+      "sentBody": "El conteo quedó registrado para esta casa.",
+      "queuedChip": "Esperando señal",
+      "queuedBody": "No hay señal. Se enviará solo apenas vuelva, aunque cierres la página.",
+      "actions": "Qué hacer ahora",
+      "viewHome": "Ver la casa",
+      "again": "Contar de nuevo",
+      "signIn": "Para actualizar esta casa, entra con el link que te mandó el coordinador."
+    }
+  },
+  "outbox": {
+    "waitingChip": "Esperando señal",
+    "waiting": "{count, plural, one {# envío espera señal en este teléfono.} other {# envíos esperan señal en este teléfono.}}",
+    "rejectedChip": "No se pudo enviar",
+    "discard": "Descartar"
+  },
+  "errors": {
+    "unknown": "Algo falló. Inténtalo de nuevo.",
+    "network_error": "No hay conexión. Lo que escribiste sigue aquí; inténtalo cuando vuelva la señal.",
+    "invalid_body": "Faltan datos o no son válidos. Revisa el formulario.",
+    "invalid_input": "Faltan datos o no son válidos. Revisa el formulario.",
+    "invalid_work_type": "Una de las necesidades ya no está disponible. Revisa la lista y vuelve a enviar.",
+    "invalid_supply_type": "Uno de los insumos ya no está disponible. Revisa la lista y vuelve a enviar.",
+    "emergency_not_found": "Esta emergencia ya no recibe reportes.",
+    "worksite_not_found": "Esta casa ya no está en la emergencia.",
+    "rate_limited": "Llegaron muchos reportes desde esta red. Espera unos minutos y se enviará solo.",
+    "sign_in_required": "Entra con el link que te mandó el coordinador para enviar esto.",
+    "not_assigned": "Esta casa no está asignada a ti.",
+    "forbidden": "No tienes permiso para hacer esto en esta emergencia.",
+    "extraction_unavailable": "La carga en lote no está activa en este servidor.",
+    "extraction_refused": "No pudimos leer ese texto. Prueba con otro o crea las casas una por una.",
+    "extraction_failed": "No pudimos leer el texto ahora. Inténtalo de nuevo en un momento.",
+    "stale_version": "Alguien cambió esta casa mientras la editabas. Recarga para ver lo último.",
+    "possible_duplicate": "Ya hay otra casa a menos de 15 m. Revisa que no sea la misma."
   }
 }

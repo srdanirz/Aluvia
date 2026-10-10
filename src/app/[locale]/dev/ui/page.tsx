@@ -20,6 +20,7 @@ import {
   ThemeSwitcher,
 } from "@/shared/ui";
 
+import { ReportDemo } from "./report-demo";
 import { SegmentedDemo } from "./segmented-demo";
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -175,6 +176,16 @@ export default async function DesignSystemPage() {
             <LogoMark label={t("logoMarkAnimated")} />
             <LogoMark label={t("logoMarkStatic")} animated={false} />
           </div>
+        </Section>
+
+        <Section title={t("tiles")}>
+          <ReportDemo
+            tiles={[t("tileMud"), t("tileWater"), t("tileFood"), t("tileRoof")]}
+            stepperLabel={t("stepperLabel")}
+            decrement={t("stepperLess")}
+            increment={t("stepperMore")}
+            notesLabel={t("notesLabel")}
+          />
         </Section>
 
         <Section title={t("loading")}>

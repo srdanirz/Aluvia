@@ -2,7 +2,8 @@ import { sql } from "drizzle-orm";
 import { boolean, check, index, integer, pgTable, text, timestamp, unique, uuid } from "drizzle-orm/pg-core";
 
 import { emergencies } from "./emergencies";
-import { damageLevel, notificationChannel, reportSource } from "./enums";
+import { damageLevel, notificationChannel, reportSource, worksiteHazard, worksiteReviewFlag } from "./enums";
+import { users } from "./users";
 import { e164, localeTag, wgs84Point } from "./types";
 
 /** An affected home. No contact data here: it lives in worksite_contacts so a public query cannot reach it. */
@@ -14,7 +15,9 @@ export const worksites = pgTable(
     emergencyId: uuid("emergency_id")
       .notNull()
       .references(() => emergencies.id, { onDelete: "cascade" }),
-    location: wgs84Point("location").notNull(),
+    // Null until someone places the pin: a report with only a written address (no GPS, map down;
+    // ADR 0006) or a batch draft. The public map never shows a home without a point.
+    location: wgs84Point("location"),
     damageLevel: damageLevel("damage_level"),
     hasVulnerablePeople: boolean("has_vulnerable_people").notNull().default(false),
     officialSurveyDone: boolean("official_survey_done").notNull().default(false),
@@ -22,15 +25,38 @@ export const worksites = pgTable(
     // Since when the home has open work and none of it claimed; null otherwise. Recomputed in the
     // same transaction as every work_items write, so the abandonment sort is one index scan.
     unclaimedSince: timestamp("unclaimed_since", { withTimezone: true }),
+    // Computed by the database when the home is written (outside the area, another home within
+    // 15 m, someone in danger); a coordinator clears each one. Never shown to the public.
+    reviewFlags: worksiteReviewFlag("review_flags")
+      .array()
+      .notNull()
+      .default(sql`'{}'`),
+    hazards: worksiteHazard("hazards")
+      .array()
+      .notNull()
+      .default(sql`'{}'`),
+    // Claiming is blocked while hazards is not empty and nobody reviewed them.
+    hazardsReviewedAt: timestamp("hazards_reviewed_at", { withTimezone: true }),
+    hazardsReviewedBy: uuid("hazards_reviewed_by").references(() => users.id, { onDelete: "set null" }),
     version: integer("version").notNull().default(0),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
     index("worksites_location_idx").using("gist", t.location),
+    // Distances in meters (duplicate check) go through geography; on geometry 4326 they are degrees.
+    index("worksites_location_geography_idx").using("gist", sql`(${t.location}::geography)`),
     index("worksites_emergency_id_unclaimed_since_idx")
       .on(t.emergencyId, t.unclaimedSince)
       .where(sql`${t.unclaimedSince} IS NOT NULL`),
+    // The coordinators' review queue reads only flagged homes.
+    index("worksites_emergency_id_review_idx")
+      .on(t.emergencyId, t.createdAt)
+      .where(sql`cardinality(${t.reviewFlags}) > 0`),
+    check(
+      "worksites_hazards_reviewed_check",
+      sql`${t.hazardsReviewedBy} IS NULL OR ${t.hazardsReviewedAt} IS NOT NULL`,
+    ),
     // Target of the composite keys that keep a child row inside its home's emergency.
     unique("worksites_id_emergency_id_key").on(t.id, t.emergencyId),
   ],

@@ -17,7 +17,8 @@ Aluvia nace de un aluvión, pero tiene que servir para una inundación, un incen
 | Plantilla de trabajos por tipo (barro y agua en un aluvión; escombros y techo en un incendio) | `disaster_type_work_types` |
 | Catálogo de trabajos de una emergencia | `work_types` con `emergency_id`: se copia de la plantilla al crearla y se edita sin afectar a otras |
 | Nombre, comunas, área (polígono), zona horaria, inicio, cierre, fecha de borrado de datos | `emergencies` |
-| Topes de SMS y WhatsApp, reserva para vecinos sin app, contacto oficial, nombre del catastro oficial ("FIBE" en Chile) | `emergency_settings` |
+| Topes de SMS y WhatsApp, reserva para vecinos sin app, contacto oficial, nombre del catastro oficial ("FIBE" en Chile), números de emergencia que el reporte muestra primero si alguien está en peligro (131, 132 y 133 en Chile) | `emergency_settings` |
+| Catálogo de insumos (palas, agua, guantes) | `supply_types`, copiado de `disaster_type_supply_types` como los trabajos |
 | Nombres de la emergencia y de sus trabajos | `jsonb` por idioma (`{"es": "…", "en": "…"}`) |
 
 **Datos iniciales.** Los tipos de desastre, sus plantillas y la primera emergencia (Las Condes, aluvión de octubre de 2026) son *seeds* revisados en `src/shared/db/seeds/`. Es el único lugar del repo donde se nombran desastres, comunas o trabajos; la app los lee de la base.
