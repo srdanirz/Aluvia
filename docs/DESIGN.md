@@ -86,6 +86,7 @@ La figura del logo es también el sistema de ilustración: la misma persona en d
 | [`brand/figura/aluvia-carretilla.png`](brand/figura/aluvia-carretilla.png) | Llevando una carretilla con tierra | PNG 2048 px, fondo transparente |
 | [`brand/figura/aluvia-baldes.png`](brand/figura/aluvia-baldes.png) | Llevando dos baldes con barro | PNG 2048 px, fondo transparente |
 | [`brand/motion/aluvia-logo-cavando.mp4`](brand/motion/aluvia-logo-cavando.mp4) | La figura cava, cae tierra y entra el logotipo | 1080 x 1920, 9,5 s |
+| [`brand/motion/aluvia-cavando.mp4`](brand/motion/aluvia-cavando.mp4) | La figura cava en loop, sin texto | 1080 x 1080, 3 loops |
 | [`brand/motion/aluvia-saludo.mp4`](brand/motion/aluvia-saludo.mp4) | Saludo en loop | 1080 x 1080, 3 loops |
 | [`brand/motion/aluvia-carretilla.mp4`](brand/motion/aluvia-carretilla.mp4) | Caminata con carretilla en loop | 1080 x 1080, 3 loops |
 | [`brand/motion/aluvia-baldes.mp4`](brand/motion/aluvia-baldes.mp4) | Caminata con baldes en loop | 1080 x 1080, 3 loops |

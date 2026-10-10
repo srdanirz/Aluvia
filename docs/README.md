@@ -10,6 +10,7 @@ Investigación hecha el 9 de octubre de 2026, un día después del aluvión. Bas
 Ingeniería:
 
 - [DESIGN](DESIGN.md): lenguaje visual y tokens.
+- [Landing](landing/index.html): referencia de la página pública en HTML estático. Cuando exista la app se rearma con las primitivas de `src/shared/ui/`.
 - [STYLEGUIDE](STYLEGUIDE.md): convenciones de código, performance, concurrencia y UI.
 - [AI_PITFALLS](AI_PITFALLS.md): errores repetibles y cómo evitarlos.
 - [CODE_MAP](CODE_MAP.md): qué módulo hace qué.
