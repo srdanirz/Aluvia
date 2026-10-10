@@ -14,7 +14,7 @@ Tomar un trabajo pide solo nombre y teléfono, una vez (DESIGN.md, "Primero: sin
 | Paso | Qué pasa |
 |---|---|
 | 1 | La persona escribe su celular. Se normaliza a E.164 con `libphonenumber-js` y solo se aceptan los países de `PHONE_REGIONS` (contra el *SMS pumping* a números caros del extranjero). |
-| 2 | Llega un código por **WhatsApp** (plantilla de autenticación `login_code` de Meta, con botón para copiar) y, si WhatsApp falla o no está configurado, por **SMS** de Twilio (ADR 0010). |
+| 2 | Llega un código por **WhatsApp** (plantilla de autenticación `aluvia_login_code` de Meta, en español, con botón para copiar). Si WhatsApp falla (número sin WhatsApp, plantilla rechazada, token revocado) cae a **SMS** de Twilio (ADR 0010), cuando haya número chileno. Si el número no tiene WhatsApp y no hay SMS, la persona ve ese motivo y no un error genérico. |
 | 3 | Escribe el código y entra. La primera vez se crea su fila en `users` y se le pide el nombre. |
 
 - **Implementación propia sobre nuestro Postgres**, sin librería de auth. Better Auth y Auth.js exigen email en el usuario: con login por teléfono llenarían `users.email` de direcciones falsas y traerían tablas de cuentas y verificaciones que no usamos. Lo nuestro son tres tablas y reglas que decide la base, como el resto del repo.
@@ -57,6 +57,6 @@ Tomar un trabajo pide solo nombre y teléfono, una vez (DESIGN.md, "Primero: sin
 ## Consecuencias
 
 - Cada login cuesta un mensaje de WhatsApp de autenticación o un SMS. Los límites por teléfono e IP acotan el abuso; la sesión de 30 días hace que una persona entre pocas veces.
-- La plantilla `login_code` se envía a aprobación de Meta en cada idioma antes del primer deploy.
+- La plantilla `aluvia_login_code` se envía a aprobación de Meta en cada idioma antes del primer deploy.
 - Meta y Twilio reciben el teléfono de quien entra (SECURITY.md).
 - La zona como unidad de invitación queda fuera: el modelo todavía no tiene zonas. Se invita por emergencia o por casa.
