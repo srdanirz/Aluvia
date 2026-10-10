@@ -837,5 +837,27 @@
       "help": "Ayudar",
       "shifts": "Turnos"
     }
+  },
+  "zones": {
+    "draw": "Dibujar zona",
+    "drawHint": "{count, plural, =0 {Toca el mapa para marcar el borde de la zona.} one {# punto. Sigue tocando el borde.} other {# puntos. Guarda cuando cierres el borde.}}",
+    "kindLabel": "Tipo de zona",
+    "kinds": {
+      "no_entry": "No entrar",
+      "restricted": "Acceso restringido",
+      "meeting_point": "Punto de encuentro"
+    },
+    "noteLabel": "Nota (opcional)",
+    "toolbar": "Dibujo de zona",
+    "undo": "Deshacer",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "remove": "Quitar zona",
+    "close": "Cerrar",
+    "errors": {
+      "invalid_input": "La zona necesita al menos 3 puntos.",
+      "not_found": "Esa zona ya no existe.",
+      "forbidden": "Solo los coordinadores pueden dibujar zonas."
+    }
   }
 }
