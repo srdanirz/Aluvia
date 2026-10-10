@@ -9,10 +9,10 @@ import { errorResponse, parseJsonBody } from "@/shared/http";
 import { clientIpKey, hitRateLimit, purgeStaleRateLimits } from "@/shared/rate-limit";
 
 import { worksiteReportSchema } from "../schemas";
-import { createWorksites } from "./create-worksites";
 import { reportsCounter } from "./metrics";
 import { reportSourceFor } from "./policy";
 import { findOpenEmergencyId } from "./queries";
+import { submitWorksiteReport } from "./submit-report";
 
 // Generous on purpose: Chilean mobile networks put many phones behind one IP (CGNAT), and a
 // coordinator on a shelter's wifi can report dozens of homes in an hour (SECURITY.md).
@@ -25,7 +25,8 @@ const PURGE_EVERY = 100;
 /**
  * POST /api/v1/emergencies/[slug]/worksites: reports a home, no account needed. Idempotent by
  * the body's client-generated id, because the offline outbox may send one report several times:
- * every time after the first answers 200 with the same id and changes nothing.
+ * every time after the first answers 200 with the same home and changes nothing. The answer's
+ * `id` is the home the report ended on: its own id, or an official parcel it attached to.
  */
 export async function reportWorksite(request: Request, slug: string): Promise<Response> {
   const ipKey = clientIpKey(request.headers, {
@@ -53,13 +54,12 @@ export async function reportWorksite(request: Request, slug: string): Promise<Re
   if (!emergencyId) return errorResponse(404, "emergency_not_found");
 
   const source = reportSourceFor(await getEmergencyAccess(emergencyId));
-  const result = await createWorksites(db, { emergencyId, source, reports: [body.data] });
+  const result = await submitWorksiteReport(db, { emergencyId, source, report: body.data });
   if (!result.ok) {
     reportsCounter.add(1, { source, outcome: "rejected" });
     return errorResponse(422, result.code);
   }
 
-  const created = result.created.length > 0;
-  reportsCounter.add(1, { source, outcome: created ? "created" : "retry" });
-  return Response.json({ id: body.data.id }, { status: created ? 201 : 200 });
+  reportsCounter.add(1, { source, outcome: result.outcome });
+  return Response.json({ id: result.worksiteId }, { status: result.outcome === "retry" ? 200 : 201 });
 }

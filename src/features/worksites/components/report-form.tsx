@@ -31,6 +31,14 @@ type ReportFormProps = {
 
 type Sent = { worksiteId: string; delivery: "sent" | "queued" };
 
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// The answer goes into a link, so only a well-formed id is taken from it.
+function answeredWorksiteId(response: unknown, fallback: string): string {
+  const id = typeof response === "object" && response !== null && "id" in response ? response.id : null;
+  return typeof id === "string" && UUID.test(id) ? id : fallback;
+}
+
 /**
  * Report a home in three taps: the GPS is asked for on open, needs are big tiles, send. Every
  * other field is optional and folded away. The draft lives in the phone until it is sent, and a
@@ -109,7 +117,9 @@ export function ReportForm({ slug, workTypes, emergencyNumbers, source }: Report
     });
     clearDraft();
     setDetailsOpen(false);
-    setSent({ worksiteId: id, delivery: result.status });
+    // A report near an official parcel ends on that home, not on its own id; the server says which.
+    const worksiteId = result.status === "sent" ? answeredWorksiteId(result.response, id) : id;
+    setSent({ worksiteId, delivery: result.status });
   };
 
   if (sent) {
