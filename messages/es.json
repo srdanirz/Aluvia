@@ -479,6 +479,8 @@
       "layerNotesHint": "Opcional. Se guardan junto al contacto de la casa, que solo ven los coordinadores.",
       "layerSubmit": "Importar",
       "layerImported": "{features, plural, one {# elemento leído} other {# elementos leídos}} · {created, plural, one {# casa nueva} other {# casas nuevas}}",
+      "staleAfterLabel": "Horas hasta \"por confirmar\"",
+      "staleAfterHint": "Una casa con trabajo abierto y sin movimiento por este tiempo se ve en el mapa como por confirmar: puede que ya esté lista. De 1 a 168.",
       "purgeTitle": "Borrar datos personales",
       "purgeLead": "Borra contactos, inscripciones, miembros y avisos de esta emergencia, y a las personas que ya no participan en ninguna abierta. Se conservan los conteos de casas y trabajos. No se puede deshacer.",
       "purgeButton": "Borrar datos personales",

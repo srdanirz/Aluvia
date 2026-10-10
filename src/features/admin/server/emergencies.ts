@@ -128,6 +128,7 @@ export async function updateEmergencySettings(
         whatsappDailyCap: settings.whatsappDailyCap,
         neighborReserve: settings.neighborReserve,
         claimHoldMinutes: settings.claimHoldMinutes,
+        staleAfterHours: settings.staleAfterHours,
         officialSurveyName: settings.officialSurveyName,
         // Official numbers (131, 132...), never a person's.
         emergencyNumbers: settings.emergencyNumbers.map((number) => number.phone),
