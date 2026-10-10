@@ -8,7 +8,7 @@ Paneles de vidrio sobre un fondo luminoso, luces iridiscentes, piezas en forma d
 
 **Reglas que no se discuten:**
 
-1. **Sin bordes.** Una pieza se separa con espacio, con otro tono de superficie o con sombra, nunca con una línea. El lint rechaza `border`, `outline`, `ring` y `divide` fuera de `shared/ui`. La única línea es el anillo de foco cuando se navega con teclado en botones y enlaces (accesibilidad); los campos muestran el foco con un halo suave de color `accent`.
+1. **Sin bordes.** Una pieza se separa con espacio, con otro tono de superficie o con sombra, nunca con una línea. El lint rechaza `border`, `outline`, `ring` y `divide` fuera de `shared/ui`. La única línea es el anillo de foco cuando se navega con teclado en botones y enlaces (accesibilidad); los campos muestran el foco aclarando el vidrio y con un resplandor difuso, nunca con un anillo.
 2. **Un color por pieza.** Un botón es un relleno sólido (o un degradado), nunca un relleno de un color con un borde de otro.
 3. **Pastillas.** Botones, chips, selectores y navegación son `rounded-full`. Tarjetas y paneles, radios grandes. Tres o más acciones en fila se unen en una pastilla larga (`ButtonGroup`).
 4. **Luz, no líneas.** La profundidad la dan el vidrio, las luces iridiscentes (`glass-wash`) y la sombra.
@@ -16,29 +16,31 @@ Paneles de vidrio sobre un fondo luminoso, luces iridiscentes, piezas en forma d
 
 ## Color
 
-Marca: **negro, blanco, rosado `#EF318C` e índigo `#3334E6`**. El rosado marca lo que necesita ayuda; el índigo, lo que está en curso y la acción destacada.
+Marca: **negro y blanco** para las acciones, y tres familias del territorio, propuestas por Santiago (PR #7): **lluvia** (información, en curso, acento), **tierra** (casas y terreno, lo que necesita ayuda) y **musgo** (comunidad, lo hecho). Calma en vez de alarma: es una herramienta de vecinos en una catástrofe.
 
 | Token | Claro | Oscuro | Uso |
 |---|---|---|---|
 | `canvas` | `#F5F6FB` | `#0B0C12` | Fondo de página, bajo la aurora. |
 | `surface` | `#FFFFFF` | `#16171F` | Tarjetas. |
-| `surface-muted` | `#E9EBF5` | `#1E2029` | Botones secundarios, campos, selector no elegido. |
+| `surface-muted` | `#E9EBF5` | `#1E2029` | Fondos de bloque dentro de una tarjeta; skeletons. |
 | `ink` | `#0A0B10` | `#F2F3F8` | Texto principal y texto de chips. |
 | `ink-soft` | `#3D3F52` | `#C3C6D6` | Texto secundario. |
 | `ink-muted` | `#62657A` | `#9A9DB2` | Ayudas y metadatos. Mínimo para texto. |
 | `action` / `on-action` | `#000000` / `#FFFFFF` | `#FFFFFF` / `#000000` | Botón principal, ítem activo. |
-| `accent` / `on-accent` | `#3334E6` / `#FFFFFF` | `#8E8FFF` / `#0B0C12` | Acción destacada, foco, links. |
-| `accent-tint` | `#E5E5FC` | `#23244A` | Tarjeta seleccionada. |
-| `status-urgent` / `-tint` | `#EF318C` / `#FDE4F0` | `#FF5FA8` / `#3A1A2B` | Sin tomar, grave. Solo punto, relleno o texto grande. |
-| `status-urgent-text` | `#C2186B` | `#FF5FA8` | Texto de error (el rosado de marca no llega a AA en texto chico). |
-| `status-pending` / `-tint` | `#3334E6` / `#E5E5FC` | `#8E8FFF` / `#23244A` | Tomado, en curso. |
-| `status-done` / `-tint` | `#0F9D58` / `#DDF4E8` | `#4AD295` / `#143326` | Hecho. |
+| `accent` / `on-accent` | `#3C6880` / `#FFFFFF` | `#9CC4D9` / `#0B0C12` | Acción destacada, foco, links. Es `rain-600`. |
+| `accent-tint` | `#E9F1F5` | `#172129` | Tarjeta seleccionada. Es `rain-100`. |
+| `status-urgent` / `-tint` | `#76563A` / `#F5EDE3` | `#D4B691` / `#241E18` | Sin tomar, grave (tierra). |
+| `status-urgent-text` | `#76563A` | `#D4B691` | Texto de error. |
+| `status-pending` / `-tint` | `#3C6880` / `#E9F1F5` | `#9CC4D9` / `#172129` | Tomado, en curso (lluvia). |
+| `status-done` / `-tint` | `#4A6341` / `#ECF1E7` | `#AAC39D` / `#1B2118` | Hecho (musgo). |
 | `status-closed` / `-tint` | `#8B8EA3` / `#EEF0F5` | `#9A9DB2` / `#23252F` | Cerrado sin hacer. |
 | `glass` | blanco al 62 % | `#16171F` al 60 % | Relleno de lo que flota. |
 | `glass-hover` | blanco al 75 % | blanco al 8 % | Hover de piezas discretas o translúcidas: un vidrio más claro, nunca un gris sólido. |
-| `aurora-1/2/3` | `#8D9FFF`, `#F5B9EA`, `#C686FF` | los mismos, más tenues | Fondo ambiental y luces. Son los tonos del brillo de Apple Intelligence. |
+| `aurora-1/2/3` | `#BCD3DF`, `#DFC9AD`, `#C4D3B9` | `#2B4252`, `#4B3D2E`, `#384733` | Fondo ambiental y luces: lluvia, tierra y musgo. |
 
-Contraste medido: todo texto cumple AA (4,5:1) sobre `canvas` y `surface` en los dos temas; `text-iridescent` usa un tono medio más oscuro en claro (`#7C3AED`) para no bajar de 3:1 en tamaño grande. El rosado de marca da 3,8:1 sobre blanco, así que un chip lleva **texto en tinta y punto de color**, nunca texto rosado.
+Contraste medido: todo texto cumple AA (4,5:1) sobre `canvas` y `surface` en los dos temas; los `-600` dan 5:1 o más. Un chip lleva **texto en tinta y punto de color**: el color refuerza, el texto dice.
+
+**Familias ambientales** (`rain-`, `earth-`, `moss-` en 100, 300 y 600): franjas, estados vacíos, zonas del mapa, gráficos e ilustración. Una familia por bloque. Nunca para una acción.
 
 ## Luces
 
@@ -47,7 +49,16 @@ Contraste medido: todo texto cumple AA (4,5:1) sobre `canvas` y `surface` en los
 | `Aurora` (componente) | Tres brillos difusos fijos detrás de la página | Una vez por página, en el layout |
 | `glass-wash` | Dos luces iridiscentes tenues dentro de la pieza (arriba a la izquierda y abajo a la derecha) | Todas las tarjetas y paneles (ya incluida en `Card` y `GlassPanel`) |
 | `glass-sheen` | Un reflejo de luz cruza la pieza al pasar el mouse o enfocarla | Solo piezas que se pueden tocar (`Card interactive`) |
-| `text-iridescent` | Texto en degradado índigo, lila y rosado | Una frase por vista, en tamaño `heading` o mayor |
+| `text-iridescent` | Texto en degradado lluvia, musgo y tierra | Una frase por vista, en tamaño `heading` o mayor |
+
+## Marca
+
+| Archivo | Qué es | Uso |
+|---|---|---|
+| `docs/brand/aluvia-logo.svg` / `-inverse` | Figura con pala y "aluvia", tinta / `#FEFFFC` | Componente `Logo`, que muestra la versión del tema |
+| `docs/brand/aluvia-mark.svg` / `-inverse` | Solo la figura | Favicon (`src/app/icon.svg`, que pasa a `#FEFFFC` cuando el navegador está en oscuro), ícono de la PWA, avatar |
+
+El logotipo es Unbounded 700 convertido a trazos (nunca se reescribe con la fuente). Una sola tinta: sin color, sombra, borde ni contenedor. Mínimo: 24 px de alto la figura, 120 px de ancho el logo.
 
 ## Tipografía
 
@@ -84,7 +95,7 @@ Espaciado base 4 px: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, más los tokens d
 
 | Componente | Forma |
 |---|---|
-| `Button` | Pastilla. `primary` negro sólido (uno por vista), `secondary` de vidrio, `accent` índigo, `ghost` sin relleno. `block` ocupa el ancho. |
+| `Button` | Pastilla. `primary` negro sólido (uno por vista), `secondary` de vidrio, `accent` lluvia, `ghost` sin relleno. `block` ocupa el ancho. |
 | `IconButton` | Círculo de 44 px de vidrio con `glass-wash`: `surface`, `urgent` y `pending` (vidrio teñido del estado), `solid` (negro), `ghost`. Siempre con `label`. |
 | `Chip` | Pastilla de vidrio teñido con `glass-wash`, punto que brilla con su color y texto en tinta. `urgent`, `pending`, `done`, `closed`, `neutral`. |
 | `ButtonGroup` | Tres o más acciones relacionadas en fila van en **una sola pastilla de vidrio**, nunca como botones sueltos. Adentro, botones `ghost`; como mucho uno `primary`/`solid` marca la acción principal. |
@@ -93,7 +104,7 @@ Espaciado base 4 px: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, más los tokens d
 | `GlassPanel` | Vidrio con `glass-wash`, para paneles sobre el mapa y hojas inferiores. |
 | `FloatingNav` | Pastilla de vidrio flotante, la única barra de navegación. Celular: abajo, solo íconos. Tablet y escritorio: arriba, ícono y texto. Ítem activo en negro. Va fuera de `<main>` y la página le deja espacio con `pb-nav-bottom md:pt-nav-top`. |
 | `Aurora` | Fondo ambiental. |
-| `Field` + `Input` | Etiqueta, campo relleno sin línea, ayuda o error. Al enfocarlo pasa a blanco con un halo suave de color `accent`, sin contorno. Error: relleno `status-urgent-tint` y texto `status-urgent-text`. |
+| `Field` + `Input` | Etiqueta, campo de vidrio esmerilado con brillo arriba, ayuda o error. Al enfocarlo el vidrio se aclara y proyecta un resplandor difuso de color `accent` hacia abajo; nunca un halo o anillo alrededor. Error: vidrio teñido de `status-urgent-tint` y texto `status-urgent-text`. |
 | `Skeleton`, `Spinner` | Ver Carga. |
 
 ## Movimiento
@@ -138,7 +149,8 @@ Se revisa a 375, 768, 1024 y 1440 px, en los dos temas. Objetivos táctiles de 4
 ## No hagas
 
 - Bordes o contornos para separar o decorar; dos colores en una pieza.
-- Texto rosado chico; un estado dicho solo con color.
+- Un estado dicho solo con color; lluvia, tierra o musgo para una acción.
+- El logo con color, sombra o contenedor, o reescrito con la fuente.
 - Más de una frase iridiscente por vista, o luces en piezas que no son tarjetas ni paneles.
 - Valores fuera de la escala; sombras, radios o duraciones inventadas.
 - Spinners para cargar páginas; partes de una vista que llegan a destiempo.

@@ -10,7 +10,7 @@ Dos personas, y después contribuidores externos, van a construir pantallas en p
 ## Decisión
 
 - **Primitivas:** shadcn/ui, copiadas a `src/shared/ui/` (el código queda en el repo y es nuestro). Accesibilidad de Radix incluida.
-- **Lenguaje visual:** [DESIGN.md](../DESIGN.md): pastillas, vidrio con luces iridiscentes, colores sólidos sin bordes, marca negro, blanco, rosado `#EF318C` e índigo `#3334E6`. Reemplaza la primera versión, basada en General Intelligence Company, que se descartó antes de construir pantallas.
+- **Lenguaje visual:** [DESIGN.md](../DESIGN.md): pastillas, vidrio con luces iridiscentes, colores sólidos sin bordes, marca negro y blanco con las familias lluvia, tierra y musgo (PR #7). Reemplaza la primera versión, basada en General Intelligence Company, que se descartó antes de construir pantallas.
 - **Tokens:** Tailwind v4 con `@theme` en `src/shared/ui/theme.css`, que resetea los defaults de Tailwind. Es la única fuente de color, espaciado, radio, sombra y tipografía.
 - **Temas claro, oscuro y automático** como parte del sistema: cada token tiene valor en los dos temas y los componentes no usan `dark:`.
 - **Responsive de fábrica:** cada primitiva funciona en celular, tablet (iPad) y escritorio.

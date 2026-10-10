@@ -38,7 +38,7 @@ When you adopt a convention, hit a mistake twice, add a module or make a long-ta
 
 ## UI: closed design system
 
-Visual language and tokens: `docs/DESIGN.md` (pills, glass with iridescent light, solid colors, brand black/white/pink/indigo). Read it before designing any screen.
+Visual language and tokens: `docs/DESIGN.md` (pills, glass with iridescent light, solid colors, brand black and white plus the rain, earth and moss families). Read it before designing any screen.
 
 **If it is not in `src/shared/ui/`, it does not exist.** Consistency beats speed here; there are no exceptions "just for this screen".
 

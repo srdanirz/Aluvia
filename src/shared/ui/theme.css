@@ -18,7 +18,7 @@
   }
 }
 
-/* Light palette. Brand: black, white, pink #ef318c and indigo #3334e6 (docs/DESIGN.md). */
+/* Light palette. Brand: black and white, with the rain, earth and moss families (docs/DESIGN.md). */
 :root {
   --canvas: #f5f6fb;
   --surface: #ffffff;
@@ -30,31 +30,42 @@
   --line-strong: #b9bdd0;
   --action: #000000;
   --on-action: #ffffff;
-  --accent: #3334e6;
+  --accent: #3c6880;
   --on-accent: #ffffff;
-  --accent-tint: #e5e5fc;
-  --brand-pink: #ef318c;
-  --status-urgent: #ef318c;
-  --status-urgent-tint: #fde4f0;
-  --status-urgent-text: #c2186b;
-  --status-pending: #3334e6;
-  --status-pending-tint: #e5e5fc;
-  --status-done: #0f9d58;
-  --status-done-tint: #ddf4e8;
+  --accent-tint: #e9f1f5;
+  --status-urgent: #76563a;
+  --status-urgent-tint: #f5ede3;
+  --status-urgent-text: #76563a;
+  --status-pending: #3c6880;
+  --status-pending-tint: #e9f1f5;
+  --status-done: #4a6341;
+  --status-done-tint: #ecf1e7;
   --status-closed: #8b8ea3;
   --status-closed-tint: #eef0f5;
   --glass-fill: rgb(255 255 255 / 0.62);
   --glass-hover-fill: rgb(255 255 255 / 0.75);
-  /* Apple Intelligence glow hues, tuned to the brand; only the ambient background uses them. */
-  --aurora-1: #8d9fff;
-  --aurora-2: #f5b9ea;
-  --aurora-3: #c686ff;
+  /* Ambient glows in the rain, earth and moss families; only the background and light washes use them. */
+  --aurora-1: #bcd3df;
+  --aurora-2: #dfc9ad;
+  --aurora-3: #c4d3b9;
   --aurora-opacity: 0.5;
   /* Middle stop of text-iridescent: aurora-3 is too light for text on a light ground. */
-  --iridescent-mid: #7c3aed;
+  --iridescent-mid: #4a6341;
   --shadow-card-value: 0 1px 2px rgb(16 18 40 / 0.04), 0 8px 24px rgb(16 18 40 / 0.06);
   --shadow-float-value: 0 12px 32px rgb(16 18 40 / 0.12);
   color-scheme: light;
+  /* End of text-iridescent; the start is accent and the middle iridescent-mid. */
+  --iridescent-end: #76563a;
+  /* Ambient families (rain, earth, moss): bands, empty states, map zones, never actions or states. */
+  --rain-100: #e9f1f5;
+  --rain-300: #bcd3df;
+  --rain-600: #3c6880;
+  --earth-100: #f5ede3;
+  --earth-300: #dfc9ad;
+  --earth-600: #76563a;
+  --moss-100: #ecf1e7;
+  --moss-300: #c4d3b9;
+  --moss-600: #4a6341;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -69,26 +80,38 @@
     --line-strong: #454859;
     --action: #ffffff;
     --on-action: #000000;
-    --accent: #8e8fff;
+    --accent: #9cc4d9;
     --on-accent: #0b0c12;
-    --accent-tint: #23244a;
-    --brand-pink: #ff5fa8;
-    --status-urgent: #ff5fa8;
-    --status-urgent-tint: #3a1a2b;
-    --status-urgent-text: #ff5fa8;
-    --status-pending: #8e8fff;
-    --status-pending-tint: #23244a;
-    --status-done: #4ad295;
-    --status-done-tint: #143326;
+    --accent-tint: #172129;
+    --status-urgent: #d4b691;
+    --status-urgent-tint: #241e18;
+    --status-urgent-text: #d4b691;
+    --status-pending: #9cc4d9;
+    --status-pending-tint: #172129;
+    --status-done: #aac39d;
+    --status-done-tint: #1b2118;
     --status-closed: #9a9db2;
     --status-closed-tint: #23252f;
     --glass-fill: rgb(22 23 31 / 0.6);
     --glass-hover-fill: rgb(255 255 255 / 0.08);
-    --aurora-opacity: 0.22;
-    --iridescent-mid: #c686ff;
+    --iridescent-mid: #aac39d;
     --shadow-card-value: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.35);
     --shadow-float-value: 0 12px 32px rgb(0 0 0 / 0.5);
     color-scheme: dark;
+    --iridescent-end: #d4b691;
+    --aurora-1: #2b4252;
+    --aurora-2: #4b3d2e;
+    --aurora-3: #384733;
+    --aurora-opacity: 0.55;
+    --rain-100: #172129;
+    --rain-300: #2b4252;
+    --rain-600: #9cc4d9;
+    --earth-100: #241e18;
+    --earth-300: #4b3d2e;
+    --earth-600: #d4b691;
+    --moss-100: #1b2118;
+    --moss-300: #384733;
+    --moss-600: #aac39d;
   }
 }
 
@@ -103,26 +126,38 @@
   --line-strong: #454859;
   --action: #ffffff;
   --on-action: #000000;
-  --accent: #8e8fff;
+  --accent: #9cc4d9;
   --on-accent: #0b0c12;
-  --accent-tint: #23244a;
-  --brand-pink: #ff5fa8;
-  --status-urgent: #ff5fa8;
-  --status-urgent-tint: #3a1a2b;
-  --status-urgent-text: #ff5fa8;
-  --status-pending: #8e8fff;
-  --status-pending-tint: #23244a;
-  --status-done: #4ad295;
-  --status-done-tint: #143326;
+  --accent-tint: #172129;
+  --status-urgent: #d4b691;
+  --status-urgent-tint: #241e18;
+  --status-urgent-text: #d4b691;
+  --status-pending: #9cc4d9;
+  --status-pending-tint: #172129;
+  --status-done: #aac39d;
+  --status-done-tint: #1b2118;
   --status-closed: #9a9db2;
   --status-closed-tint: #23252f;
   --glass-fill: rgb(22 23 31 / 0.6);
   --glass-hover-fill: rgb(255 255 255 / 0.08);
-  --aurora-opacity: 0.22;
-  --iridescent-mid: #c686ff;
+  --iridescent-mid: #aac39d;
   --shadow-card-value: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.35);
   --shadow-float-value: 0 12px 32px rgb(0 0 0 / 0.5);
   color-scheme: dark;
+  --iridescent-end: #d4b691;
+  --aurora-1: #2b4252;
+  --aurora-2: #4b3d2e;
+  --aurora-3: #384733;
+  --aurora-opacity: 0.55;
+  --rain-100: #172129;
+  --rain-300: #2b4252;
+  --rain-600: #9cc4d9;
+  --earth-100: #241e18;
+  --earth-300: #4b3d2e;
+  --earth-600: #d4b691;
+  --moss-100: #1b2118;
+  --moss-300: #384733;
+  --moss-600: #aac39d;
 }
 
 @theme inline {
@@ -142,7 +177,15 @@
   --color-accent: var(--accent);
   --color-on-accent: var(--on-accent);
   --color-accent-tint: var(--accent-tint);
-  --color-brand-pink: var(--brand-pink);
+  --color-rain-100: var(--rain-100);
+  --color-rain-300: var(--rain-300);
+  --color-rain-600: var(--rain-600);
+  --color-earth-100: var(--earth-100);
+  --color-earth-300: var(--earth-300);
+  --color-earth-600: var(--earth-600);
+  --color-moss-100: var(--moss-100);
+  --color-moss-300: var(--moss-300);
+  --color-moss-600: var(--moss-600);
   --color-status-urgent: var(--status-urgent);
   --color-status-urgent-tint: var(--status-urgent-tint);
   --color-status-urgent-text: var(--status-urgent-text);
@@ -307,7 +350,12 @@
 
 /* Gradient text in the aurora hues. One highlighted phrase per view, at heading size or larger. */
 @utility text-iridescent {
-  background: linear-gradient(100deg, var(--accent) 0%, var(--iridescent-mid) 50%, var(--brand-pink) 100%);
+  background: linear-gradient(
+    100deg,
+    var(--accent) 0%,
+    var(--iridescent-mid) 50%,
+    var(--iridescent-end) 100%
+  );
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;

@@ -22,8 +22,8 @@ const chipVariants = cva(
 type ChipProps = ComponentProps<"span"> & VariantProps<typeof chipVariants>;
 
 /**
- * Status pill: tint, colored dot and ink text. The text carries the meaning; the color only
- * reinforces it, so a status is never told by color alone (and pink text would fail AA).
+  * Status pill: tinted glass, a glowing dot and ink text. The text carries the meaning and the
+ * color only reinforces it, so a status is never told by color alone.
  */
 export function Chip({ className, tone, children, ...props }: ChipProps) {
   return (
