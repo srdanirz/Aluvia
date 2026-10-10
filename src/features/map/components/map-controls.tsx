@@ -42,9 +42,9 @@ export function MapControlsColumn({ children }: { children: ReactNode }) {
   return (
     <ControlsContext value={value}>
       {children}
-      <div className="absolute start-4 top-16 flex max-w-narrow flex-col items-start gap-2 md:top-4">
+      <div className="absolute start-4 top-16 flex max-w-narrow flex-col items-start gap-2 md:start-auto md:end-4 md:items-end">
         {SLOTS.map((slot) => (
-          <div key={slot} ref={slotRefs[slot]} className="flex flex-col items-start gap-2 empty:hidden" />
+          <div key={slot} ref={slotRefs[slot]} className="flex flex-col items-start gap-2 empty:hidden md:items-end" />
         ))}
       </div>
     </ControlsContext>
