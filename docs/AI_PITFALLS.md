@@ -23,3 +23,12 @@ Errores repetibles al generar código, con la disciplina que los evita. Se agreg
 | Un 5xx sin log | Hay que reproducir el fallo a mano para entenderlo | Todo 5xx se registra con su causa. (croma) |
 | Llamada externa dentro de una transacción | Bloqueo largo y estado a medias si falla | Primero commit, después el efecto. (sur) |
 | `(#NN)` en el subject del commit | Número de PR duplicado al hacer squash | El subject va sin número. (croma) |
+
+## Propios de Aluvia
+
+| Error | Síntoma | Disciplina |
+|---|---|---|
+| `geometry(..., { srid: 4326 })` de Drizzle | La migración dice `geometry(point)` sin SRID y las filas quedan con SRID 0; el bbox falla con "mixed SRID" | Puntos con `wgs84Point()` de `src/shared/db/schema/types.ts`. Revisar el SQL generado, no solo el schema en TS. |
+| Nombre de constraint de más de 63 caracteres | Postgres lo trunca y la siguiente migración ve una diferencia que no existe | FKs compuestas con `name` explícito. |
+| Importar de una ruta interna de una dependencia (`drizzle-orm/pg-core/columns/postgis_extension/utils`) | Un upgrade menor la mueve y el build se rompe | Versión exacta en `package.json` y revisar ese import al subirla. |
+| FK simple a una tabla de otra emergencia | Una fila de la emergencia A apunta a una casa de B y la base la acepta | Si la fila tiene `emergency_id`, la FK es compuesta `(x_id, emergency_id)`. |

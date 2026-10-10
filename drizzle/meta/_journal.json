@@ -8,6 +8,13 @@
       "when": 1791604149382,
       "tag": "0000_enable_postgis",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791608229458,
+      "tag": "0001_core_schema",
+      "breakpoints": true
     }
   ]
 }

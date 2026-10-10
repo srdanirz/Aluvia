@@ -40,7 +40,7 @@ Decisiones de base: [stack](adr/0002-stack.md) · [mapa](adr/0006-google-maps.md
 - **Migraciones con `drizzle-kit generate`, commiteadas y revisadas en el PR.** `drizzle-kit push` nunca toca un ambiente compartido.
 - Solo migraciones aditivas en un deploy: renombrar o cambiar un tipo se hace en tres PRs (agregar, copiar datos, borrar). (origen: sur, `strong_migrations`)
 - Cada FK y cada columna que aparece en un `WHERE` u `ORDER BY` de un listado lleva índice **en la misma migración** que crea la consulta.
-- Ubicación como `geometry(Point, 4326)` con índice GiST. Las consultas por zona usan `ST_Intersects` en la base, nunca se filtra en JS. **Para distancias en metros**, `ST_DWithin(geom::geography, …)` con índice GiST sobre la expresión `(geom::geography)`: sobre `geometry` en 4326, la distancia se mide en grados.
+- Ubicación como `geometry(Point, 4326)` con el tipo `wgs84Point()` (`src/shared/db/schema/types.ts:16`) y índice GiST. Las consultas por zona usan `ST_Intersects` en la base, nunca se filtra en JS. **Para distancias en metros**, `ST_DWithin(geom::geography, …)` con índice GiST sobre la expresión `(geom::geography)`: sobre `geometry` en 4326, la distancia se mide en grados.
 - Instantes en `timestamptz` (UTC). Se muestran en la zona horaria de la emergencia (`emergencies.time_zone`) con `Intl`; los horarios silenciosos de avisos (ADR 0007) también se cuentan en esa zona.
 - Los nombres guardados (tablas, columnas, valores de enums) están en inglés desde el día uno: renombrarlos después deja atrás los datos ya escritos. (origen: sonda, `test_persisted_schema.py`)
 - Nada se borra en duro mientras dura una emergencia: un trabajo resuelto cambia de estado. Los datos personales se borran al cerrar la emergencia (SECURITY.md).
