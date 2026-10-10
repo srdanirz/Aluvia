@@ -103,7 +103,8 @@
         "addressHint": "Calle y número, como la escribirías en un sobre.",
         "retry": "Volver a buscar ubicación",
         "approximate": "Ubicación aproximada",
-        "approximateHelp": "El GPS no está seguro de dónde estás. Escribe también la dirección para que encuentren la casa."
+        "approximateHelp": "El GPS no está seguro de dónde estás. Escribe también la dirección para que encuentren la casa.",
+        "locatingHelp": "Si tarda, escribe la dirección. El GPS se suma solo cuando responda."
       },
       "needs": {
         "title": "¿Qué necesita?",

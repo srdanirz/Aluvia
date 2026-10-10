@@ -95,6 +95,7 @@ export function ReportForm({ slug, workTypes, emergencyNumbers, source }: Report
     if (result.status === "rejected") {
       // The draft is still on screen to fix and resend, so the refused copy is not kept twice.
       discardOutboxEntry(id);
+      track("worksite_report_rejected", { code: result.code });
       setRejection(result.code);
       return;
     }
