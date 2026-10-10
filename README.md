@@ -11,7 +11,7 @@ Es open source y no es solo para Las Condes: está pensada para que cualquier co
 Fase de investigación y diseño. Todavía no hay código.
 
 - [Investigación y contexto](docs/README.md): qué pasó, cómo se resolvió en otros países y qué requisitos salen de ahí.
-- [Decisiones de arquitectura](docs/adr/): nube, stack, mapa, design system, modelo de datos, notificaciones y observabilidad.
+- [Decisiones de arquitectura](docs/adr/): nube, stack, mapa, design system, modelo de datos, notificaciones, observabilidad y multi-desastre.
 - Ingeniería: [STYLEGUIDE](docs/STYLEGUIDE.md) · [DESIGN](docs/DESIGN.md).
 
 ## Cómo trabajamos

@@ -23,7 +23,7 @@ Desde marzo de 2025 cada SKU tiene su propio cupo gratis mensual (10.000 cargas 
 
 - **Alertas de presupuesto** en la cuenta de facturación de GCP.
 - **Cuotas diarias** por API en la consola. Si un pico las agota, el mapa deja de cargar y la app pasa a la vista de lista (ver arriba), en vez de generar una cuenta sin techo. Las cuotas se revisan a diario mientras dure la emergencia.
-- **API key restringida** por referrer HTTP (solo nuestros dominios) y solo a las APIs que usamos. La key del navegador es pública por diseño; la restricción es lo que la protege.
+- **API key restringida** por referrer HTTP (solo nuestros dominios, incluido `admin.<dominio>`) y solo a las APIs que usamos. La key del navegador es pública por diseño; la restricción es lo que la protege.
 - Una sola carga del mapa por sesión: el mapa no se desmonta al navegar entre vistas.
 
 ## Términos de uso
