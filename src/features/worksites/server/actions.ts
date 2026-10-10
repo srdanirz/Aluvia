@@ -1,7 +1,6 @@
 "use server";
 
 import Anthropic from "@anthropic-ai/sdk";
-import { after } from "next/server";
 import { z } from "zod";
 
 import { trackServerEvent } from "@/shared/analytics/server";
@@ -71,8 +70,11 @@ export async function extractDrafts(
     });
     extractDuration.record((performance.now() - started) / 1000, { outcome: result.ok ? "ok" : result.code });
     if (result.ok) {
-      const count = result.drafts.length;
-      after(() => trackServerEvent("worksite_drafts_extracted", { count }, { distinctId: access?.userId }));
+      trackServerEvent(
+        "worksite_drafts_extracted",
+        { count: result.drafts.length },
+        { distinctId: access?.userId },
+      );
     }
     return result;
   } catch (error) {
@@ -140,9 +142,7 @@ export async function placeWorksiteAction(
   const { worksiteId, location, version, allowNearby } = parsed.data;
   const result = await placeWorksite(db, { emergencyId, worksiteId, location, version, allowNearby });
   if (result.ok) {
-    after(() =>
-      trackServerEvent("worksite_placed", { hadNearby: allowNearby }, { distinctId: access?.userId }),
-    );
+    trackServerEvent("worksite_placed", { hadNearby: allowNearby }, { distinctId: access?.userId });
   }
   return result;
 }
