@@ -1,6 +1,6 @@
 # 0007 · Notificaciones
 
-- **Estado:** aceptada. Los proveedores de SMS y WhatsApp se eligen en un ADR propio antes de implementar notificaciones.
+- **Estado:** aceptada. Proveedores en [0010](0010-proveedores-de-avisos.md).
 - **Fecha:** 2026-10-10
 
 ## Contexto
@@ -22,7 +22,7 @@ Una coordinación que depende de que la gente abra la app no funciona: el volunt
 | **Normal** | Tu trabajo quedó hecho · Hay un turno nuevo cerca | Push y email | Sin avisos entre 22:00 y 8:00 |
 | **Resumen** | Coordinador: casas nuevas sin atender en su zona | Email diario o push agrupado | Una vez al día |
 
-"Leído" es abrir la notificación o abrir la app después de recibirla; queda en `read_at`. El reintento por otro canal se programa con `not_before`.
+"Leído" es tocar el push: el service worker lo reporta con un `POST` y queda en `read_at`. Abrir el link corto `/n/<id>` no cuenta, porque los antivirus de email y las vistas previas de chat abren links sin la persona. El reintento por otro canal se programa con `not_before` y se cierra con `read_elsewhere` si otro aviso del mismo evento ya se leyó.
 
 El nivel lo define el **tipo de evento** en el código, no quien lo envía: nadie puede mandar un "importante" a mano para que llegue más fuerte.
 
@@ -39,6 +39,7 @@ El nivel lo define el **tipo de evento** en el código, no quien lo envía: nadi
 - **Sin duplicados por evento:** `UNIQUE NULLS NOT DISTINCT (event_key, user_id, worksite_id, channel)` en `notifications`. El mismo evento no genera dos filas para la misma persona y canal, y eso es lo que garantiza "un solo SMS por evento y persona". Los proveedores (Twilio, WhatsApp Cloud API, Web Push) no ofrecen claves de idempotencia en las que apoyarse.
 - **Un adaptador por canal** en un registro (`features/notifications/channels/<canal>/`), con el mismo contrato: `send(notification) → { ok } | { ok: false, code, retryable }`. Agregar un canal no toca nada central.
 - Reintentos con backoff solo si `retryable`.
+- **Quién llama al worker:** solo Cloud Scheduler, con un token OIDC que Google firma para la cuenta de servicio del scheduler (`SCHEDULER_SERVICE_ACCOUNT`) y cuyo audience es la URL del endpoint. No hay un secreto compartido que filtrar ni rotar. Fuera de producción, `SCHEDULER_DEV_TOKEN` permite llamarlo a mano (`src/shared/scheduler-auth.ts`).
 - Tablas nuevas, en la misma base (ADR 0005): `notifications` (outbox, con `emergency_id`), y `notification_preferences` y `push_subscriptions`, que son del usuario, cruzan emergencias y se borran con él.
 
 ### Destinatarios

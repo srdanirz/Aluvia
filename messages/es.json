@@ -474,5 +474,52 @@
       "closed_no_help_wanted": "No necesita ayuda",
       "closed_duplicate": "Duplicado"
     }
+  },
+  "notifications": {
+    "shift_cancelled": {
+      "title": "Tu turno se canceló",
+      "body": "El turno del {startsAt, date, shift} se canceló. Revisa otros turnos en Aluvia.",
+      "sms": "Aluvia: se canceló tu turno. {url}"
+    },
+    "shift_meeting_point_changed": {
+      "title": "Tu turno cambió de punto de encuentro",
+      "body": "El turno del {startsAt, date, shift} tiene un nuevo punto de encuentro. Revísalo antes de salir.",
+      "sms": "Aluvia: tu turno cambió de lugar. {url}"
+    },
+    "work_item_reassigned": {
+      "title": "Un trabajo que tomaste fue reasignado",
+      "body": "Un coordinador asignó a otra persona un trabajo que habías tomado.",
+      "sms": "Aluvia: reasignaron tu trabajo. {url}"
+    },
+    "work_item_claimed": {
+      "title": "Alguien tomó un trabajo en tu casa",
+      "body": "Un voluntario tomó un trabajo en tu casa. Puedes ver el avance en Aluvia.",
+      "sms": "Aluvia: un voluntario va a tu casa. {url}"
+    },
+    "shift_reminder": {
+      "title": "Tu turno empieza pronto",
+      "body": "Tu turno es el {startsAt, date, shift}. Revisa el punto de encuentro.",
+      "sms": "Aluvia: tu turno empieza pronto. {url}"
+    },
+    "shift_created_nearby": {
+      "title": "Hay un turno nuevo cerca",
+      "body": "Se abrió un turno para el {startsAt, date, shift}. Inscríbete si puedes ir.",
+      "sms": "Aluvia: hay un turno nuevo cerca. {url}"
+    },
+    "unattended_worksites_digest": {
+      "title": "Casas sin atender en tu zona",
+      "body": "{count, plural, one {# casa nueva espera} other {# casas nuevas esperan}} que alguien tome sus trabajos.",
+      "sms": "Aluvia: hay casas sin atender. {url}"
+    },
+    "work_item_claim_expired": {
+      "title": "Una reserva tuya venció",
+      "body": "No marcaste avance a tiempo y un trabajo que tomaste volvió a quedar libre. Puedes tomarlo de nuevo si aún vas.",
+      "sms": "Aluvia: una reserva tuya venció. {url}"
+    },
+    "work_item_needs_follow_up": {
+      "title": "Una casa necesita seguimiento",
+      "body": "Un voluntario marcó que una casa necesita volver. Revisa qué falta.",
+      "sms": "Aluvia: una casa necesita seguimiento. {url}"
+    }
   }
 }

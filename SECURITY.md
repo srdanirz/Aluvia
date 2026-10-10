@@ -15,6 +15,10 @@ Aluvia guarda información sensible de familias en un mal momento: dirección, t
   - **Google Maps:** lo que el vecino escribe en la dirección (autocompletado) y la zona que mira en el mapa. La política enlaza la de Google, como exigen sus términos.
   - **Sentry:** errores técnicos, sin datos personales (se limpian antes de enviar).
   - **Anthropic (API de Claude):** el texto que pega un coordinador en la carga en lote, para extraer direcciones. No se guarda en Aluvia ni se usa para entrenar modelos (política de la API).
+  - **Resend:** el email del voluntario y el texto del aviso. Envía desde São Paulo; sus registros quedan en EE. UU. (ADR 0010).
+  - **Twilio:** el teléfono y el texto de cada SMS, y las respuestas BAJA.
+  - **Meta (WhatsApp Cloud API):** el teléfono y el link de cada aviso por WhatsApp.
+  - **Servicios de push del navegador** (Google, Apple, Mozilla): un aviso cifrado de punta a punta; no ven su contenido.
   - **PostHog (UE):** eventos de uso con id anónimo, sin IP y sin ids de casas en las URLs.
   - Métricas, logs y Grafana quedan dentro de nuestro proyecto de GCP.
 - **Infraestructura:** Cloud SQL con IP privada, acceso por IAM y cuentas de servicio con el mínimo permiso.

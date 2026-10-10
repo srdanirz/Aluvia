@@ -141,6 +141,7 @@ describe("emergency boundaries", () => {
       db.insert(notifications).values({
         emergencyId: emergencyA,
         eventKey: "cross",
+        type: "work_item_claimed",
         worksiteId: homeInB,
         channel: "sms",
         level: "important",
@@ -277,6 +278,7 @@ describe("notifications", () => {
     const row = {
       emergencyId: emergencyA,
       eventKey: "work_item_claimed:1",
+      type: "work_item_claimed",
       userId,
       channel: "sms" as const,
       level: "important" as const,
@@ -291,6 +293,7 @@ describe("notifications", () => {
     const base = {
       emergencyId: emergencyA,
       eventKey: "test",
+      type: "work_item_claimed",
       channel: "sms" as const,
       level: "normal" as const,
     };

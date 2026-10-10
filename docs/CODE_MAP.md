@@ -17,13 +17,22 @@
 | `src/shared/i18n/` | Registro de idiomas (`locales.ts`), routing, navegación y carga de mensajes |
 | `messages/*.json` | Textos por idioma; un test exige las mismas claves en todos |
 | `src/shared/db/` | `client.ts` (única conexión), `types.ts` (`Database`, `Transaction`, `Executor`), `errors.ts` (SQLSTATE a códigos), `catalog.ts` (copia las plantillas de trabajos e insumos a una emergencia), `query-counter.ts` (tests de N+1), `metrics.ts` (conexiones de la base contra su máximo y saturación del pool de cada instancia, por una conexión propia) |
-| `src/shared/db/schema/` | Una tabla por archivo (ADR 0005, 0009): `disaster-types`, `emergencies` (+ settings), `emergency-members`, `users`, `work-types`, `worksites` (+ contactos aparte), `work-items` (+ eventos), `supply-types`, `worksite-updates` (+ insumos que faltan), `rate-limits`, `shifts` (+ inscripciones), `emergency-notices` (aviso oficial), `notifications` (outbox, preferencias, push), `audit`; `enums.ts` y `types.ts` (`LocalizedText`, `wgs84Point`, `multiPolygon`, `e164`, `localeTag`). Se importa desde `@/shared/db/schema` |
+| `src/shared/db/schema/` | Una tabla por archivo (ADR 0005, 0009): `disaster-types`, `emergencies` (+ settings), `emergency-members`, `users`, `work-types`, `worksites` (+ contactos aparte), `work-items` (+ eventos), `supply-types`, `worksite-updates` (+ insumos que faltan), `rate-limits`, `shifts` (+ inscripciones), `emergency-notices` (aviso oficial), `notifications` (outbox, preferencias, push, uso diario de mensajes pagados), `audit`; `enums.ts` y `types.ts` (`LocalizedText`, `wgs84Point`, `multiPolygon`, `e164`, `localeTag`). Se importa desde `@/shared/db/schema` |
 | `src/shared/db/seeds/` | Seeds revisados (ADR 0009): tipos de desastre, plantillas y la primera emergencia. `pnpm db:seed`, idempotente |
 | `src/shared/lib/pagination.ts` | Paginación keyset: `Page`, `pageOf`, cursores por `(created_at, id)` |
 | `src/shared/i18n/localized-text.ts`, `language-names.ts` | Leer un `jsonb` por idioma con respaldo; nombres de idiomas por `Intl` |
 | `src/features/admin/` | Panel `/[locale]/admin` (ADR 0009): tipos de desastre y plantilla, emergencias (crear, configurar, área, aviso oficial, cerrar). `server/views.ts` carga cada vista; `findActiveNotice` es el aviso público que leen mapa y reporte |
 | `src/app/[locale]/admin/` | Rutas del admin; solo componen `@/features/admin` |
 | `scripts/` | Comandos de una vez con tsx: `seed.mts`, `admin-grant.mts` (`pnpm admin:grant <teléfono\|email>`) |
+| `src/shared/i18n/messages.ts` | `loadMessages(locale)` y `matchLocale(tag)`: textos para escribirle a alguien en su idioma fuera de un request (avisos) |
+| `src/shared/messaging/` | Clientes de proveedores de mensajes (ADR 0010): `sendWebPush`, `sendEmail` (Resend), `sendSms` y `verifyTwilioSignature` (Twilio), `sendWhatsAppTemplate` (Meta); `config.ts` (cada proveedor todo o nada), `gsm.ts` (SMS en un segmento) |
+| `src/features/notifications/` | Avisos (ADR 0007): `catalog.ts` (tipos, nivel, destinatario, params), `enqueueNotification` en la transacción del cambio, worker `dispatchNotifications` (reclamo con `SKIP LOCKED`, horario silencioso, tope diario con reserva, reintentos, escalamiento), `channels/<canal>/` (registro de adaptadores), links cortos `/n/<id>`, respaldo de WhatsApp a SMS, `markNotificationUndelivered` (fallas que el proveedor reporta después), `cancelPendingNotifications`, `listUndeliveredNeighborNotices` (vecinos a llamar), suscripciones push, baja por SMS |
+| `src/app/api/v1/notifications/dispatch/` | Worker del outbox, llamado por Cloud Scheduler |
+| `src/shared/scheduler-auth.ts` | `isSchedulerRequest`: solo Cloud Scheduler (token OIDC de Google para su cuenta de servicio) llama a los jobs por minuto |
+| `src/app/api/v1/webhooks/twilio/` | Estado de entrega de nuestros SMS y SMS entrantes: BAJA apaga el SMS de ese teléfono |
+| `src/app/n/[id]/` | Link corto de un aviso: redirige a su página en el idioma del destinatario |
+| `src/app/api/v1/notifications/[id]/read/` | `POST` del service worker al tocar un push: lo marca leído y cancela su respaldo pagado |
+| `public/sw.js` | Service worker: muestra los push, reporta el toque y abre su link |
 | `src/shared/env.ts` | Variables de entorno validadas con zod al arrancar |
 | `src/shared/public-env.ts` | Variables `NEXT_PUBLIC_` que lee el navegador, sin zod; `next.config.ts` las valida en el build |
 | `src/instrumentation.ts`, `src/instrumentation-client.ts` | Arranque de la observabilidad en servidor y navegador (ADR 0008) |
@@ -41,4 +50,5 @@
 | `tests/setup/` | PostGIS en testcontainers y `createTestDb()` con contador de consultas |
 | `tests/setup/fixtures.ts` | Emergencia de prueba con catálogo inventado y `rejectionCode` |
 | `tests/admin.test.ts` | Admin: concurrencia de ediciones, cierre y aviso; seeds; `admin_events` de solo inserción; conteo de consultas y cursor |
+| `tests/notifications/` | Rutas (webhook de Twilio, leído), entrega única, dos workers en paralelo, lease, reintentos, horario silencioso, topes con reserva, escalamiento, proveedores y textos |
 | `tests/schema.test.ts` | Las reglas que decide la base: FKs por emergencia, cupo de turnos, una inscripción activa, un aviso por evento |

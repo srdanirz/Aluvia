@@ -33,6 +33,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "drizzle-orm": "0.45.4",
+    "jose": "6.2.12",
     "libphonenumber-js": "^1.13.15",
     "lucide-react": "^1.54.0",
     "next": "16.4.0",
@@ -45,6 +46,7 @@
     "react-dom": "19.3.0",
     "server-only": "^0.0.1",
     "tailwind-merge": "^3.7.0",
+    "web-push": "3.6.7",
     "zod": "^4.6.5"
   },
   "devDependencies": {
@@ -54,6 +56,7 @@
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/web-push": "3.6.4",
     "drizzle-kit": "^0.31.11",
     "eslint": "^9",
     "eslint-config-next": "16.4.0",
