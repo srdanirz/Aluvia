@@ -4,7 +4,6 @@ import { X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 
-import { track } from "@/shared/analytics/client";
 import { useErrorMessage } from "@/shared/i18n/use-error-message";
 import type { Locale } from "@/shared/i18n/locales";
 import { usePersistedState } from "@/shared/offline/use-persisted-state";
@@ -52,7 +51,6 @@ export function BatchImport({ slug, workTypes }: BatchImportProps) {
       try {
         const result = await extractDrafts({ slug, locale, text });
         if (!result.ok) return setError(result.code);
-        track("worksite_drafts_extracted", { count: result.drafts.length });
         setDrafts((list) => [
           ...list,
           ...result.drafts.map((draft) => ({ id: crypto.randomUUID(), ...draft })),

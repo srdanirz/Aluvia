@@ -90,7 +90,8 @@
         "addressHint": "Street and number, as you would write it on an envelope.",
         "retry": "Find location again",
         "approximate": "Approximate location",
-        "approximateHelp": "The GPS is not sure where you are. Write the address too so people can find the home."
+        "approximateHelp": "The GPS is not sure where you are. Write the address too so people can find the home.",
+        "locatingHelp": "If it takes long, write the address. The GPS joins in on its own when it answers."
       },
       "needs": {
         "title": "What does it need?",
