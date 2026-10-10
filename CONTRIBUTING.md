@@ -4,7 +4,7 @@ Somos dos mantenedores. Cada uno revisa el trabajo del otro, y así los dos sabe
 
 ## Flujo
 
-1. **Toma o crea un issue** antes de empezar y asígnatelo. Así el otro sabe en qué estás.
+1. **Toma o crea un issue** antes de empezar y asígnatelo. Así el otro sabe en qué estás. El PR lo cierra solo al mergearse si su descripción dice `Closes #N`; si solo avanza una parte, usa `Refs #N` y comenta en el issue lo que falta.
 2. **Actualiza `main` y crea la rama**, siempre en ese orden:
    `git switch main && git pull --ff-only && git switch -c feat/claim-work-item`.
    La rama es `tipo/descripcion-en-kebab`, en inglés, con los tipos de la tabla de abajo.

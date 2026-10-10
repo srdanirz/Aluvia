@@ -26,6 +26,7 @@ When you adopt a convention, hit a mistake twice, add a module or make a long-ta
 
 ## Hard rules
 
+- **Issues track the work.** Every PR names its issue in the body: `Closes #N` when it finishes it (GitHub closes the issue on merge), `Refs #N` when it only advances it. Starting work on an issue: assign it to yourself. A PR without an issue gets one first, unless it is pure tooling. After a merge, check that the issue closed; if the PR only partly covered it, comment what is left. Folded or superseded PRs are closed with a comment linking the one that carries the work.
 - **No AI attribution.** Never add `Co-Authored-By` for Claude or any AI, nor mention AI authorship, in commits or PR bodies. CI rejects it.
 - **Never commit to `main`.** Before creating a branch: `git switch main && git pull --ff-only`, then branch. Before asking for review: `git fetch origin main && git rebase origin/main`, rerun the checks, `git push --force-with-lease --force-if-includes`. A rebase after approval dismisses it (`main` requires branches up to date), so rebase right before review and merge right after approval. Never merge `main` into a branch. Workflow: `CONTRIBUTING.md`.
 - **Public repo, personal data.** No data of affected people or volunteers (addresses, phones, names, RUTs) anywhere in the repo, including tests and fixtures. Public views never select contact fields. `SECURITY.md`.
