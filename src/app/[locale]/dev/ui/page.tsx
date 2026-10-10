@@ -5,6 +5,7 @@ import {
   LayoutGrid,
   MessageCircle,
   Navigation,
+  Package,
   Phone,
   Search,
   Share2,
@@ -20,6 +21,7 @@ import {
   CardBody,
   CardTitle,
   Chip,
+  CollectionPointStatusChip,
   CopyField,
   DescriptionList,
   Field,
@@ -44,6 +46,7 @@ import { SegmentedDemo } from "./segmented-demo";
 // Living catalog of shared/ui: every primitive and variant on one page, for review in both themes.
 export default async function DesignSystemPage() {
   const t = await getTranslations("devUi");
+  const tPoints = await getTranslations("collectionPoints");
   return (
     <>
       <FloatingNav
@@ -131,6 +134,15 @@ export default async function DesignSystemPage() {
               {t("urgent")}
             </Chip>
           </div>
+          <div className="flex flex-wrap gap-2">
+            <CollectionPointStatusChip status="receiving">
+              {tPoints("statuses.receiving")}
+            </CollectionPointStatusChip>
+            <CollectionPointStatusChip status="only_some">
+              {tPoints("statuses.only_some")}
+            </CollectionPointStatusChip>
+            <CollectionPointStatusChip status="full">{tPoints("statuses.full")}</CollectionPointStatusChip>
+          </div>
         </Section>
 
         <Section title={t("mapMarkers")}>
@@ -141,6 +153,7 @@ export default async function DesignSystemPage() {
             <MapMarker tone="closed" icon={<CircleHelp />} />
             <MapMarker tone="urgent" icon={<TriangleAlert />} count={128} />
             <MapMarker tone="pending" icon={<Shovel />} selected />
+            <MapMarker tone="place" icon={<Package />} />
           </div>
         </Section>
 

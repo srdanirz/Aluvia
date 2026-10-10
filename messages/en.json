@@ -872,5 +872,32 @@
       "not_found": "That zone no longer exists.",
       "forbidden": "Only coordinators can draw zones."
     }
+  },
+  "collectionPoints": {
+    "add": "Add collection point",
+    "placeHint": "Tap the map where the collection point is.",
+    "placedHint": "Point placed. Tap somewhere else to move it.",
+    "nameLabel": "Name",
+    "addressLabel": "Address (optional)",
+    "hoursLabel": "Opening hours (optional)",
+    "phoneLabel": "Public phone of the place (optional)",
+    "acceptsLabel": "What it takes",
+    "acceptsEmpty": "This emergency has no supplies in its catalog yet.",
+    "statusLabel": "Status",
+    "statuses": {
+      "receiving": "Receiving",
+      "only_some": "Only some",
+      "full": "Full"
+    },
+    "statusNoteLabel": "Status note (optional)",
+    "changeStatus": "Change status",
+    "remove": "Remove point",
+    "confirmRemove": "Tap again to remove it",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "actions": "Collection point actions",
+    "call": "Call {phone}",
+    "marker": "Collection point {name}: {status}"
   }
 }

@@ -12,6 +12,9 @@ const mapMarkerVariants = cva(
         pending: "bg-status-pending",
         done: "bg-status-done",
         closed: "bg-status-closed",
+        // A place, not a home with a status (a donation collection point): brand ink, so it never
+        // reads as one of the traffic-light levels.
+        place: "bg-ink",
       },
       grouped: {
         true: "px-3",

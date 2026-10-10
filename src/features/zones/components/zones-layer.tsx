@@ -5,6 +5,7 @@ import { PenLine, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState, useTransition } from "react";
 
+import { MapControl, useMapTapMode } from "@/features/map/components/map-controls";
 import { useRouter } from "@/shared/i18n/navigation";
 import { useTokenColors } from "@/shared/maps/theme-colors";
 import {
@@ -41,7 +42,9 @@ export function ZonesLayer({ slug, zones, canDraw }: { slug: string; zones: MapZ
   const map = useMap();
   const router = useRouter();
   const [selected, setSelected] = useState<MapZone | null>(null);
-  const [drawing, setDrawing] = useState(false);
+  // Shared with the other map layers, so a tap is a zone corner only while no one else listens.
+  const [mode, setMode] = useMapTapMode();
+  const drawing = mode === "drawing_zone";
   // One id per drawing, so retrying a save whose answer got lost cannot draw the zone twice.
   const [zoneId, setZoneId] = useState<string | null>(null);
   const [points, setPoints] = useState<[number, number][]>([]);
@@ -61,7 +64,7 @@ export function ZonesLayer({ slug, zones, canDraw }: { slug: string; zones: MapZ
   }, [map, drawing]);
 
   function stopDrawing() {
-    setDrawing(false);
+    setMode("idle");
     setZoneId(null);
     setPoints([]);
     setNote("");
@@ -108,7 +111,7 @@ export function ZonesLayer({ slug, zones, canDraw }: { slug: string; zones: MapZ
           <Polygon
             key={zone.id}
             paths={zone.polygons.flatMap((rings) => rings.map(toPath))}
-            clickable={!drawing}
+            clickable={mode === "idle"}
             onClick={() => setSelected(zone)}
             fillColor={color}
             fillOpacity={0.18}
@@ -130,7 +133,7 @@ export function ZonesLayer({ slug, zones, canDraw }: { slug: string; zones: MapZ
         />
       ) : null}
 
-      <div className="absolute start-4 top-16 flex max-w-narrow flex-col items-start gap-2 md:top-4">
+      <MapControl slot="zones">
         {selected && !drawing ? (
           <GlassPanel className="flex flex-col gap-2 p-4">
             <div className="flex items-center justify-between gap-4">
@@ -149,12 +152,12 @@ export function ZonesLayer({ slug, zones, canDraw }: { slug: string; zones: MapZ
           </GlassPanel>
         ) : null}
 
-        {canDraw && !drawing && !selected ? (
+        {canDraw && mode === "idle" && !selected ? (
           <Button
             variant="secondary"
             onClick={() => {
               setZoneId(crypto.randomUUID());
-              setDrawing(true);
+              setMode("drawing_zone");
             }}
           >
             <PenLine aria-hidden />
@@ -192,7 +195,7 @@ export function ZonesLayer({ slug, zones, canDraw }: { slug: string; zones: MapZ
             {error ? <FormError>{error}</FormError> : null}
           </GlassPanel>
         ) : null}
-      </div>
+      </MapControl>
     </>
   );
 }
