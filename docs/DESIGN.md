@@ -8,7 +8,7 @@ Paneles de vidrio sobre un fondo luminoso, luces iridiscentes, piezas en forma d
 
 **Reglas que no se discuten:**
 
-1. **Sin bordes.** Una pieza se separa con espacio, con otro tono de superficie o con sombra, nunca con una línea. El lint rechaza `border`, `outline`, `ring` y `divide` fuera de `shared/ui`. La única línea es el anillo de foco cuando se navega con teclado en botones y enlaces (accesibilidad); los campos muestran el foco aclarando el vidrio y con un resplandor difuso, nunca con un anillo.
+1. **Sin bordes.** Una pieza se separa con espacio, con otro tono de superficie o con sombra, nunca con una línea. El lint rechaza `border`, `outline`, `ring` y `divide` fuera de `shared/ui`. La única línea es el anillo de foco cuando se navega con teclado en botones y enlaces (accesibilidad); los campos muestran el foco aclarando el vidrio y elevándose, nunca con un anillo o una luz de color.
 2. **Un color por pieza.** Un botón es un relleno sólido (o un degradado), nunca un relleno de un color con un borde de otro.
 3. **Pastillas.** Botones, chips, selectores y navegación son `rounded-full`. Tarjetas y paneles, radios grandes. Tres o más acciones en fila se unen en una pastilla larga (`ButtonGroup`).
 4. **Luz, no líneas.** La profundidad la dan el vidrio, las luces iridiscentes (`glass-wash`) y la sombra.
@@ -104,7 +104,7 @@ Espaciado base 4 px: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, más los tokens d
 | `GlassPanel` | Vidrio con `glass-wash`, para paneles sobre el mapa y hojas inferiores. |
 | `FloatingNav` | Pastilla de vidrio flotante, la única barra de navegación. Celular: abajo, solo íconos. Tablet y escritorio: arriba, ícono y texto. Ítem activo en negro. Va fuera de `<main>` y la página le deja espacio con `pb-nav-bottom md:pt-nav-top`. |
 | `Aurora` | Fondo ambiental. |
-| `Field` + `Input` | Etiqueta, campo de vidrio esmerilado con brillo arriba, ayuda o error. Al enfocarlo el vidrio se aclara y proyecta un resplandor difuso de color `accent` hacia abajo; nunca un halo o anillo alrededor. Error: vidrio teñido de `status-urgent-tint` y texto `status-urgent-text`. |
+| `Field` + `Input` | Etiqueta, campo de vidrio esmerilado con brillo arriba, ayuda o error. Al enfocarlo el vidrio se aclara y se eleva con `shadow-float`; sin luz de color, halo ni anillo. Error: vidrio teñido de `status-urgent-tint` y texto `status-urgent-text`. |
 | `Skeleton`, `Spinner` | Ver Carga. |
 
 ## Movimiento
