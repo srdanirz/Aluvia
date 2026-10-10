@@ -36,6 +36,10 @@ When you adopt a convention, hit a mistake twice, add a module or make a long-ta
 - **Observable by default** (`docs/adr/0008-observabilidad.md`): every feature ships its metrics, its product events from `src/shared/analytics/events.ts` and, if failure leaves someone without help, its alert. No personal data in events, metrics, logs or errors.
 - **Pages never touch the database.** They call `features/<x>/server/`.
 
+## Product rule: zero friction
+
+Using Aluvia must be easier than posting an Instagram story, or people will not use it. Report a home in under 30 seconds and 3 taps (GPS prefilled, needs picked by tapping), no account to report or view, a shared link opens the home directly, typing is always optional, input is never lost. See `docs/DESIGN.md`, "Primero: sin fricción".
+
 ## UI: closed design system
 
 Visual language and tokens: `docs/DESIGN.md` (pills, glass with iridescent light, solid colors, brand black and white plus the rain, earth and moss families). Read it before designing any screen.

@@ -2,6 +2,21 @@
 
 Lenguaje visual de Aluvia. Se lee **antes de diseñar o construir cualquier pantalla**. Es la especificación; la implementación es `src/shared/ui/theme.css`, y si difieren manda `theme.css` y este archivo se corrige en el mismo PR. Reglas de uso fuera de `shared/ui/`: [ADR 0004](adr/0004-design-system.md) y [STYLEGUIDE](STYLEGUIDE.md). Catálogo vivo: `/es/dev/ui`.
 
+## Primero: sin fricción
+
+**Usar Aluvia tiene que ser más fácil que subir una historia de Instagram.** Si no, la gente sigue con las historias y la app no sirve. Cada pantalla se mide contra eso:
+
+| Regla | Medida |
+|---|---|
+| Reportar una casa | Menos de 30 segundos y 3 toques: ubicación (GPS ya puesto), qué necesita (tocar íconos, no escribir), enviar |
+| Cuenta | Nadie crea cuenta para reportar ni para mirar el mapa. Tomar un trabajo pide solo nombre y teléfono, una vez |
+| Link | Un link compartido por WhatsApp abre directo la casa o la zona, sin pasos previos |
+| Escribir | Opcional siempre. Todo lo obligatorio se elige con un toque |
+| Una cosa por pantalla | Una acción principal; lo demás, escondido hasta que se pida |
+| Errores | Nunca se pierde lo que alguien ingresó: se guarda en el teléfono hasta que llega |
+
+Si una pantalla necesita explicarse, está mal diseñada.
+
 ## Dirección
 
 Paneles de vidrio sobre un fondo luminoso, luces iridiscentes, piezas en forma de pastilla y colores sólidos. Referencias: interfaces de seguimiento con mapa (lista de tarjetas a un lado, mapa al otro, detalle flotando abajo) y el brillo ambiental de Apple Intelligence.
