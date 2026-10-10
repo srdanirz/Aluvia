@@ -26,7 +26,7 @@ Cuatro capas, cada una con su herramienta.
 ### 3. Uso de la app: eventos de producto + datos de dominio
 
 - **Eventos de producto con PostHog** (open source), en su región de la **UE**: qué pantallas se usan, dónde abandonan el reporte, en qué dispositivo. Los eventos están en un **catálogo único** (`src/shared/analytics/events.ts`) con nombre en `snake_case` y en pasado (`worksite_reported`, `work_item_claimed`) y su schema zod; no se envía un evento que no esté ahí.
-- Configuración de PostHog, sin excepciones: descartar la IP en el proyecto, `autocapture: false`, sin session replay, `person_profiles: "identified_only"`, y un `before_send` que reemplaza los ids de las URLs (`/worksites/[id]`) antes de enviar. El usuario se identifica por un id anónimo, su rol y la emergencia.
+- Configuración de PostHog, sin excepciones: descartar la IP en el proyecto, `autocapture: false`, sin session replay, `person_profiles: "identified_only"`, y un `before_send` que reemplaza los ids de las URLs (`/emergencies/[slug]/worksites/[id]`) antes de enviar. El usuario se identifica por un id anónimo, su rol y la emergencia.
 - **Uso por zona, desde la base**: Grafana lee Postgres con un usuario de solo lectura y vistas agregadas (nunca tablas con contactos). Casas reportadas por hora y por zona, tiempo hasta que alguien toma un trabajo, trabajos sin tomar hace más de 24 h por manzana, voluntarios activos por turno. Es el mapa de calor de "en qué esquina falta ayuda".
 
 ### 4. Alertas automáticas

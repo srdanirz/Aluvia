@@ -1,0 +1,68 @@
+{
+  "meta": {
+    "title": "Aluvia",
+    "description": "Coordinación de ayuda después de un desastre: qué casas están afectadas, qué necesita cada una y dónde hace falta gente."
+  },
+  "home": {
+    "eyebrow": "Coordinación de ayuda en emergencias",
+    "title": "Coordinar la ayuda, casa por casa",
+    "lead": "Aluvia muestra qué casas están afectadas por un desastre, qué necesita cada una y dónde hace falta gente. Está en construcción.",
+    "source": "Ver el código"
+  },
+  "theme": {
+    "label": "Tema",
+    "system": "Automático",
+    "light": "Claro",
+    "dark": "Oscuro"
+  },
+  "devUi": {
+    "title": "Catálogo del <highlight>design system</highlight>",
+    "lead": "Todas las piezas con sus variantes. Revísalas en tema claro y oscuro, y a 375, 768, 1024 y 1440 px.",
+    "buttons": "Botones",
+    "iconButtons": "Botones de ícono",
+    "chips": "Estados",
+    "segmented": "Selector de vista",
+    "cards": "Tarjetas",
+    "glass": "Panel de vidrio",
+    "fields": "Campos",
+    "loading": "Carga",
+    "primary": "Principal",
+    "secondary": "Secundario",
+    "accent": "Acento",
+    "ghost": "Discreto",
+    "disabled": "Deshabilitado",
+    "search": "Buscar",
+    "call": "Llamar",
+    "message": "Enviar mensaje",
+    "urgent": "Sin tomar",
+    "pending": "Tomado",
+    "done": "Hecho",
+    "closed": "Duplicado",
+    "neutral": "Sin verificar",
+    "viewOpen": "Sin tomar",
+    "viewTaken": "Tomados",
+    "viewLabel": "Vista de trabajos",
+    "addressLabel": "Dirección",
+    "addressHint": "Calle y número, como la escribirías en un sobre.",
+    "phoneLabel": "Teléfono",
+    "phoneError": "Revisa el número: faltan dígitos.",
+    "cardTitle": "Casa de ejemplo",
+    "cardBody": "Datos inventados. Daño en el primer piso, dos adultos mayores.",
+    "cardSelected": "Seleccionada",
+    "glassTitle": "Trabajo en curso",
+    "glassBody": "Un panel de vidrio flota sobre el mapa o el fondo, nunca sobre texto.",
+    "saving": "Guardando",
+    "navLabel": "Navegación principal",
+    "navHome": "Inicio",
+    "navCatalog": "Catálogo",
+    "groups": "Grupos de acciones",
+    "groupLabel": "Acciones de la casa",
+    "directions": "Cómo llegar",
+    "share": "Compartir"
+  },
+  "notFound": {
+    "title": "No encontramos esta página",
+    "body": "Puede que el link esté mal escrito o que la página ya no exista.",
+    "back": "Volver al inicio"
+  }
+}

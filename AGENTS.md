@@ -1,8 +1,22 @@
 # Aluvia
 
-Open-source platform to coordinate aid after a mudslide (aluvión): which homes are affected, what work each one needs, who has taken it, where volunteers are needed. Born from the 2026-10-08 Las Condes aluvión; the data model follows Crisis Cleanup (worksite → work items → claimed → status). Two maintainers, every change lands by PR with cross review. Next.js + Postgres/PostGIS on GCP.
+Open-source platform to coordinate aid after any disaster: which homes are affected, what work each one needs, who has taken it, where volunteers are needed. Born from the 2026-10-08 Las Condes aluvión; the data model follows Crisis Cleanup (worksite → work items → claimed → status). Two maintainers, every change lands by PR with cross review. Next.js + Postgres/PostGIS on GCP.
+
+## Commands
+
+```bash
+pnpm dev          # app on http://localhost:3002 (fixed port)
+pnpm db:up        # Postgres + PostGIS on 5440 (docker compose)
+pnpm db:generate  # migration from schema changes; db:migrate applies it
+pnpm db:studio    # Drizzle Studio on 3003
+pnpm check        # typecheck, lint, format, test, build: what CI runs
+```
+
+Keep `pnpm dev` and `pnpm db:studio` running on those ports while working, so the maintainers can browse the result.
 
 ## Before writing code
+
+Next.js 16 differs from most training data (`proxy.ts` instead of middleware, Cache Components, `next/root-params`). Read the guide in `node_modules/next/dist/docs/` before writing Next code.
 
 1. `docs/CODE_MAP.md`, then `grep -rin "<concept>" src`. If it exists, extend it.
 2. `docs/STYLEGUIDE.md` for the layer you touch. `docs/AI_PITFALLS.md` before touching data access.
@@ -12,6 +26,7 @@ When you adopt a convention, hit a mistake twice, add a module or make a long-ta
 
 ## Hard rules
 
+- **Issues track the work.** Every PR names its issue in the body: `Closes #N` when it finishes it (GitHub closes the issue on merge), `Refs #N` when it only advances it. Starting work on an issue: assign it to yourself. A PR without an issue gets one first, unless it is pure tooling. After a merge, check that the issue closed; if the PR only partly covered it, comment what is left. Folded or superseded PRs are closed with a comment linking the one that carries the work.
 - **No AI attribution.** Never add `Co-Authored-By` for Claude or any AI, nor mention AI authorship, in commits or PR bodies. CI rejects it.
 - **Never commit to `main`.** Before creating a branch: `git switch main && git pull --ff-only`, then branch. Before asking for review: `git fetch origin main && git rebase origin/main`, rerun the checks, `git push --force-with-lease --force-if-includes`. A rebase after approval dismisses it (`main` requires branches up to date), so rebase right before review and merge right after approval. Never merge `main` into a branch. Workflow: `CONTRIBUTING.md`.
 - **Public repo, personal data.** No data of affected people or volunteers (addresses, phones, names, RUTs) anywhere in the repo, including tests and fixtures. Public views never select contact fields. `SECURITY.md`.
@@ -20,18 +35,25 @@ When you adopt a convention, hit a mistake twice, add a module or make a long-ta
 - **One central database.** Everything lives in the same Postgres and schema (`src/shared/db/schema/`). A new use case adds tables by migration and references the shared entities (`emergencies`, `users`, `worksites`, `work_items`); it never creates another database, a Firestore collection, a spreadsheet, or its own copy of people or homes. Reuse beats isolation: it is what keeps the product stable.
 - **Notifications go through the outbox** (`docs/adr/0007-notificaciones.md`): insert into `notifications` in the same transaction as the change; never call a provider from an action. Emergency/evacuation alerts are out of scope (that is SENAPRED's SAE).
 - **Observable by default** (`docs/adr/0008-observabilidad.md`): every feature ships its metrics, its product events from `src/shared/analytics/events.ts` and, if failure leaves someone without help, its alert. No personal data in events, metrics, logs or errors.
+- **Disaster-agnostic.** No disaster type, comuna, place or work type is written in code: it is emergency configuration in the database, edited from the admin (`/[locale]/admin`) (`docs/adr/0009-multi-desastre-y-admin.md`); the only exception is reviewed seeds in `src/shared/db/seeds/`. `messages/*.json` holds only interface text; emergency data is per-locale `jsonb`.
 - **Pages never touch the database.** They call `features/<x>/server/`.
+
+## Product rule: zero friction
+
+Using Aluvia must be easier than posting an Instagram story, or people will not use it. Report a home in under 30 seconds and 3 taps (GPS prefilled, needs picked by tapping), no account to report or view, a shared link opens the home directly, typing is always optional, input is never lost. See `docs/DESIGN.md`, "Primero: sin fricción".
 
 ## UI: closed design system
 
-Visual language and tokens: `docs/DESIGN.md` (adapted from General Intelligence Company via Refero). Read it before designing any screen.
+Visual language and tokens: `docs/DESIGN.md` (pills, glass with iridescent light, solid colors, brand black and white plus the rain, earth and moss families). Read it before designing any screen.
 
 **If it is not in `src/shared/ui/`, it does not exist.** Consistency beats speed here; there are no exceptions "just for this screen".
 
 - Every visual piece comes from `src/shared/ui/`. Features compose primitives; they never restyle them.
 - A missing primitive or variant is added to `src/shared/ui/` first (with a `cva` variant), in its own PR. Never a local one-off inside a feature.
 - Forbidden outside `src/shared/ui/`: raw `<table>`, `<button>`, `<input>`, `<select>`, `<dialog>`; the `style` prop; Tailwind arbitrary values (`w-[37px]`, `bg-[#f00]`); the `!` modifier and `!important`; any color, radius, shadow or spacing that is not a token from `src/shared/ui/theme.css`.
-- Tables are `DataTable`. Status colors come only from `StatusBadge`.
+- Three or more related actions in a row go in one `ButtonGroup` pill, never as loose buttons.
+- Status colors come only from `Chip`. No borders, outlines or rings, and one color per piece (lint enforces it).
+- **Uniform loading:** every route has one `loading.tsx` built from `Skeleton`; a view's data is fetched in parallel in one place and appears all at once. No nested `Suspense` inside a view. Motion uses only the tokens in DESIGN.md.
 - **Light, dark and system themes** are part of the tokens. Components never use `dark:`; the tokens switch.
 - **Phone, tablet (iPad) and desktop** are all first-class. Check every screen at 375, 768, 1024 and 1440 px, in both themes. Touch first: 44 px targets, nothing hover-only.
 - **Translation-ready:** adding a language is adding `messages/<code>.json` plus one line in the locale registry. No concatenated sentences, no hardcoded locale in `Intl`, logical properties (`ms-`/`me-`) instead of left/right.

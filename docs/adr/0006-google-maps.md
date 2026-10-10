@@ -10,7 +10,7 @@ El mapa es la vista central de Aluvia. ADR 0003 había elegido MapLibre con tese
 ## Decisión
 
 - **Render:** Google Maps JavaScript API con `@vis.gl/react-google-maps`, el wrapper de React que mantiene el equipo de Google Maps Platform.
-- **Pines:** Advanced Markers con un Map ID. El contenido del pin es un componente de `src/shared/ui/` (`MapPin`) con los tokens de estado de DESIGN.md.
+- **Pines:** Advanced Markers con un Map ID. El contenido del pin es un componente de `src/shared/ui/` (`MapPin`, a crear) con los tokens de estado de DESIGN.md.
 - **Direcciones:** Place Autocomplete (New) (`PlaceAutocompleteElement`), siempre con session token: sin él, cada tecla se cobra como una consulta aparte. La sugerencia solo **mueve el mapa**; después el vecino pone o arrastra el pin y confirma "mi casa está aquí", o usa el GPS del celular.
 - **Lo que se guarda:** la dirección tal como la escribió el vecino, el punto que él confirmó y, opcionalmente, el `place_id`. No se guardan la dirección formateada ni las coordenadas que devuelve Google.
 - **Si el mapa no carga** (cuota agotada, Google caído, señal mala), la app sigue funcionando: vista de lista por zona y reporte con GPS o con la dirección escrita. El mapa mejora la app, pero no es un requisito para reportar ni para tomar trabajos.
@@ -23,7 +23,7 @@ Desde marzo de 2025 cada SKU tiene su propio cupo gratis mensual (10.000 cargas 
 
 - **Alertas de presupuesto** en la cuenta de facturación de GCP.
 - **Cuotas diarias** por API en la consola. Si un pico las agota, el mapa deja de cargar y la app pasa a la vista de lista (ver arriba), en vez de generar una cuenta sin techo. Las cuotas se revisan a diario mientras dure la emergencia.
-- **API key restringida** por referrer HTTP (solo nuestros dominios) y solo a las APIs que usamos. La key del navegador es pública por diseño; la restricción es lo que la protege.
+- **API key restringida** por referrer HTTP (solo nuestros dominios, incluido `admin.<dominio>`) y solo a las APIs que usamos. La key del navegador es pública por diseño; la restricción es lo que la protege.
 - Una sola carga del mapa por sesión: el mapa no se desmonta al navegar entre vistas.
 
 ## Términos de uso

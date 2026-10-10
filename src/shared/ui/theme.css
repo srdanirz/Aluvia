@@ -1,0 +1,413 @@
+/*
+ * Design tokens. The only source of color, type, spacing, radius and shadow
+ * (docs/DESIGN.md is the spec; when the two differ, this file wins).
+ * Tailwind's default scales are reset, so `bg-red-500`, `p-7` or `shadow-lg`
+ * do not exist: only the tokens below generate utilities.
+ */
+@import "tailwindcss";
+
+/* Explicit choice stamps data-theme on <html>; "system" stamps nothing. */
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *) {
+      @slot;
+    }
+  }
+}
+
+/* Light palette. Brand: black and white, with the rain, earth and moss families (docs/DESIGN.md). */
+:root {
+  --canvas: #f5f6fb;
+  --surface: #ffffff;
+  --surface-muted: #e9ebf5;
+  --ink: #0a0b10;
+  --ink-soft: #3d3f52;
+  --ink-muted: #62657a;
+  --line: #e3e5f0;
+  --line-strong: #b9bdd0;
+  --action: #000000;
+  --on-action: #ffffff;
+  --accent: #3c6880;
+  --on-accent: #ffffff;
+  --accent-tint: #e9f1f5;
+  --status-urgent: #76563a;
+  --status-urgent-tint: #f5ede3;
+  --status-urgent-text: #76563a;
+  --status-pending: #3c6880;
+  --status-pending-tint: #e9f1f5;
+  --status-done: #4a6341;
+  --status-done-tint: #ecf1e7;
+  --status-closed: #8b8ea3;
+  --status-closed-tint: #eef0f5;
+  --glass-fill: rgb(255 255 255 / 0.62);
+  --glass-hover-fill: rgb(255 255 255 / 0.75);
+  /* Ambient glows in the rain, earth and moss families; only the background and light washes use them. */
+  --aurora-1: #bcd3df;
+  --aurora-2: #dfc9ad;
+  --aurora-3: #c4d3b9;
+  --aurora-opacity: 0.5;
+  /* Middle stop of text-iridescent: aurora-3 is too light for text on a light ground. */
+  --iridescent-mid: #4a6341;
+  --shadow-card-value: 0 1px 2px rgb(16 18 40 / 0.04), 0 8px 24px rgb(16 18 40 / 0.06);
+  --shadow-float-value: 0 12px 32px rgb(16 18 40 / 0.12);
+  color-scheme: light;
+  /* End of text-iridescent; the start is accent and the middle iridescent-mid. */
+  --iridescent-end: #76563a;
+  /* Ambient families (rain, earth, moss): bands, empty states, map zones, never actions or states. */
+  --rain-100: #e9f1f5;
+  --rain-300: #bcd3df;
+  --rain-600: #3c6880;
+  --earth-100: #f5ede3;
+  --earth-300: #dfc9ad;
+  --earth-600: #76563a;
+  --moss-100: #ecf1e7;
+  --moss-300: #c4d3b9;
+  --moss-600: #4a6341;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --canvas: #0b0c12;
+    --surface: #16171f;
+    --surface-muted: #1e2029;
+    --ink: #f2f3f8;
+    --ink-soft: #c3c6d6;
+    --ink-muted: #9a9db2;
+    --line: #2a2c38;
+    --line-strong: #454859;
+    --action: #ffffff;
+    --on-action: #000000;
+    --accent: #9cc4d9;
+    --on-accent: #0b0c12;
+    --accent-tint: #172129;
+    --status-urgent: #d4b691;
+    --status-urgent-tint: #241e18;
+    --status-urgent-text: #d4b691;
+    --status-pending: #9cc4d9;
+    --status-pending-tint: #172129;
+    --status-done: #aac39d;
+    --status-done-tint: #1b2118;
+    --status-closed: #9a9db2;
+    --status-closed-tint: #23252f;
+    --glass-fill: rgb(22 23 31 / 0.6);
+    --glass-hover-fill: rgb(255 255 255 / 0.08);
+    --iridescent-mid: #aac39d;
+    --shadow-card-value: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.35);
+    --shadow-float-value: 0 12px 32px rgb(0 0 0 / 0.5);
+    color-scheme: dark;
+    --iridescent-end: #d4b691;
+    --aurora-1: #2b4252;
+    --aurora-2: #4b3d2e;
+    --aurora-3: #384733;
+    --aurora-opacity: 0.55;
+    --rain-100: #172129;
+    --rain-300: #2b4252;
+    --rain-600: #9cc4d9;
+    --earth-100: #241e18;
+    --earth-300: #4b3d2e;
+    --earth-600: #d4b691;
+    --moss-100: #1b2118;
+    --moss-300: #384733;
+    --moss-600: #aac39d;
+  }
+}
+
+:root[data-theme="dark"] {
+  --canvas: #0b0c12;
+  --surface: #16171f;
+  --surface-muted: #1e2029;
+  --ink: #f2f3f8;
+  --ink-soft: #c3c6d6;
+  --ink-muted: #9a9db2;
+  --line: #2a2c38;
+  --line-strong: #454859;
+  --action: #ffffff;
+  --on-action: #000000;
+  --accent: #9cc4d9;
+  --on-accent: #0b0c12;
+  --accent-tint: #172129;
+  --status-urgent: #d4b691;
+  --status-urgent-tint: #241e18;
+  --status-urgent-text: #d4b691;
+  --status-pending: #9cc4d9;
+  --status-pending-tint: #172129;
+  --status-done: #aac39d;
+  --status-done-tint: #1b2118;
+  --status-closed: #9a9db2;
+  --status-closed-tint: #23252f;
+  --glass-fill: rgb(22 23 31 / 0.6);
+  --glass-hover-fill: rgb(255 255 255 / 0.08);
+  --iridescent-mid: #aac39d;
+  --shadow-card-value: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.35);
+  --shadow-float-value: 0 12px 32px rgb(0 0 0 / 0.5);
+  color-scheme: dark;
+  --iridescent-end: #d4b691;
+  --aurora-1: #2b4252;
+  --aurora-2: #4b3d2e;
+  --aurora-3: #384733;
+  --aurora-opacity: 0.55;
+  --rain-100: #172129;
+  --rain-300: #2b4252;
+  --rain-600: #9cc4d9;
+  --earth-100: #241e18;
+  --earth-300: #4b3d2e;
+  --earth-600: #d4b691;
+  --moss-100: #1b2118;
+  --moss-300: #384733;
+  --moss-600: #aac39d;
+}
+
+@theme inline {
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-muted: var(--ink-muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-action: var(--action);
+  --color-on-action: var(--on-action);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-accent-tint: var(--accent-tint);
+  --color-rain-100: var(--rain-100);
+  --color-rain-300: var(--rain-300);
+  --color-rain-600: var(--rain-600);
+  --color-earth-100: var(--earth-100);
+  --color-earth-300: var(--earth-300);
+  --color-earth-600: var(--earth-600);
+  --color-moss-100: var(--moss-100);
+  --color-moss-300: var(--moss-300);
+  --color-moss-600: var(--moss-600);
+  --color-status-urgent: var(--status-urgent);
+  --color-status-urgent-tint: var(--status-urgent-tint);
+  --color-status-urgent-text: var(--status-urgent-text);
+  --color-status-pending: var(--status-pending);
+  --color-status-pending-tint: var(--status-pending-tint);
+  --color-status-done: var(--status-done);
+  --color-status-done-tint: var(--status-done-tint);
+  --color-status-closed: var(--status-closed);
+  --color-status-closed-tint: var(--status-closed-tint);
+  --color-glass: var(--glass-fill);
+  /* Hover on see-through pieces: a brighter pane of glass, never a grey fill. */
+  --color-glass-hover: var(--glass-hover-fill);
+
+  --font-*: initial;
+  /* Helvetica Neue on Apple devices (the reference face); Inter everywhere else. */
+  --font-sans: "Helvetica Neue", var(--font-inter), Arial, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", Menlo, monospace;
+
+  --text-*: initial;
+  --text-display: 48px;
+  --text-display--line-height: 1.05;
+  --text-display--letter-spacing: -0.03em;
+  --text-heading: 32px;
+  --text-heading--line-height: 1.15;
+  --text-heading--letter-spacing: -0.02em;
+  --text-heading-sm: 24px;
+  --text-heading-sm--line-height: 1.25;
+  --text-heading-sm--letter-spacing: -0.015em;
+  --text-subheading: 18px;
+  --text-subheading--line-height: 1.35;
+  --text-subheading--letter-spacing: -0.01em;
+  --text-body: 16px;
+  --text-body--line-height: 1.5;
+  --text-body--letter-spacing: -0.005em;
+  --text-body-sm: 14px;
+  --text-body-sm--line-height: 1.45;
+  --text-body-sm--letter-spacing: 0em;
+  --text-caption: 12px;
+  --text-caption--line-height: 1.35;
+  --text-caption--letter-spacing: 0.005em;
+
+  /* 4px base; only the steps of the DESIGN.md scale exist. */
+  --spacing: initial;
+  --spacing-0: 0px;
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-10: 40px;
+  --spacing-11: 44px;
+  --spacing-12: 48px;
+  --spacing-16: 64px;
+  --spacing-20: 80px;
+  --spacing-panel: 360px;
+  /* Component sizes (DESIGN.md, Tamaños). */
+  --spacing-chip-x: 10px;
+  --spacing-chip-y: 4px;
+  --spacing-chip-gap: 6px;
+  --spacing-dot: 6px;
+  --spacing-icon: 20px;
+  --spacing-icon-sm: 18px;
+  /* Room a page leaves for FloatingNav: bottom on phones (plus the home indicator), top from md. */
+  --spacing-nav-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  --spacing-nav-top: calc(96px + env(safe-area-inset-top, 0px));
+
+  --container-*: initial;
+  --container-content: 1200px;
+  --container-prose: 65ch;
+  --container-narrow: 520px;
+
+  --radius-*: initial;
+  --radius-control: 14px;
+  --radius-card: 20px;
+  --radius-panel: 28px;
+
+  --shadow-*: initial;
+  --shadow-card: var(--shadow-card-value);
+  --shadow-float: var(--shadow-float-value);
+  --inset-shadow-*: initial;
+  --drop-shadow-*: initial;
+  --text-shadow-*: initial;
+
+  /* Motion: three durations and two curves. Nothing animates outside these. */
+  --ease-*: initial;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-exit: cubic-bezier(0.3, 0, 1, 1);
+  /* Overshoots a little: presses bounce back and indicators stretch, like Apple's liquid controls. */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --default-transition-duration: 150ms;
+  --default-transition-timing-function: var(--ease-standard);
+  --animate-*: initial;
+  --animate-enter: enter 250ms var(--ease-standard) both;
+  --animate-shimmer: shimmer 1.4s linear infinite;
+  --animate-spin: spin 0.8s linear infinite;
+
+  --blur-*: initial;
+  --blur-glass: 24px;
+
+  /* Tracking and leading come with each text-* role; only the label tracking stands alone. */
+  --tracking-*: initial;
+  --tracking-label: 0.08em;
+  --leading-*: initial;
+}
+
+/* Iridescent light: two faint glows in the aurora hues, top-left and bottom-right. */
+@utility glass-wash {
+  position: relative;
+  isolation: isolate;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+      radial-gradient(
+        120% 80% at 0% 0%,
+        color-mix(in oklab, var(--aurora-1) 22%, transparent),
+        transparent 60%
+      ),
+      radial-gradient(
+        100% 70% at 100% 100%,
+        color-mix(in oklab, var(--aurora-2) 20%, transparent),
+        transparent 60%
+      );
+  }
+}
+
+/* Light reflection that sweeps across a glass surface on hover or focus. Interactive pieces only. */
+@utility glass-sheen {
+  position: relative;
+  overflow: hidden;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(115deg, transparent 30%, rgb(255 255 255 / 0.35) 50%, transparent 70%);
+    transform: translateX(-120%);
+    transition: transform 700ms var(--ease-standard);
+  }
+  &:hover::after,
+  &:focus-visible::after {
+    transform: translateX(120%);
+  }
+}
+
+/* Press feedback for every pressable: shrinks while held, springs back on release. */
+@utility press {
+  transition-property: transform, background-color, color, opacity, box-shadow;
+  transition-duration: 250ms;
+  transition-timing-function: var(--ease-spring);
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+/* Gradient text in the aurora hues. One highlighted phrase per view, at heading size or larger. */
+@utility text-iridescent {
+  background: linear-gradient(
+    100deg,
+    var(--accent) 0%,
+    var(--iridescent-mid) 50%,
+    var(--iridescent-end) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@layer base {
+  html {
+    background: var(--canvas);
+    color: var(--ink);
+  }
+  body {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Reduced motion has to beat every utility, which is the one place !important belongs. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      /* stylelint-disable declaration-no-important */
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      /* stylelint-enable declaration-no-important */
+    }
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}

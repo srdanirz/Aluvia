@@ -1,0 +1,57 @@
+{
+  "name": "aluvia",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3002",
+    "build": "next build",
+    "start": "next start --port 3002",
+    "typecheck": "next typegen && tsc --noEmit",
+    "lint": "eslint . && stylelint \"src/**/*.css\"",
+    "format": "prettier --check .",
+    "format:write": "prettier --write .",
+    "test": "vitest run",
+    "db:up": "docker compose up -d --wait",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio --port 3003",
+    "check": "pnpm typecheck && pnpm lint && pnpm format && pnpm test && pnpm build"
+  },
+  "dependencies": {
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "drizzle-orm": "^0.45.4",
+    "lucide-react": "^1.54.0",
+    "next": "16.4.0",
+    "next-intl": "^4.14.9",
+    "postgres": "^3.4.9",
+    "radix-ui": "^1.7.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "server-only": "^0.0.1",
+    "tailwind-merge": "^3.7.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/turbopack": "^4",
+    "@testcontainers/postgresql": "^12.2.0",
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "drizzle-kit": "^0.31.11",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.0",
+    "eslint-plugin-better-tailwindcss": "^4.9.0",
+    "prettier": "^3.9.9",
+    "stylelint": "^17.16.0",
+    "tailwindcss": "^4",
+    "testcontainers": "^12.2.0",
+    "typescript": "^5",
+    "typescript-eslint": "^8.71.1",
+    "vitest": "^5.0.3"
+  },
+  "packageManager": "pnpm@10.20.0",
+  "engines": {
+    "node": ">=22"
+  }
+}
