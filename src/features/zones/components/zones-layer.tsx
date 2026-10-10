@@ -1,7 +1,7 @@
 "use client";
 
-import { Polygon, useMap } from "@vis.gl/react-google-maps";
-import { PenLine, X } from "lucide-react";
+import { AdvancedMarker, Polygon, useMap } from "@vis.gl/react-google-maps";
+import { CircleDot, PenLine, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState, useTransition } from "react";
 
@@ -16,6 +16,7 @@ import {
   GlassPanel,
   IconButton,
   Input,
+  MapMarker,
   SegmentedControl,
 } from "@/shared/ui";
 
@@ -30,6 +31,7 @@ const KIND_TOKEN = {
   restricted: "status-pending",
   meeting_point: "status-done",
 } as const satisfies Record<ZoneKind, (typeof TOKENS)[number]>;
+const KIND_TONE = { no_entry: "urgent", restricted: "pending", meeting_point: "done" } as const;
 const KINDS: ZoneKind[] = ["no_entry", "restricted", "meeting_point"];
 
 /**
@@ -60,7 +62,12 @@ export function ZonesLayer({ slug, zones, canDraw }: { slug: string; zones: MapZ
       const at = event.latLng;
       if (at) setPoints((current) => [...current, [at.lng(), at.lat()]]);
     });
-    return () => listener.remove();
+    // A crosshair says the next click places a corner; back to the arrow when drawing ends.
+    map.setOptions({ draggableCursor: "crosshair" });
+    return () => {
+      listener.remove();
+      map.setOptions({ draggableCursor: "default" });
+    };
   }, [map, drawing]);
 
   function stopDrawing() {
@@ -121,7 +128,21 @@ export function ZonesLayer({ slug, zones, canDraw }: { slug: string; zones: MapZ
           />
         );
       })}
-      {drawing && points.length > 1 ? (
+      {/* Each corner is a visible dot, so the first taps read as points, not a stray line. */}
+      {drawing
+        ? points.map(([lng, lat], index) => (
+            <AdvancedMarker
+              key={`${lng},${lat},${index}`}
+              position={{ lat, lng }}
+              anchorLeft="-50%"
+              anchorTop="-50%"
+              clickable={false}
+            >
+              <MapMarker tone={KIND_TONE[kind]} icon={<CircleDot />} />
+            </AdvancedMarker>
+          ))
+        : null}
+      {drawing && points.length > 2 ? (
         <Polygon
           paths={toPath(points)}
           clickable={false}
