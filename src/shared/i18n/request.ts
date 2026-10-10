@@ -3,6 +3,7 @@ import { getRequestConfig } from "next-intl/server";
 import { notFound } from "next/navigation";
 import * as rootParams from "next/root-params";
 
+import { loadMessages } from "./messages";
 import { routing } from "./routing";
 
 export default getRequestConfig(async ({ locale }) => {
@@ -15,6 +16,6 @@ export default getRequestConfig(async ({ locale }) => {
 
   return {
     locale: resolved,
-    messages: (await import(`../../../messages/${resolved}.json`)).default,
+    messages: await loadMessages(resolved),
   };
 });

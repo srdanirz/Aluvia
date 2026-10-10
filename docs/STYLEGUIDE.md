@@ -71,6 +71,8 @@ Dos voluntarios van a tocar "tomar" sobre la misma tarea en el mismo segundo. **
 - **Ediciones concurrentes con bloqueo optimista**: columna `version`; el `UPDATE` lleva `WHERE version = $leída`. Si no actualizó, se responde `stale_version` y la UI pide recargar. Un coordinador nunca sobrescribe en silencio lo que escribió otro.
 - **Si de verdad hay que leer antes de escribir**, va en una transacción con `SELECT … FOR UPDATE` sobre la fila. Para repartir trabajo en cola: `FOR UPDATE SKIP LOCKED`.
 - **Escrituras de varias filas, en una transacción.** Una casa con sus trabajos se crea completa o no se crea.
+- **Colas en la base: reclamo con lease.** `FOR UPDATE SKIP LOCKED` para elegir filas, `claimed_at = now` como lease y como cerca: el resultado se escribe con `WHERE claimed_at = <el mío>`, así un worker cuyo lease venció no pisa al que retomó la fila (`src/features/notifications/server/claim.ts:43`, `outcomes.ts:41`).
+- Una función que escribe y puede ir dentro de la transacción de otra recibe un `Executor` (`src/shared/db/types.ts`) en vez de abrir la suya: `enqueueNotification(tx, …)` (`src/features/notifications/server/enqueue.ts:39`).
 - **Reintentos seguros**: el cliente genera el `id` (UUID) de lo que crea y el insert usa `ON CONFLICT (id) DO NOTHING`. Con señal mala, el reintento no duplica la casa. Si el insert no devolvió fila, es un reintento y se responde éxito **sin releer la fila por ese `id`**: un `id` es visible en el mapa público, y releerlo le entregaría a cualquiera los datos de otra casa.
 - **Una función que recibe valores de confianza (`source`, autor) no vive en un archivo `"use server"`**: todo lo que exporta ese archivo se puede llamar desde el navegador con cualquier argumento. La escritura va en su propio módulo `server-only` y la acción solo parsea, aplica la `policy` y deriva esos valores (`src/features/worksites/server/create-worksites.ts` y `actions.ts`).
 - **Toda operación de "tomar" o "inscribirse" tiene un test de concurrencia**: N requests en paralelo, exactamente uno (o exactamente `capacity`) gana.
@@ -173,6 +175,7 @@ Un concepto, un nombre, en todas las capas: la tabla `work_items`, la carpeta `f
   - `POST /api/v1/webhooks/<proveedor>` (estado de entrega de un SMS).
   - Una acción que no es CRUD es un subrecurso con verbo, siempre `POST`: `POST /api/v1/notifications/dispatch` (el worker).
   - Query params en `camelCase` (`pageSize`, `cursor`), igual que el JSON.
+  - Única ruta fuera de `/api` y de `[locale]`: `/n/<id>`, el link corto de un aviso (ADR 0010). Va en un SMS de un segmento, así que no lleva idioma ni versión.
 - **Respuestas:** JSON en `camelCase`. Éxito: el recurso, o `{ items, nextCursor }` en listas. Error: `{ code, details? }` con el status HTTP que corresponda (`400` si el pedido viene mal formado, `409` para `already_claimed`, `422` si es válido pero no se puede atender, por ejemplo `bbox_too_large`). Nunca una frase: el cliente traduce el `code`.
 - Un cambio que rompe el contrato de `/api/v1` va en `/api/v2`; los clientes de afuera no se rompen.
 

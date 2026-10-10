@@ -83,6 +83,10 @@ export const worksiteContacts = pgTable(
   },
   (t) => [
     check("worksite_contacts_phone_check", e164(t.phone)),
+    // A BAJA reply finds the consents behind a phone (optOutFromSms).
+    index("worksite_contacts_phone_idx")
+      .on(t.phone)
+      .where(sql`${t.notifyChannel} IS NOT NULL`),
     check("worksite_contacts_locale_check", localeTag(t.locale)),
     // A neighbor has no app, so consent is to SMS or WhatsApp, recorded with its time and a phone to reach.
     check(

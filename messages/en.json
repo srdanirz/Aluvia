@@ -474,5 +474,52 @@
       "closed_no_help_wanted": "No help wanted",
       "closed_duplicate": "Duplicate"
     }
+  },
+  "notifications": {
+    "shift_cancelled": {
+      "title": "Your shift was cancelled",
+      "body": "The shift on {startsAt, date, shift} was cancelled. Check other shifts in Aluvia.",
+      "sms": "Aluvia: your shift was cancelled. {url}"
+    },
+    "shift_meeting_point_changed": {
+      "title": "Your shift has a new meeting point",
+      "body": "The shift on {startsAt, date, shift} has a new meeting point. Check it before you leave.",
+      "sms": "Aluvia: your shift moved. {url}"
+    },
+    "work_item_reassigned": {
+      "title": "A job you took was reassigned",
+      "body": "A coordinator assigned a job you had taken to someone else.",
+      "sms": "Aluvia: your job was reassigned. {url}"
+    },
+    "work_item_claimed": {
+      "title": "Someone took a job at your home",
+      "body": "A volunteer took a job at your home. You can follow it in Aluvia.",
+      "sms": "Aluvia: a volunteer is coming. {url}"
+    },
+    "shift_reminder": {
+      "title": "Your shift starts soon",
+      "body": "Your shift is on {startsAt, date, shift}. Check the meeting point.",
+      "sms": "Aluvia: your shift starts soon. {url}"
+    },
+    "shift_created_nearby": {
+      "title": "A new shift nearby",
+      "body": "A shift opened for {startsAt, date, shift}. Sign up if you can go.",
+      "sms": "Aluvia: a new shift nearby. {url}"
+    },
+    "unattended_worksites_digest": {
+      "title": "Homes waiting in your area",
+      "body": "{count, plural, one {# new home is} other {# new homes are}} waiting for someone to take their jobs.",
+      "sms": "Aluvia: homes are waiting. {url}"
+    },
+    "work_item_claim_expired": {
+      "title": "A reservation of yours expired",
+      "body": "You did not mark progress in time and a job you took is open again. Take it again if you are still going.",
+      "sms": "Aluvia: a reservation of yours expired. {url}"
+    },
+    "work_item_needs_follow_up": {
+      "title": "A home needs follow-up",
+      "body": "A volunteer marked that a home needs another visit. Check what is missing.",
+      "sms": "Aluvia: a home needs follow-up. {url}"
+    }
   }
 }

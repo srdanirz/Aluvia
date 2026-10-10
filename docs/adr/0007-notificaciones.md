@@ -1,6 +1,6 @@
 # 0007 · Notificaciones
 
-- **Estado:** aceptada. Los proveedores de SMS y WhatsApp se eligen en un ADR propio antes de implementar notificaciones.
+- **Estado:** aceptada. Proveedores en [0010](0010-proveedores-de-avisos.md).
 - **Fecha:** 2026-10-10
 
 ## Contexto
@@ -22,7 +22,7 @@ Una coordinación que depende de que la gente abra la app no funciona: el volunt
 | **Normal** | Tu trabajo quedó hecho · Hay un turno nuevo cerca | Push y email | Sin avisos entre 22:00 y 8:00 |
 | **Resumen** | Coordinador: casas nuevas sin atender en su zona | Email diario o push agrupado | Una vez al día |
 
-"Leído" es abrir la notificación o abrir la app después de recibirla; queda en `read_at`. El reintento por otro canal se programa con `not_before`.
+"Leído" es abrir el link del aviso: todo aviso enlaza a `/n/<id>`, que marca `read_at` y redirige a la página. El reintento por otro canal se programa con `not_before` y se cierra con `read_elsewhere` si otro aviso del mismo evento ya se leyó.
 
 El nivel lo define el **tipo de evento** en el código, no quien lo envía: nadie puede mandar un "importante" a mano para que llegue más fuerte.
 
