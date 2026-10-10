@@ -52,3 +52,8 @@
 | `tests/admin.test.ts` | Admin: concurrencia de ediciones, cierre y aviso; seeds; `admin_events` de solo inserción; conteo de consultas y cursor |
 | `tests/notifications/` | Rutas (webhook de Twilio, leído), entrega única, dos workers en paralelo, lease, reintentos, horario silencioso, topes con reserva, escalamiento, proveedores y textos |
 | `tests/schema.test.ts` | Las reglas que decide la base: FKs por emergencia, cupo de turnos, una inscripción activa, un aviso por evento |
+| `src/app/api/health/` | `GET /api/health`: 200 si la app llega a la base; lo usa el chequeo de disponibilidad |
+| `infra/` | Producción en GCP como código (Terraform, ADR 0012); runbook en `infra/README.md` |
+| `Dockerfile` | Imagen de producción: targets `app` (Cloud Run) y `migrate` (job de migraciones) |
+| `scripts/migrate.mjs` | Aplica `drizzle/` y da permisos al rol de la app; corre en cada deploy |
+| `.github/workflows/deploy.yml` | Deploy a producción cuando CI pasa en `main` |

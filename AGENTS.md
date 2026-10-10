@@ -39,6 +39,7 @@ When you adopt a convention, hit a mistake twice, add a module or make a long-ta
 - **Observable by default** (`docs/adr/0008-observabilidad.md`): every feature ships its metrics, its product events from `src/shared/analytics/events.ts` and, if failure leaves someone without help, its alert. No personal data in events, metrics, logs or errors.
 - **Disaster-agnostic.** No disaster type, comuna, place or work type is written in code: it is emergency configuration in the database, edited from the admin (`/[locale]/admin`) (`docs/adr/0009-multi-desastre-y-admin.md`); the only exception is reviewed seeds in `src/shared/db/seeds/`. `messages/*.json` holds only interface text; emergency data is per-locale `jsonb`.
 - **Pages never touch the database.** They call `features/<x>/server/`.
+- **Production config lives in `infra/`** (`docs/adr/0012-infraestructura-de-produccion.md`): a new env var goes into `infra/run.tf` and a new secret into `infra/secrets.tf` or `provider_secrets`, in the same PR that reads it. Otherwise the deploy boots without it.
 
 ## Product rule: zero friction
 
