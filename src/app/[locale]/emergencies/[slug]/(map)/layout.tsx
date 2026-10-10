@@ -14,7 +14,9 @@ async function EmergencyMap({ params }: { params: Promise<{ slug: string }> }) {
   if (!slugSchema.safeParse(slug).success) notFound();
   const emergency = await findMapEmergency(slug, locale);
   if (!emergency) notFound();
-  return <WorksiteMap slug={slug} bounds={emergency.bounds} area={emergency.area} />;
+  return (
+    <WorksiteMap slug={slug} bounds={emergency.bounds} area={emergency.area} timeZone={emergency.timeZone} />
+  );
 }
 
 // The map is the one piece allowed its own Suspense (DESIGN.md, Carga): it loads apart from the

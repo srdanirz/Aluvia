@@ -6,7 +6,7 @@ import tseslint from "typescript-eslint";
 
 // The design system is closed (ADR 0004): only src/shared/ui may use raw interactive
 // elements, inline styles or the dark: variant. Everything else composes its primitives.
-const RAW_ELEMENTS = "table|button|input|select|textarea|dialog";
+const RAW_ELEMENTS = "table|button|input|select|textarea|dialog|details|summary";
 const PHYSICAL_CLASSES =
   "-?m[lr]-|p[lr]-|left-|right-|text-(left|right)$|rounded-([lr]|[tb][lr])(-|$)|border-[lr](-|$)|scroll-[mp][lr]-|float-(left|right)$|clear-(left|right)$|inset-[se]-";
 

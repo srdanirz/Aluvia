@@ -6,6 +6,7 @@ export { Card, CardBody, CardTitle } from "./card";
 export { Chip } from "./chip";
 export { CopyField } from "./copy-field";
 export { DescriptionList } from "./description-list";
+export { Disclosure } from "./disclosure";
 export { Field } from "./field";
 export { FileButton } from "./file-button";
 export { FloatingNav, type FloatingNavItem } from "./floating-nav";

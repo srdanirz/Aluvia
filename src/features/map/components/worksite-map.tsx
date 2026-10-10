@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { MAP_ID, useGoogleMapsStatus, useMapColorScheme } from "@/shared/maps/google-maps-provider";
 import { Skeleton } from "@/shared/ui";
 
-import { type Bbox, FIT_PADDING, snapBbox } from "../grid";
+import { type Bbox, snapBbox } from "../grid";
 import type { AreaPolygon } from "../server/map-emergency";
 import { CellsLayer } from "./cells-layer";
 import type { Viewport } from "./fetch-cells";
@@ -22,6 +22,18 @@ function withMinimumSpan({ west, south, east, north }: Bbox): Bbox {
   const padX = Math.max(0, (MIN_SPAN_DEGREES - (east - west)) / 2);
   const padY = Math.max(0, (MIN_SPAN_DEGREES - (north - south)) / 2);
   return { west: west - padX, south: south - padY, east: east + padX, north: north + padY };
+}
+
+/**
+ * Room around the fitted area for what floats over the map, so the emergency opens framed in the
+ * visible part: on a phone the panel takes the lower part and the nav the bottom; from tablet up
+ * the panel sits on the left and the nav on top. Read once, at mount, like the default bounds.
+ */
+function fitPadding(): google.maps.Padding {
+  if (typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches)
+    return { top: 112, right: 48, bottom: 48, left: 400 };
+  const height = typeof window === "undefined" ? 800 : window.innerHeight;
+  return { top: 96, right: 24, bottom: Math.round(height * 0.4), left: 24 };
 }
 
 /**
@@ -53,10 +65,12 @@ export function WorksiteMap({
   slug,
   bounds,
   area,
+  timeZone,
 }: {
   slug: string;
   bounds: Bbox | null;
   area: AreaPolygon[] | null;
+  timeZone: string;
 }) {
   const status = useGoogleMapsStatus();
   const colorScheme = useMapColorScheme();
@@ -71,8 +85,11 @@ export function WorksiteMap({
       <Map
         mapId={MAP_ID}
         colorScheme={colorScheme}
-        defaultBounds={{ ...withMinimumSpan(bounds ?? WORLD), padding: FIT_PADDING }}
+        defaultBounds={{ ...withMinimumSpan(bounds ?? WORLD), padding: fitPadding() }}
         gestureHandling="greedy"
+        // The arrow, not Google's open hand: the map reads as a page to tap, not a canvas to grab.
+        draggableCursor="default"
+        draggingCursor="default"
         disableDefaultUI
         clickableIcons={false}
         reuseMaps
@@ -85,7 +102,15 @@ export function WorksiteMap({
             setViewport({ zoom: Math.round(zoom), bbox: snapBbox(mapBounds, Math.round(zoom)) });
         }}
       >
-        {viewport ? <CellsLayer slug={slug} viewport={viewport} area={area} paused={tiles.timedOut} /> : null}
+        {viewport ? (
+          <CellsLayer
+            slug={slug}
+            viewport={viewport}
+            area={area}
+            timeZone={timeZone}
+            paused={tiles.timedOut}
+          />
+        ) : null}
       </Map>
       {tiles.timedOut ? (
         <div className="absolute inset-0">

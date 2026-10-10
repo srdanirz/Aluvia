@@ -501,7 +501,6 @@
   },
   "map": {
     "title": "Map of {emergency}",
-    "hint": "Tap a point to see what that home needs. Unattended homes first.",
     "legendLabel": "What each color means",
     "levels": {
       "unattended": "Unattended",
@@ -527,9 +526,6 @@
       "title": "The map is not available",
       "body": "It may be the signal or a problem on our side. Each home's link still works."
     },
-    "modeLabel": "Show the map by",
-    "modeHomes": "Homes",
-    "modeZones": "Zones",
     "updatedAt": "Updated at {time}",
     "errors": {
       "bbox_too_large": "Too much map in view at this zoom. Zoom in a little.",
@@ -540,9 +536,12 @@
       "zone": "Zone {position} · {count, plural, one {# home} other {# homes}}",
       "levelCount": "{level}: {count}"
     },
-    "zonesHint": "Each zone takes the color of its most urgent home. Darker: more homes waiting for help.",
-    "panelTitle": "Where help is needed",
-    "truncated": "There are more homes than fit. Zoom in to see them all."
+    "truncated": "There are more homes than fit. Zoom in to see them all.",
+    "summary": "{homes, plural, =0 {No homes reported yet} one {# home reported} other {# homes reported}}",
+    "waiting": "{waiting, plural, =0 {None waiting for help now} one {# waiting for help} other {# waiting for help}}",
+    "askHelp": "Ask for help",
+    "offerHelp": "I want to help",
+    "legendToggle": "What each color means"
   },
   "worksite": {
     "title": "Home in {emergency}",

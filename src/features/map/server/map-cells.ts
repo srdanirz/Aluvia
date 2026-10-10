@@ -78,6 +78,7 @@ export async function listMapCells(
         ST_Y(w.location) AS y,
         floor(ST_X(w.location) / ${cell})::int AS gx,
         floor(ST_Y(w.location) / ${cell})::int AS gy,
+        w.source,
         ${attentionLevelSql(staleBeforeSql(now))} AS level
       FROM worksites w
       JOIN emergencies e ON e.id = w.emergency_id
@@ -98,6 +99,9 @@ export async function listMapCells(
       SELECT * FROM site
       WHERE gx BETWEEN ${range.minX}::int AND ${range.maxX}::int
         AND gy BETWEEN ${range.minY}::int AND ${range.maxY}::int
+        -- Imported official parcels nobody asked about stay off the map: thousands of grey pins hid
+        -- the few homes that need someone. They still back reports (address, duplicates).
+        AND NOT (source = 'official' AND level = 'no_request')
     )
     SELECT
       avg(y)::float8 AS lat,
