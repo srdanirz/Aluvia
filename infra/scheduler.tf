@@ -20,8 +20,10 @@ locals {
 resource "google_cloud_scheduler_job" "call" {
   for_each = local.enabled_calls
 
-  name             = each.key
-  region           = var.region
+  name = each.key
+  # Cloud Scheduler has no Santiago region; São Paulo is the closest. It only fires an HTTPS call
+  # at aluvia.cl, so no data leaves for it.
+  region           = "southamerica-east1"
   schedule         = "* * * * *"
   time_zone        = "Etc/UTC"
   attempt_deadline = "60s"

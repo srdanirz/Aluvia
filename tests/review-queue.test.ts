@@ -4,7 +4,12 @@ import { count, eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { newWorksiteSchema } from "@/features/worksites/schemas";
-import { createWorksites, listWorksitesToReview, REVIEW_PAGE_SIZE } from "@/features/worksites/server";
+import {
+  createWorksites,
+  findPlacementTarget,
+  listWorksitesToReview,
+  REVIEW_PAGE_SIZE,
+} from "@/features/worksites/server";
 import { contactViews, users } from "@/shared/db/schema";
 
 import { createTestDb } from "./setup/db";
@@ -94,5 +99,35 @@ describe("review queue", () => {
     const tampered = Buffer.from("2026-10-10T00:00:00Z|not-a-uuid").toString("base64url");
     const page = await listWorksitesToReview(db, { emergencyId, viewerId: coordinatorId, cursor: tampered });
     expect(page.items.length).toBeGreaterThan(0);
+  });
+});
+
+describe("placement target", () => {
+  it("returns the home with its address and logs the view, only inside its own emergency", async () => {
+    const zone = await createEmergency(db, "review-place");
+    await createEmergency(db, "review-other");
+    const target = home({ location: null, contact: { addressText: "Calle Inventada 31" } });
+    await createWorksites(db, { emergencyId: zone, source: "social", reports: [target] });
+
+    const found = await findPlacementTarget(db, {
+      slug: "review-place",
+      worksiteId: target.id,
+      viewerId: coordinatorId,
+    });
+    expect(found).toMatchObject({
+      id: target.id,
+      version: 0,
+      location: null,
+      addressText: "Calle Inventada 31",
+    });
+    const [views] = await db
+      .select({ n: count() })
+      .from(contactViews)
+      .where(eq(contactViews.worksiteId, target.id));
+    expect(views?.n).toBe(1);
+
+    expect(
+      await findPlacementTarget(db, { slug: "review-other", worksiteId: target.id, viewerId: coordinatorId }),
+    ).toBeNull();
   });
 });

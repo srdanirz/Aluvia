@@ -3,6 +3,7 @@
 import { useFormatter, useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 
+import { Link } from "@/shared/i18n/navigation";
 import { useErrorMessage } from "@/shared/i18n/use-error-message";
 import { Button, Card, CardBody, Chip, FormError, Spinner } from "@/shared/ui";
 
@@ -82,6 +83,7 @@ export function ReviewQueue({ slug, initial }: ReviewQueueProps) {
       {items.map((item) => (
         <ReviewCard
           key={item.id}
+          slug={slug}
           item={item}
           busy={busyId === item.id}
           onResolve={(flag) =>
@@ -111,13 +113,21 @@ export function ReviewQueue({ slug, initial }: ReviewQueueProps) {
 }
 
 type ReviewCardProps = {
+  slug: string;
   item: ReviewItem;
   busy: boolean;
   onResolve: (flag: ReviewItem["reviewFlags"][number]) => void;
   onHazardsReviewed: () => void;
 };
 
-function ReviewCard({ item, busy, onResolve, onHazardsReviewed }: ReviewCardProps) {
+// Flags a coordinator settles by looking at the pin on the map.
+const LOCATION_FLAGS = new Set<ReviewItem["reviewFlags"][number]>([
+  "outside_area",
+  "imprecise_location",
+  "possible_duplicate",
+]);
+
+function ReviewCard({ slug, item, busy, onResolve, onHazardsReviewed }: ReviewCardProps) {
   const t = useTranslations("worksites.review");
   const tHazard = useTranslations("worksites.hazard");
   const format = useFormatter();
@@ -139,7 +149,9 @@ function ReviewCard({ item, busy, onResolve, onHazardsReviewed }: ReviewCardProp
       {!item.hasLocation ? (
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Chip tone="pending">{t("flag.no_location")}</Chip>
-          <span className="text-caption text-ink-muted">{t("placeLater")}</span>
+          <Button variant="secondary" asChild>
+            <Link href={`/emergencies/${slug}/worksites/${item.id}/location`}>{t("place")}</Link>
+          </Button>
         </div>
       ) : null}
 
@@ -165,6 +177,12 @@ function ReviewCard({ item, busy, onResolve, onHazardsReviewed }: ReviewCardProp
             {t("hazardsReviewed")}
           </Button>
         </div>
+      ) : null}
+
+      {item.hasLocation && item.reviewFlags.some((flag) => LOCATION_FLAGS.has(flag)) ? (
+        <Button variant="secondary" asChild className="self-start">
+          <Link href={`/emergencies/${slug}/worksites/${item.id}/location`}>{t("move")}</Link>
+        </Button>
       ) : null}
     </Card>
   );

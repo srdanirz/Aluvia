@@ -210,7 +210,6 @@
       "saving": "Saving",
       "reported": "Reported {time} · {source}",
       "noAddress": "No written address",
-      "placeLater": "Place the pin from the map.",
       "resolve": "Reviewed",
       "hazard": "Do not enter: {hazard}",
       "hazardsReviewed": "Risk reviewed",
@@ -226,7 +225,29 @@
         "imprecise_location": "Imprecise GPS",
         "possible_duplicate": "Possible duplicate",
         "person_in_danger": "Person in danger"
-      }
+      },
+      "place": "Place pin",
+      "move": "Move pin"
+    },
+    "placement": {
+      "placeTitle": "Place the pin",
+      "moveTitle": "Move the pin",
+      "back": "Back to the queue",
+      "noAddress": "No written address",
+      "hint": "Move the map until the pin sits on the home.",
+      "save": "Save location",
+      "saving": "Saving",
+      "savedChip": "Placed",
+      "backToQueue": "Back to the queue",
+      "nearbyChip": "Possible duplicate",
+      "nearbyBody": "{count, plural, one {There is another home less than 15 m away. Check it is not the same one.} other {There are # homes less than 15 m away. Check it is not one of them.}}",
+      "distance": "{meters} m away",
+      "viewNearby": "View",
+      "saveAnyway": "It is another home: save here",
+      "keepMoving": "Keep moving the pin",
+      "mapUnavailable": "The map did not load. Without it the pin cannot be placed; try again in a while.",
+      "forbidden": "Only approved coordinators of this emergency can place the pin.",
+      "reload": "Reload"
     }
   },
   "worksiteUpdates": {
@@ -327,7 +348,13 @@
     "shift_full": "This shift just filled up.",
     "shift_started": "This shift already started.",
     "already_signed_up": "You are already signed up for this shift.",
-    "not_signed_up": "You are not signed up for this shift."
+    "not_signed_up": "You are not signed up for this shift.",
+    "invalid_layer_url": "Use the https URL of a layer, ending in /FeatureServer/ and a number.",
+    "layer_unreachable": "We could not read the layer. Check the URL or try later.",
+    "layer_too_large": "The layer has too many features to import.",
+    "layer_unsupported": "That layer is not in the expected format (polygons, for the area).",
+    "invalid_field": "Use field names with letters, numbers and underscores.",
+    "address_fields_required": "Give at least one address field."
   },
   "admin": {
     "meta": {
@@ -427,7 +454,20 @@
       "membersLead": "Approve coordinators and field volunteers, and invite by WhatsApp.",
       "membersLink": "View members",
       "claimHoldLabel": "Minutes a hold lasts",
-      "claimHoldHint": "If whoever tapped On my way does not arrive or renew in this time, the job is free again. From 1 to 1440."
+      "claimHoldHint": "If whoever tapped On my way does not arrive or renew in this time, the job is free again. From 1 to 1440.",
+      "layerTitle": "Import an official layer",
+      "layerLead": "A public ArcGIS layer: its polygon as the area, or its parcels as homes affected and with no request until someone asks for something.",
+      "layerKindLabel": "What to import",
+      "layerKindWorksites": "Affected homes",
+      "layerKindArea": "Area",
+      "layerUrlLabel": "Layer URL",
+      "layerUrlHint": "It ends in /FeatureServer/0. https only.",
+      "layerAddressLabel": "Address fields",
+      "layerAddressHint": "Field names, comma separated, in address order. For example, street and number.",
+      "layerNotesLabel": "Fields for notes",
+      "layerNotesHint": "Optional. Stored with the home's contact, which only coordinators see.",
+      "layerSubmit": "Import",
+      "layerImported": "{features, plural, one {# feature read} other {# features read}} · {created, plural, one {# new home} other {# new homes}}"
     },
     "disasterTypes": {
       "title": "Disaster types",
