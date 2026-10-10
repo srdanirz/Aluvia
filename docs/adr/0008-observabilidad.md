@@ -21,7 +21,7 @@ Cuatro capas, cada una con su herramienta.
 ### 2. Errores: Sentry
 
 - Errores del **navegador y del servidor** en un solo lugar, con la versión desplegada y la ruta. Los errores del celular del vecino son los que menos se ven y los que más importan.
-- `sendDefaultPii: false` y un `beforeSend` que borra teléfonos, direcciones, emails y RUT de mensajes y breadcrumbs. Sin session replay.
+- Sin datos del usuario en origen (`dataCollection` de Sentry 11: sin usuario, cookies, cuerpos, query strings ni headers fuera de `user-agent` y `content-type`) y un `beforeSend` que borra teléfonos, direcciones, emails, RUT e IPs de mensajes, breadcrumbs y contextos. Sin session replay.
 
 ### 3. Uso de la app: eventos de producto + datos de dominio
 
@@ -50,6 +50,15 @@ Avisan a los dos mantenedores (email y push al celular). Cada alerta vive en la 
 ### Logs
 
 JSON estructurado a stdout, que Cloud Logging toma solo. Cada línea lleva el trace en el campo `logging.googleapis.com/trace` con formato `projects/<proyecto>/traces/<trace_id>`, para cruzarla con métricas y errores. Sin datos personales (STYLEGUIDE).
+
+## Implementación
+
+- **Eventos también desde el servidor.** Lo que solo sabe el servidor (un código verificado, un rol aprobado) se envía con `trackServerEvent` (posthog-node), después del commit y con `after()`, así que nunca bloquea la respuesta. El catálogo es el mismo.
+- **La consola del servidor pasa por el logger en producción.** Next.js escribe sus propios errores en stderr con el mensaje original; sin esto, un teléfono en el mensaje de un error llegaría crudo a Cloud Logging.
+- **Tracing sin exportar.** El proveedor de OpenTelemetry vive en memoria: da el trace a cada log y las métricas por request, y no manda spans a ningún lado. Sentry no hace tracing (`enableOpenTelemetrySetup: false`).
+- **Cloud Run con CPU siempre asignada.** Los eventos de PostHog del servidor (`after()`) y los errores de Sentry de un render salen después de la respuesta; con CPU solo durante el request, ese envío se congela hasta el siguiente request.
+- **Métricas en un puerto propio** (`METRICS_PORT`), que el sidecar lee dentro de la instancia y que nunca queda expuesto por el ingreso público.
+- En PostHog se apaga además la marca automática de `localhost` como usuario de prueba, porque crea un perfil de persona para un visitante anónimo.
 
 ## Consecuencias
 
