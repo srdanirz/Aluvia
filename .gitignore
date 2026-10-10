@@ -83,3 +83,11 @@ Thumbs.db
 
 # Local agent state
 .claude/settings.local.json
+
+# Next.js
+/.next/
+/out/
+next-env.d.ts
+*.tsbuildinfo
+.pnp.*
+.pnpm-debug.log*

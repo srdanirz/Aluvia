@@ -2,7 +2,21 @@
 
 Open-source platform to coordinate aid after a mudslide (aluvión): which homes are affected, what work each one needs, who has taken it, where volunteers are needed. Born from the 2026-10-08 Las Condes aluvión; the data model follows Crisis Cleanup (worksite → work items → claimed → status). Two maintainers, every change lands by PR with cross review. Next.js + Postgres/PostGIS on GCP.
 
+## Commands
+
+```bash
+pnpm dev          # app on http://localhost:3002 (fixed port)
+pnpm db:up        # Postgres + PostGIS on 5440 (docker compose)
+pnpm db:generate  # migration from schema changes; db:migrate applies it
+pnpm db:studio    # Drizzle Studio on 3003
+pnpm check        # typecheck, lint, format, test, build: what CI runs
+```
+
+Keep `pnpm dev` and `pnpm db:studio` running on those ports while working, so the maintainers can browse the result.
+
 ## Before writing code
+
+Next.js 16 differs from most training data (`proxy.ts` instead of middleware, Cache Components, `next/root-params`). Read the guide in `node_modules/next/dist/docs/` before writing Next code.
 
 1. `docs/CODE_MAP.md`, then `grep -rin "<concept>" src`. If it exists, extend it.
 2. `docs/STYLEGUIDE.md` for the layer you touch. `docs/AI_PITFALLS.md` before touching data access.

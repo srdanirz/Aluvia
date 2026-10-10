@@ -1,0 +1,209 @@
+/*
+ * Design tokens. The only source of color, type, spacing, radius and shadow
+ * (docs/DESIGN.md is the spec; when the two differ, this file wins).
+ * Tailwind's default scales are reset, so `bg-red-500`, `p-7` or `shadow-lg`
+ * do not exist: only the tokens below generate utilities.
+ */
+@import "tailwindcss";
+
+/* Explicit choice stamps data-theme on <html>; "system" stamps nothing. */
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *) {
+      @slot;
+    }
+  }
+}
+
+:root {
+  --canvas: #fefffc;
+  --surface: #ffffff;
+  --surface-muted: #f9faf7;
+  --ink: #171717;
+  --ink-strong: #2c2c2c;
+  --ink-soft: #444141;
+  --ink-muted: #646464;
+  --line: #dee2de;
+  --line-strong: #b4b8b4;
+  --action: #1f1f29;
+  --on-action: #ffffff;
+  --action-line: #282834;
+  --accent: #006a9e;
+  --accent-line: #0081c0;
+  --status-urgent: #b42318;
+  --status-pending: #b54708;
+  --status-done: #067647;
+  --status-closed: #646464;
+  --shadow-card-value: 0 1px 1px rgb(0 0 0 / 0.08), 0 4px 5px rgb(0 0 0 / 0.08);
+  --shadow-float-value: 0 2px 6px rgb(0 0 0 / 0.15);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --canvas: #121214;
+    --surface: #1a1a1e;
+    --surface-muted: #222227;
+    --ink: #ececec;
+    --ink-strong: #f5f5f3;
+    --ink-soft: #c4c4c0;
+    --ink-muted: #9a9a96;
+    --line: #2e2e33;
+    --line-strong: #4a4a50;
+    --action: #f5f5f3;
+    --on-action: #1f1f29;
+    --action-line: #d4d4d8;
+    --accent: #5cb8e6;
+    --accent-line: #41a1cf;
+    --status-urgent: #f97066;
+    --status-pending: #fdb022;
+    --status-done: #47cd89;
+    --status-closed: #9a9a96;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --canvas: #121214;
+  --surface: #1a1a1e;
+  --surface-muted: #222227;
+  --ink: #ececec;
+  --ink-strong: #f5f5f3;
+  --ink-soft: #c4c4c0;
+  --ink-muted: #9a9a96;
+  --line: #2e2e33;
+  --line-strong: #4a4a50;
+  --action: #f5f5f3;
+  --on-action: #1f1f29;
+  --action-line: #d4d4d8;
+  --accent: #5cb8e6;
+  --accent-line: #41a1cf;
+  --status-urgent: #f97066;
+  --status-pending: #fdb022;
+  --status-done: #47cd89;
+  --status-closed: #9a9a96;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-ink: var(--ink);
+  --color-ink-strong: var(--ink-strong);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-muted: var(--ink-muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-action: var(--action);
+  --color-on-action: var(--on-action);
+  --color-action-line: var(--action-line);
+  --color-accent: var(--accent);
+  --color-accent-line: var(--accent-line);
+  --color-status-urgent: var(--status-urgent);
+  --color-status-pending: var(--status-pending);
+  --color-status-done: var(--status-done);
+  --color-status-closed: var(--status-closed);
+  /* Floating chrome: the surface, partly see-through, over whatever scrolls below. */
+  --color-glass: color-mix(in oklab, var(--surface) 72%, transparent);
+  --color-glass-line: color-mix(in oklab, var(--ink) 14%, transparent);
+
+  --font-*: initial;
+  --font-sans: var(--font-geist), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", Menlo, monospace;
+
+  --text-*: initial;
+  --text-display: 54px;
+  --text-display--line-height: 1.1;
+  --text-display--letter-spacing: -0.02em;
+  --text-heading-lg: 48px;
+  --text-heading-lg--line-height: 1.1;
+  --text-heading-lg--letter-spacing: -0.02em;
+  --text-heading: 40px;
+  --text-heading--line-height: 1.1;
+  --text-heading--letter-spacing: -0.02em;
+  --text-heading-sm: 27px;
+  --text-heading-sm--line-height: 1.5;
+  --text-heading-sm--letter-spacing: -0.04em;
+  --text-subheading: 18px;
+  --text-subheading--line-height: 1.3;
+  --text-subheading--letter-spacing: -0.01em;
+  --text-body: 16px;
+  --text-body--line-height: 1.5;
+  --text-body--letter-spacing: -0.01em;
+  --text-body-sm: 15px;
+  --text-body-sm--line-height: 1.4;
+  --text-body-sm--letter-spacing: -0.01em;
+  --text-caption: 13px;
+  --text-caption--line-height: 1.3;
+  --text-caption--letter-spacing: -0.01em;
+
+  /* 4px base; only the steps of the DESIGN.md scale exist. */
+  --spacing: initial;
+  --spacing-0: 0px;
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-10: 40px;
+  --spacing-11: 44px;
+  --spacing-12: 48px;
+  --spacing-16: 64px;
+  --spacing-20: 80px;
+  --spacing-panel: 360px;
+  /* Room a page leaves for FloatingNav: bottom on phones (plus the home indicator), top from md. */
+  --spacing-nav-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  --spacing-nav-top: calc(96px + env(safe-area-inset-top, 0px));
+
+  --container-*: initial;
+  --container-content: 1200px;
+  --container-prose: 65ch;
+
+  --radius-*: initial;
+  --radius-control: 8px;
+  --radius-card: 12px;
+  --radius-panel: 16px;
+  --radius-feature: 24px;
+
+  --shadow-*: initial;
+  --shadow-card: var(--shadow-card-value);
+  --shadow-float: var(--shadow-float-value);
+  --inset-shadow-*: initial;
+  --drop-shadow-*: initial;
+  --text-shadow-*: initial;
+
+  --blur-*: initial;
+  --blur-glass: 20px;
+
+  /* Tracking and leading come with each text-* role; only the label tracking stands alone. */
+  --tracking-*: initial;
+  --tracking-label: 0.08em;
+  --leading-*: initial;
+}
+
+@layer base {
+  html {
+    background: var(--canvas);
+    color: var(--ink);
+  }
+  body {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent-line);
+    outline-offset: 2px;
+  }
+}

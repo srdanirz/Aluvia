@@ -41,6 +41,8 @@ La referencia es un sitio editorial para leer con calma. Aluvia se usa en la cal
 | `status-pending` | `#b54708` | `#fdb022` | Tomado, en curso. |
 | `status-done` | `#067647` | `#47cd89` | Hecho. |
 | `status-closed` | `#646464` | `#9a9a96` | Cerrado sin hacer: duplicado, no quiere ayuda. |
+| `glass` | `surface` al 72 % | `surface` al 72 % | Fondo de lo que flota sobre el contenido (navegación, controles del mapa). |
+| `glass-line` | `ink` al 14 % | `ink` al 14 % | Borde de lo que flota. |
 
 Todos los pares de texto cumplen AA (4,5:1) contra `canvas` y `surface` en los dos temas; `line-strong` es solo decorativo.
 
@@ -49,16 +51,17 @@ Todos los pares de texto cumplen AA (4,5:1) contra `canvas` y `surface` en los d
 | Familia | Fuente | Licencia | Uso |
 |---|---|---|---|
 | `font-display` | Fraunces, peso 400 | OFL (Google Fonts) | Títulos de 27 px o más. Nunca peso 600+. |
-| `font-sans` | Inter, pesos 400 a 600 | OFL (Google Fonts) | Todo lo demás: UI, cuerpo, botones, tablas. |
+| `font-sans` | Geist, pesos 400 a 600 | OFL (Google Fonts) | Todo lo demás: UI, cuerpo, botones, tablas. |
+| `font-mono` | Geist Mono, peso 400 | OFL (Google Fonts) | Datos, códigos, horas en tablas. |
 
-Se cargan con `next/font/google`, nunca desde un `<link>`.
+La referencia usa `af` (fuente de foundry) y PP Mondwest, ambas de pago, así que no pueden ir en un repo público. Fraunces es el reemplazo que Refero propone para Mondwest; Geist y Geist Mono los usa el propio sitio de referencia. Se cargan con `next/font/google`, nunca desde un `<link>`.
 
 | Rol | Tamaño | Alto de línea | Tracking | Familia |
 |---|---|---|---|---|
 | `display` | 54 px | 1.1 | -0.02em | display |
 | `heading-lg` | 48 px | 1.1 | -0.02em | display |
 | `heading` | 40 px | 1.1 | -0.02em | display |
-| `heading-sm` | 27 px | 1.3 | -0.04em | display |
+| `heading-sm` | 27 px | 1.5 | -0.04em | display |
 | `subheading` | 18 px | 1.3 | -0.01em | sans 500 |
 | `body` | 16 px | 1.5 | -0.01em | sans 400 |
 | `body-sm` | 15 px | 1.4 | -0.01em | sans 400 |
@@ -68,7 +71,7 @@ En celular, `display` y `heading-lg` bajan a `heading`. El texto de cuerpo nunca
 
 ### Espaciado, radios y sombras
 
-- **Base 4 px.** Escala: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80. Ningún valor fuera de la escala.
+- **Base 4 px.** Escala: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, más 44 para el alto mínimo táctil (`min-h-11`). Ningún valor fuera de la escala: `theme.css` elimina los demás.
 - **Radios:** botones e inputs 8 px · tarjetas 12 px · paneles grandes y hojas 16 px · superficies destacadas 24 px · pastilla de navegación y chips `full`. Nada sobre 24 px salvo la pastilla.
 - **Sombras:** `shadow-card` (`0 1px 1px rgb(0 0 0 / .08), 0 4px 5px rgb(0 0 0 / .08)`) para tarjetas; `shadow-float` (`0 2px 6px rgb(0 0 0 / .15)`) para lo que flota sobre el mapa. **Los botones no llevan sombra.**
 - **Bordes:** 1 px `line` en tarjetas y secciones. Los bordes hacen el trabajo que en otros sistemas hacen las sombras.
@@ -78,7 +81,7 @@ En celular, `display` y `heading-lg` bajan a `heading`. El texto de cuerpo nunca
 
 - Tres opciones para el usuario: **claro, oscuro y automático** (sigue al sistema operativo). Automático es el valor por defecto.
 - Cada token tiene su valor en los dos temas, en `theme.css`. **Los componentes no saben en qué tema están**: usan `bg-surface` y el token cambia solo. Por eso el variante `dark:` no se usa fuera de `src/shared/ui/`.
-- **Automático no necesita nada del servidor:** `theme.css` resuelve el tema con `@media (prefers-color-scheme: dark)`. La cookie solo existe si el usuario eligió claro u oscuro explícito; en ese caso el servidor pone `data-theme` en `<html>` desde el primer byte. Así no hay parpadeo en ningún caso.
+- **Automático no necesita nada del servidor:** `theme.css` resuelve el tema con `@media (prefers-color-scheme: dark)`. La cookie solo existe si el usuario eligió claro u oscuro explícito; en ese caso un script en línea en el `<head>` (`ThemeScript`) pone `data-theme` en `<html>` antes del primer pintado. Así no hay parpadeo y las páginas siguen siendo estáticas.
 - El mapa toma el tema con la prop `colorScheme` de `@vis.gl/react-google-maps`, que **solo se aplica al crear el mapa**. Cambiar de tema no remonta el mapa (sería otra carga cobrada, ADR 0006): el mapa toma el tema nuevo en la próxima carga. El Map ID necesita un estilo oscuro configurado en el estilo en la nube de Google.
 - Las sombras en oscuro casi no se ven: ahí los bordes `line` hacen el trabajo.
 
@@ -105,7 +108,7 @@ Celular primero, pero tablet y escritorio son de primera clase: los coordinadore
 - **Link:** texto `accent` o `ink-soft`, sin subrayado hasta el hover, flecha opcional.
 - **Input:** fondo `surface-muted`, solo borde inferior `ink-soft`, radio 0, estética de formulario en papel. Foco: borde inferior de 2 px `accent-line`. Alto mínimo 44 px.
 - **Tarjeta:** `surface`, borde `line`, radio 12 px, `shadow-card`, padding 16 px.
-- **Navegación:** una pastilla flotante centrada (radio `full`, fondo `surface` con opacidad y `backdrop-blur`, borde `action-line`). Sin barra lateral en las vistas públicas.
+- **Navegación (`FloatingNav`):** una pastilla de vidrio flotante con borde (`bg-glass`, `border-glass-line`, `backdrop-blur-glass`, `shadow-float`), nunca una barra pegada al borde. En celular va abajo, centrada, solo íconos de 22 px (el texto queda como nombre accesible) y respeta el área segura; desde tablet va arriba con ícono y texto. El ítem activo lleva `surface-muted`. Va fuera de `<main>`, y la página le deja espacio con `pb-nav-bottom md:pt-nav-top`. Es la única barra de navegación de la app.
 - **StatusBadge:** punto de color de estado + etiqueta escrita, sans 500 13 px. Nunca solo el color.
 - **Mapa:** ocupa la pantalla completa en celular; los controles y la ficha de la casa flotan encima como hoja inferior (radio 16 px arriba, `shadow-float`).
 - **Tablas (`DataTable`):** sin bordes verticales, divisores horizontales `line`, encabezado `caption` en `ink-muted`, fila seleccionada `surface-muted`.

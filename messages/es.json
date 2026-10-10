@@ -1,0 +1,43 @@
+{
+  "meta": {
+    "title": "Aluvia",
+    "description": "Coordinación de ayuda después de un desastre: qué casas están afectadas, qué necesita cada una y dónde hace falta gente."
+  },
+  "home": {
+    "eyebrow": "Coordinación de ayuda en emergencias",
+    "title": "Coordinar la ayuda, casa por casa",
+    "lead": "Aluvia muestra qué casas están afectadas por un desastre, qué necesita cada una y dónde hace falta gente. Está en construcción.",
+    "source": "Ver el código"
+  },
+  "theme": {
+    "label": "Tema",
+    "system": "Automático",
+    "light": "Claro",
+    "dark": "Oscuro"
+  },
+  "devUi": {
+    "title": "Catálogo del design system",
+    "lead": "Todas las primitivas con sus variantes. Revísalas en tema claro y oscuro, y a 375, 768, 1024 y 1440 px.",
+    "buttons": "Botones",
+    "fields": "Campos",
+    "cards": "Tarjetas",
+    "primary": "Principal",
+    "secondary": "Secundario",
+    "featured": "Destacado",
+    "ghost": "Discreto",
+    "disabled": "Deshabilitado",
+    "addressLabel": "Dirección",
+    "addressHint": "Calle y número, como la escribirías en un sobre.",
+    "phoneLabel": "Teléfono",
+    "cardTitle": "Casa de ejemplo",
+    "cardBody": "Datos inventados. Daño en el primer piso, dos adultos mayores.",
+    "navLabel": "Navegación principal",
+    "navHome": "Inicio",
+    "navCatalog": "Catálogo"
+  },
+  "notFound": {
+    "title": "No encontramos esta página",
+    "body": "Puede que el link esté mal escrito o que la página ya no exista.",
+    "back": "Volver al inicio"
+  }
+}

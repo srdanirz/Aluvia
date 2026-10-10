@@ -1,0 +1,43 @@
+{
+  "meta": {
+    "title": "Aluvia",
+    "description": "Coordinación de ayuda después de un desastre: qué casas están afectadas, qué necesita cada una y dónde hace falta gente."
+  },
+  "home": {
+    "eyebrow": "Emergency aid coordination",
+    "title": "Coordinating aid, home by home",
+    "lead": "Aluvia shows which homes a disaster affected, what each one needs and where volunteers are needed. It is under construction.",
+    "source": "View the code"
+  },
+  "theme": {
+    "label": "Theme",
+    "system": "Automatic",
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "devUi": {
+    "title": "Design system catalog",
+    "lead": "Every primitive with its variants. Check them in light and dark, and at 375, 768, 1024 and 1440 px.",
+    "buttons": "Buttons",
+    "fields": "Fields",
+    "cards": "Cards",
+    "primary": "Primary",
+    "secondary": "Secondary",
+    "featured": "Featured",
+    "ghost": "Ghost",
+    "disabled": "Disabled",
+    "addressLabel": "Address",
+    "addressHint": "Street and number, as you would write it on an envelope.",
+    "phoneLabel": "Phone",
+    "cardTitle": "Sample home",
+    "cardBody": "Made-up data. Damage on the ground floor, two older adults.",
+    "navLabel": "Main navigation",
+    "navHome": "Home",
+    "navCatalog": "Catalog"
+  },
+  "notFound": {
+    "title": "We could not find this page",
+    "body": "The link may be mistyped, or the page no longer exists.",
+    "back": "Back to home"
+  }
+}

@@ -1,0 +1,21 @@
+# Local database with PostGIS, on a fixed port so it never collides with other projects.
+services:
+  db:
+    image: imresamu/postgis:17-3.5
+    # Multi-arch build by the postgis/docker-postgis maintainer; the official image is amd64 only.
+    environment:
+      POSTGRES_USER: aluvia
+      POSTGRES_PASSWORD: aluvia
+      POSTGRES_DB: aluvia
+    ports:
+      - "5440:5432"
+    volumes:
+      - aluvia-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aluvia"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  aluvia-db:
