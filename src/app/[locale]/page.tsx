@@ -1,5 +1,7 @@
 import { ArrowUpRight } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
+import { connection } from "next/server";
+import { Suspense } from "react";
 
 import { findOpenEmergencies } from "@/features/emergencies/server";
 import { Link, redirect } from "@/shared/i18n/navigation";
@@ -7,8 +9,25 @@ import { Button, Card, CardTitle, Logo, Page, ThemeSwitcher } from "@/shared/ui"
 
 const SOURCE_URL = "https://github.com/srdanirz/Aluvia";
 
+// The home depends on which emergencies are open, so it renders per request, never at build: the
+// build has no database. The fallback is the static logo the redirect replaces.
+export default function HomePage() {
+  return (
+    <Suspense
+      fallback={
+        <Page nav={false} width="content" align="center">
+          <Logo className="h-10" />
+        </Page>
+      }
+    >
+      <Home />
+    </Suspense>
+  );
+}
+
 // With one open emergency the home is its map: nobody should have to pick between one option.
-export default async function HomePage() {
+async function Home() {
+  await connection();
   const locale = await getLocale();
   const [emergencies, t] = await Promise.all([findOpenEmergencies(locale), getTranslations("home")]);
   const [only] = emergencies;
