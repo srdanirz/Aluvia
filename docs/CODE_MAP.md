@@ -9,7 +9,7 @@
 | `src/app/[locale]/not-found.tsx`, `[...rest]/` | 404 en el idioma de la URL; la ruta catch-all la dispara para rutas desconocidas |
 | `src/app/global-not-found.tsx` | 404 para URLs sin idioma, en el idioma por defecto |
 | `src/proxy.ts` | Redirige al idioma del usuario (next-intl) |
-| `src/shared/ui/` | Design system: `theme.css` (tokens, luces `glass-wash`/`glass-sheen`/`text-iridescent`, movimiento), `Button`, `IconButton`, `Chip`, `SegmentedControl`, `Card`, `GlassPanel`, `Aurora`, `Field`, `Input`, `Label`, `Skeleton`, `Spinner`, `FloatingNav`, `ThemeSwitcher`, `ThemeScript`; `fonts.ts`; `cn.ts` (tailwind-merge con nuestra escala). Se importa desde `@/shared/ui` |
+| `src/shared/ui/` | Design system: `theme.css` (tokens, luces `glass-wash`/`glass-sheen`/`text-iridescent`, movimiento), `Button`, `IconButton`, `Chip`, `SegmentedControl`, `Card`, `GlassPanel`, `Aurora`, `Field`, `Input`, `Label`, `Skeleton`, `Spinner`, `Logo`, `LogoMark` (figura animada, trazos en `logo-mark-paths.ts`), `FloatingNav`, `ThemeSwitcher`, `ThemeScript`; `fonts.ts`; `cn.ts` (tailwind-merge con nuestra escala). Se importa desde `@/shared/ui` |
 | `src/shared/i18n/` | Registro de idiomas (`locales.ts`), routing, navegación y carga de mensajes |
 | `messages/*.json` | Textos por idioma; un test exige las mismas claves en todos |
 | `src/shared/db/` | `client.ts` (única conexión), `query-counter.ts` (tests de N+1) |
