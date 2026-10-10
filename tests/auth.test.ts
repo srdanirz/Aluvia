@@ -3,7 +3,7 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
 import { requestLoginCode, verifyLoginCode } from "@/features/auth/server/login";
 import { hashToken } from "@/shared/auth/crypto";
-import type { LoginCodeMessage } from "@/shared/auth/login-code-sender";
+import { createLoginCodeSender, type LoginCodeMessage } from "@/shared/auth/login-code-sender";
 import { normalizePhone } from "@/shared/auth/phone";
 import { purgeExpiredAuthData } from "@/shared/auth/purge";
 import { createSession, findSessionUser } from "@/shared/auth/session";
@@ -241,5 +241,42 @@ describe("rate limits", () => {
       sql`UPDATE rate_limits SET window_started_at = now() - interval '61 seconds' WHERE key = 'window'`,
     );
     expect(await hitRateLimit(db, { key: "window", limit: 1, windowSeconds: 60 })).toBe(true);
+  });
+});
+
+describe("code delivery", () => {
+  const message = { phone: "+56900000009", code: "123456", locale: "es" };
+  const ok = async () => ({ ok: true }) as const;
+  const fail = (code: string) => async () => ({ ok: false, code, retryable: false }) as const;
+
+  it("sends by WhatsApp and does not touch SMS when it works", async () => {
+    let smsCalls = 0;
+    const send = createLoginCodeSender({ whatsapp: ok, sms: async () => (smsCalls++, { ok: true }) });
+    expect(await send(message)).toEqual({ ok: true });
+    expect(smsCalls).toBe(0);
+  });
+
+  it("falls back to SMS when WhatsApp fails", async () => {
+    const send = createLoginCodeSender({ whatsapp: fail("provider_auth"), sms: ok });
+    expect(await send(message)).toEqual({ ok: true });
+  });
+
+  it("tells a number without WhatsApp apart when there is no SMS", async () => {
+    const send = createLoginCodeSender({ whatsapp: fail("invalid_address"), sms: null });
+    const result = await requestLoginCode(db, { phone: nextPhone(), ipKey: "delivery", locale: "es" }, send);
+    expect(result).toEqual({ ok: false, code: "no_whatsapp" });
+  });
+
+  it("reports any other failure as a code not sent", async () => {
+    const send = createLoginCodeSender({
+      whatsapp: fail("template_missing"),
+      sms: fail("provider_unavailable"),
+    });
+    const result = await requestLoginCode(
+      db,
+      { phone: nextPhone(), ipKey: "delivery-2", locale: "es" },
+      send,
+    );
+    expect(result).toEqual({ ok: false, code: "code_not_sent" });
   });
 });

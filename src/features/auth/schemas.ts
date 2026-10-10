@@ -18,6 +18,7 @@ export type LoginErrorCode =
   | "invalid_name"
   | "rate_limited"
   | "code_not_sent"
+  | "no_whatsapp"
   | "code_expired"
   | "too_many_attempts";
 

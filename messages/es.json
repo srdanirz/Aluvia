@@ -287,7 +287,8 @@
     "used_up": "La invitación ya se usó.",
     "own_invitation": "Es tu propia invitación: tiene que aceptarla otra persona.",
     "not_field_volunteer": "Esa persona no es voluntario de terreno en esta emergencia.",
-    "assignment_not_found": "Esa asignación ya no existe."
+    "assignment_not_found": "Esa asignación ya no existe.",
+    "no_whatsapp": "Ese número no tiene WhatsApp. Por ahora el código llega solo por WhatsApp: usa un número que lo tenga."
   },
   "admin": {
     "meta": {

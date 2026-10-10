@@ -20,12 +20,15 @@ export async function WorksitePanel({
   home,
   now,
   notice,
+  adminTools,
 }: {
   slug: string;
   home: PublicWorksite;
   now: Date;
   /** The emergency's official notice (`OfficialNotice` from the admin feature), above everything. */
   notice: ReactNode;
+  /** Tools only an admin sees (home assignments); they render nothing for anyone else. */
+  adminTools?: ReactNode;
 }) {
   const t = await getTranslations("worksite");
   const tMap = await getTranslations("map");
@@ -102,6 +105,8 @@ export async function WorksitePanel({
           <p className="text-body-sm text-ink-soft">{t("noWork")}</p>
         )}
       </section>
+
+      {adminTools}
 
       {position ? (
         <section className="flex flex-col gap-3">

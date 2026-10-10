@@ -27,7 +27,8 @@ const VERIFICATIONS_PER_PHONE_AND_IP_PER_DAY = 20;
 const VERIFICATIONS_PER_PHONE_PER_DAY = 100;
 const DAY = 24 * HOUR;
 
-export type RequestLoginCodeResult = { ok: true } | { ok: false; code: "rate_limited" | "code_not_sent" };
+export type RequestLoginCodeResult =
+  { ok: true } | { ok: false; code: "rate_limited" | "code_not_sent" | "no_whatsapp" };
 
 /** Sends a fresh code to `phone` (E.164). The previous codes of that phone stop counting. */
 export async function requestLoginCode(
@@ -57,7 +58,9 @@ export async function requestLoginCode(
     // Housekeeping must never turn a delivered code into an error for the person.
     purgeExpiredAuthData(db).catch((error: unknown) => logError("auth_purge_failed", error)),
   ]);
-  return sent.ok ? { ok: true } : { ok: false, code: "code_not_sent" };
+  if (sent.ok) return { ok: true };
+  // The number has no WhatsApp and there is no SMS to fall back on: tell the person why.
+  return { ok: false, code: sent.code === "invalid_address" ? "no_whatsapp" : "code_not_sent" };
 }
 
 export type VerifyLoginCodeResult =
