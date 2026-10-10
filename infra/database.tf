@@ -1,6 +1,6 @@
 # One central Postgres 17 + PostGIS (AGENTS.md, ADR 0002). Private IP only, TLS required.
-# Two roles: aluvia_owner runs migrations (password, read only by the migrate job), and the app
-# logs in as its service account through IAM authentication, with no password anywhere.
+# Both roles log in through IAM authentication as their service account, so no database
+# password exists anywhere: the migrate job owns the schema, the app only reads and writes rows.
 
 resource "google_sql_database_instance" "main" {
   name                = "aluvia"
@@ -61,15 +61,12 @@ resource "google_sql_database" "aluvia" {
   instance = google_sql_database_instance.main.name
 }
 
-resource "random_password" "owner" {
-  length  = 40
-  special = false
-}
-
-resource "google_sql_user" "owner" {
-  name     = "aluvia_owner"
+resource "google_sql_user" "migrate" {
+  name     = trimsuffix(google_service_account.migrate.email, ".gserviceaccount.com")
   instance = google_sql_database_instance.main.name
-  password = random_password.owner.result
+  type     = "CLOUD_IAM_SERVICE_ACCOUNT"
+  # Creates extensions and owns every table; the app role gets row access from migrate.mjs.
+  database_roles = ["cloudsqlsuperuser"]
 }
 
 resource "google_sql_user" "app" {
@@ -81,6 +78,7 @@ resource "google_sql_user" "app" {
 
 locals {
   database_host = google_sql_database_instance.main.private_ip_address
-  # Not a secret: the app's URL carries no password, IAM supplies a token per connection.
-  app_database_url = "postgres://${urlencode(google_sql_user.app.name)}@${local.database_host}:5432/${google_sql_database.aluvia.name}?sslmode=require"
+  # Not secrets: the URLs carry no password, IAM supplies a token per connection.
+  app_database_url     = "postgres://${urlencode(google_sql_user.app.name)}@${local.database_host}:5432/${google_sql_database.aluvia.name}?sslmode=require"
+  migrate_database_url = "postgres://${urlencode(google_sql_user.migrate.name)}@${local.database_host}:5432/${google_sql_database.aluvia.name}?sslmode=require"
 }

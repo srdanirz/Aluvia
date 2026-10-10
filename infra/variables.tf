@@ -60,13 +60,17 @@ variable "database_availability" {
 variable "run_scaling" {
   description = "min 1 keeps one warm instance so the first neighbor after a quiet night does not wait for a cold start."
   type        = object({ min = number, max = number })
-  default     = { min = 1, max = 10 }
+  default     = { min = 1, max = 8 }
 }
 
 variable "database_pool_max" {
-  description = "Connections per instance. run_scaling.max x this must stay under the tier's max_connections minus the migrator."
+  description = <<-EOT
+    Pool size per instance; each instance also opens one metrics connection. During a rollout two
+    revisions run at once: 2 x run_scaling.max x (this + 1) + the migrator must stay under the
+    tier's max_connections (100 on db-custom-1-3840). 2 x 8 x 5 + 1 = 81.
+  EOT
   type        = number
-  default     = 5
+  default     = 4
 }
 
 variable "provider_secrets" {

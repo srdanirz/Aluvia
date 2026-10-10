@@ -1,20 +1,20 @@
 # Calls the app every minute for work that runs outside a request: delivering the notifications
-# outbox (ADR 0007) and releasing lapsed "Voy para allá" reservations (#12). Each route checks
-# its bearer token in constant time; the token is read from Secret Manager, so it reaches the
-# state but never this repo. A call is listed in var.scheduled_calls once its route is on main.
+# outbox (ADR 0007) and releasing lapsed "Voy para allá" reservations (#12). Cloud Scheduler signs
+# each call with an OIDC token for its own service account, audience = the full URL; the route
+# accepts only that account (SCHEDULER_SERVICE_ACCOUNT, src/shared/scheduler-auth.ts). No shared
+# secret exists. A call is listed in var.scheduled_calls once its route is on main.
+
+resource "google_service_account" "scheduler" {
+  account_id   = "aluvia-scheduler"
+  display_name = "Aluvia scheduled calls (Cloud Scheduler)"
+}
 
 locals {
   scheduled_calls = {
-    notifications-dispatch = { path = "/api/v1/notifications/dispatch", secret = "NOTIFICATIONS_DISPATCH_TOKEN" }
-    work-items-release     = { path = "/api/v1/work-items/release-expired", secret = "WORK_ITEMS_SWEEP_TOKEN" }
+    notifications-dispatch = "/api/v1/notifications/dispatch"
+    work-items-release     = "/api/v1/work-items/release-expired"
   }
-  enabled_calls = { for name, call in local.scheduled_calls : name => call if contains(var.scheduled_calls, name) }
-}
-
-data "google_secret_manager_secret_version" "scheduled_call" {
-  for_each = local.enabled_calls
-
-  secret = google_secret_manager_secret.app[each.value.secret].id
+  enabled_calls = { for name, path in local.scheduled_calls : name => "https://${var.domain}${path}" if contains(var.scheduled_calls, name) }
 }
 
 resource "google_cloud_scheduler_job" "call" {
@@ -33,9 +33,10 @@ resource "google_cloud_scheduler_job" "call" {
 
   http_target {
     http_method = "POST"
-    uri         = "https://${var.domain}${each.value.path}"
-    headers = {
-      Authorization = "Bearer ${data.google_secret_manager_secret_version.scheduled_call[each.key].secret_data}"
+    uri         = each.value
+    oidc_token {
+      service_account_email = google_service_account.scheduler.email
+      audience              = each.value
     }
   }
 

@@ -20,7 +20,10 @@ export function createIamTokenSource(fetchImpl: Fetch = fetch, now: () => number
   async function load(): Promise<string> {
     const response = await fetchImpl(METADATA_TOKEN_URL, { headers: { "Metadata-Flavor": "Google" } });
     if (!response.ok) throw new Error(`metadata token request failed: ${response.status}`);
-    const body = (await response.json()) as { access_token: string; expires_in: number };
+    const body = (await response.json()) as { access_token?: unknown; expires_in?: unknown };
+    if (typeof body.access_token !== "string" || typeof body.expires_in !== "number") {
+      throw new Error("metadata token response is malformed");
+    }
     // The metadata server reports the time left; near expiry, refresh again in 30 s at most.
     const refreshAt = Math.max(now() + 30_000, now() + body.expires_in * 1000 - REFRESH_MARGIN_MS);
     cached = { token: body.access_token, refreshAt };

@@ -39,9 +39,10 @@ resource "google_compute_backend_service" "app" {
     group = google_compute_region_network_endpoint_group.app.id
   }
 
+  # Request logs would store client IPs and URLs with home ids (ADR 0008); Cloud Run's own
+  # request logs cover status and latency.
   log_config {
-    enable      = true
-    sample_rate = 1
+    enable = false
   }
 }
 

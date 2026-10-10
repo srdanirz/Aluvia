@@ -24,6 +24,12 @@ resource "google_project_iam_member" "app" {
   member  = google_service_account.app.member
 }
 
+resource "google_project_iam_member" "migrate" {
+  project = var.project_id
+  role    = "roles/cloudsql.instanceUser"
+  member  = google_service_account.migrate.member
+}
+
 locals {
   metrics_port = 9464
   # Cloud Run needs an image to create the service; the first deploy replaces it.
@@ -39,6 +45,8 @@ locals {
     PHONE_REGIONS        = "CL"
     # Google Front End plus the external load balancer each append to X-Forwarded-For.
     TRUSTED_PROXY_HOPS = "2"
+    # Scheduled routes accept only Cloud Scheduler's OIDC token for this account (scheduler.tf).
+    SCHEDULER_SERVICE_ACCOUNT = google_service_account.scheduler.email
   }, var.env)
 }
 
@@ -84,12 +92,25 @@ resource "google_cloud_run_v2_service" "app" {
         startup_cpu_boost = true
       }
 
+      # A revision that cannot reach the database or misses a required env var never takes
+      # traffic: the previous one keeps serving.
       startup_probe {
-        tcp_socket {
-          port = 8080
+        http_get {
+          path = "/api/health"
         }
         period_seconds    = 2
+        timeout_seconds   = 2
         failure_threshold = 30
+      }
+
+      # Liveness skips the database on purpose: a database blip must not restart every instance.
+      liveness_probe {
+        http_get {
+          path = "/api/live"
+        }
+        period_seconds    = 15
+        timeout_seconds   = 3
+        failure_threshold = 3
       }
 
       dynamic "env" {
@@ -115,8 +136,9 @@ resource "google_cloud_run_v2_service" "app" {
     }
 
     containers {
-      name       = "prometheus"
-      image      = "us-docker.pkg.dev/cloud-ops-agents-artifacts/cloud-run-gmp-sidecar/cloud-run-gmp-sidecar:1.9.4"
+      name = "prometheus"
+      # 1.9.4, pinned by digest.
+      image      = "us-docker.pkg.dev/cloud-ops-agents-artifacts/cloud-run-gmp-sidecar/cloud-run-gmp-sidecar@sha256:8f8ac35f4bc82aa9547b1458343acb79b2594b35b56fb4c13dbe62c1f5a64679"
       depends_on = ["app"]
 
       resources {
@@ -189,13 +211,13 @@ resource "google_cloud_run_v2_job" "migrate" {
         }
 
         env {
-          name = "DATABASE_URL"
-          value_source {
-            secret_key_ref {
-              secret  = google_secret_manager_secret.migrate_database_url.secret_id
-              version = "latest"
-            }
-          }
+          name  = "DATABASE_URL"
+          value = local.migrate_database_url
+        }
+
+        env {
+          name  = "DATABASE_IAM_AUTH"
+          value = "true"
         }
 
         resources {
@@ -213,8 +235,5 @@ resource "google_cloud_run_v2_job" "migrate" {
     ]
   }
 
-  depends_on = [
-    google_secret_manager_secret_iam_member.migrate_database_url,
-    google_secret_manager_secret_version.migrate_database_url,
-  ]
+  depends_on = [google_project_iam_member.migrate]
 }

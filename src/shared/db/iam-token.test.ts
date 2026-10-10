@@ -37,4 +37,15 @@ describe("createIamTokenSource", () => {
     await expect(getToken()).rejects.toThrow("metadata token request failed: 500");
     expect(await getToken()).toBe("ok");
   });
+
+  it("refuses a malformed metadata response instead of caching it", async () => {
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ expires_in: 3600 })))
+      .mockResolvedValueOnce(tokenResponse("ok"));
+    const getToken = createIamTokenSource(fetchMock);
+
+    await expect(getToken()).rejects.toThrow("metadata token response is malformed");
+    expect(await getToken()).toBe("ok");
+  });
 });
