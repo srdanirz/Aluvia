@@ -22,6 +22,7 @@ export async function WorksitePanel({
   now,
   notice,
   adminTools,
+  contact,
 }: {
   slug: string;
   home: PublicWorksite;
@@ -30,6 +31,8 @@ export async function WorksitePanel({
   notice: ReactNode;
   /** Tools only an admin sees (home assignments); they render nothing for anyone else. */
   adminTools?: ReactNode;
+  /** Full address and contact for coordinators (features/worksites); nothing for anyone else. */
+  contact?: ReactNode;
 }) {
   const t = await getTranslations("worksite");
   const tMap = await getTranslations("map");
@@ -38,7 +41,7 @@ export async function WorksitePanel({
   const format = await getFormatter();
   const LevelIcon = LEVEL_ICON[home.level];
   const position = home.position;
-  const title = t("title", { emergency: home.emergencyName });
+  const title = home.street ?? t("title", { emergency: home.emergencyName });
   const tHazard = await getTranslations("worksites.hazard");
 
   return (
@@ -88,6 +91,7 @@ export async function WorksitePanel({
           ) : null}
         </div>
       </header>
+      {contact}
 
       {/* Members see the same jobs with their actions (take, arrive, close); everyone else, this list. */}
       <WorksiteJobs slug={slug} emergencyId={home.emergencyId} worksiteId={home.id}>

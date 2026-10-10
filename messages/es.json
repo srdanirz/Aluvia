@@ -569,7 +569,15 @@
     "shareFailed": "No se pudo compartir. Copia el link desde el navegador.",
     "meta": "Reportada el {date} · actualizada {relative}",
     "noLocation": "Esta casa todavía no tiene su punto en el mapa.",
-    "hazardsHint": "No entrar. Un coordinador tiene que revisar el riesgo antes de que alguien tome trabajos."
+    "hazardsHint": "No entrar. Un coordinador tiene que revisar el riesgo antes de que alguien tome trabajos.",
+    "contact": {
+      "title": "Dirección y contacto",
+      "address": "Dirección",
+      "name": "Nombre",
+      "phone": "Teléfono",
+      "notes": "Qué pasa",
+      "logged": "Solo coordinadores. Queda registrado que lo viste."
+    }
   },
   "workItems": {
     "status": {
