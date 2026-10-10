@@ -133,7 +133,7 @@ Solo existen estos tokens; ningún componente inventa su duración.
 | `glass-sheen` | 700 ms | Reflejo al pasar el mouse |
 | `animate-shimmer` | 1,4 s en bucle | Solo `Skeleton` |
 | `animate-spin` | 0,8 s en bucle | Solo `Spinner` |
-| `animate-dig`, `animate-nod`, `animate-dirt` | 1,4 s en bucle | Solo `LogoMark`: el cuerpo golpea con la pala, la cabeza lo acompaña y la tierra salta |
+| `animate-dig`, `animate-nod`, `animate-dirt`, `animate-dirt-2`, `animate-dirt-3` | 1,4 s en bucle | Solo `LogoMark`: el cuerpo golpea con la pala, la cabeza lo acompaña y la tierra salta. Los terrones 2 y 3 salen 70 y 140 ms después del primero |
 | `ease-standard` / `ease-exit` | `cubic-bezier(0.2, 0, 0, 1)` / `cubic-bezier(0.3, 0, 1, 1)` | Entrar / salir |
 
 Con `prefers-reduced-motion`, todo movimiento se apaga.

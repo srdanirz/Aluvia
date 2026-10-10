@@ -24,6 +24,8 @@
   --surface: #ffffff;
   --surface-muted: #e9ebf5;
   --ink: #0a0b10;
+  /* The brand figure's single ink; it flips with the theme like the Logo files. */
+  --brand-ink: #1f1f29;
   --ink-soft: #3d3f52;
   --ink-muted: #62657a;
   --line: #e3e5f0;
@@ -74,6 +76,7 @@
     --surface: #16171f;
     --surface-muted: #1e2029;
     --ink: #f2f3f8;
+    --brand-ink: #fefffc;
     --ink-soft: #c3c6d6;
     --ink-muted: #9a9db2;
     --line: #2a2c38;
@@ -120,6 +123,7 @@
   --surface: #16171f;
   --surface-muted: #1e2029;
   --ink: #f2f3f8;
+  --brand-ink: #fefffc;
   --ink-soft: #c3c6d6;
   --ink-muted: #9a9db2;
   --line: #2a2c38;
@@ -170,6 +174,7 @@
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
   --color-ink-muted: var(--ink-muted);
+  --color-brand-ink: var(--brand-ink);
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
   --color-action: var(--action);
@@ -287,6 +292,9 @@
   --animate-dig: dig 1.4s var(--ease-standard) infinite;
   --animate-nod: nod 1.4s var(--ease-standard) infinite;
   --animate-dirt: dirt 1.4s var(--ease-exit) infinite;
+  /* Clods two and three leave the shovel 70 ms and 140 ms after the first. */
+  --animate-dirt-2: dirt 1.4s var(--ease-exit) 70ms infinite;
+  --animate-dirt-3: dirt 1.4s var(--ease-exit) 140ms infinite;
 
   --blur-*: initial;
   --blur-glass: 24px;

@@ -1,13 +1,13 @@
 import { cn } from "./cn";
 import { MARK_BODY, MARK_DIRT, MARK_HEAD, MARK_VIEW_BOX } from "./logo-mark-paths";
 
-// Delays spread the three clods so they leave the shovel one after another.
-const DIRT_DELAYS = ["[animation-delay:0ms]", "[animation-delay:70ms]", "[animation-delay:140ms]"] as const;
+// Each clod has its own animation token so they leave the shovel one after another.
+const DIRT_ANIMATIONS = ["animate-dirt", "animate-dirt-2", "animate-dirt-3"] as const;
 
 /**
  * The brand figure digging (docs/DESIGN.md, Marca). Single ink, switched by theme like `Logo`.
  * Pass `label` when it carries meaning; without it the figure is decorative and hidden from
- * screen readers. Motion is the `dig` and `dirt` tokens and stops under `prefers-reduced-motion`.
+ * screen readers. Motion is the `dig`, `nod` and `dirt` tokens and stops under `prefers-reduced-motion`.
  */
 export function LogoMark({
   label,
@@ -24,7 +24,7 @@ export function LogoMark({
       role={label ? "img" : undefined}
       aria-label={label}
       aria-hidden={label ? undefined : true}
-      className={cn("size-16 fill-[#1f1f29] dark:fill-[#fefffc]", className)}
+      className={cn("size-16 fill-brand-ink", className)}
     >
       <g className={cn("origin-[150px_340px]", animated && "animate-dig")} fillRule="evenodd">
         <path d={MARK_BODY} />
@@ -34,7 +34,7 @@ export function LogoMark({
         <path
           key={d}
           d={d}
-          className={cn("origin-center", animated && "animate-dirt", animated && DIRT_DELAYS[index])}
+          className={cn("origin-center [transform-box:fill-box]", animated && DIRT_ANIMATIONS[index])}
         />
       ))}
     </svg>
