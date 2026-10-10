@@ -210,7 +210,6 @@
       "saving": "Guardando",
       "reported": "Reportada {time} · {source}",
       "noAddress": "Sin dirección escrita",
-      "placeLater": "Pon el pin desde el mapa.",
       "resolve": "Revisado",
       "hazard": "No entrar: {hazard}",
       "hazardsReviewed": "Riesgo revisado",
@@ -226,7 +225,29 @@
         "imprecise_location": "GPS impreciso",
         "possible_duplicate": "Posible duplicado",
         "person_in_danger": "Persona en peligro"
-      }
+      },
+      "place": "Poner pin",
+      "move": "Mover pin"
+    },
+    "placement": {
+      "placeTitle": "Poner el pin",
+      "moveTitle": "Mover el pin",
+      "back": "Volver a la cola",
+      "noAddress": "Sin dirección escrita",
+      "hint": "Mueve el mapa hasta que el pin quede sobre la casa.",
+      "save": "Guardar ubicación",
+      "saving": "Guardando",
+      "savedChip": "Ubicada",
+      "backToQueue": "Volver a la cola",
+      "nearbyChip": "Posible duplicado",
+      "nearbyBody": "{count, plural, one {Hay otra casa a menos de 15 m. Revisa que no sea la misma.} other {Hay # casas a menos de 15 m. Revisa que no sea una de ellas.}}",
+      "distance": "A {meters} m",
+      "viewNearby": "Ver",
+      "saveAnyway": "Es otra casa: guardar aquí",
+      "keepMoving": "Seguir moviendo el pin",
+      "mapUnavailable": "El mapa no cargó. Sin mapa no se puede poner el pin; vuelve a intentarlo en un rato.",
+      "forbidden": "Solo los coordinadores aprobados de esta emergencia pueden poner el pin.",
+      "reload": "Recargar"
     }
   },
   "worksiteUpdates": {

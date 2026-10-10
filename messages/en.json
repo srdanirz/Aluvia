@@ -210,7 +210,6 @@
       "saving": "Saving",
       "reported": "Reported {time} · {source}",
       "noAddress": "No written address",
-      "placeLater": "Place the pin from the map.",
       "resolve": "Reviewed",
       "hazard": "Do not enter: {hazard}",
       "hazardsReviewed": "Risk reviewed",
@@ -226,7 +225,29 @@
         "imprecise_location": "Imprecise GPS",
         "possible_duplicate": "Possible duplicate",
         "person_in_danger": "Person in danger"
-      }
+      },
+      "place": "Place pin",
+      "move": "Move pin"
+    },
+    "placement": {
+      "placeTitle": "Place the pin",
+      "moveTitle": "Move the pin",
+      "back": "Back to the queue",
+      "noAddress": "No written address",
+      "hint": "Move the map until the pin sits on the home.",
+      "save": "Save location",
+      "saving": "Saving",
+      "savedChip": "Placed",
+      "backToQueue": "Back to the queue",
+      "nearbyChip": "Possible duplicate",
+      "nearbyBody": "{count, plural, one {There is another home less than 15 m away. Check it is not the same one.} other {There are # homes less than 15 m away. Check it is not one of them.}}",
+      "distance": "{meters} m away",
+      "viewNearby": "View",
+      "saveAnyway": "It is another home: save here",
+      "keepMoving": "Keep moving the pin",
+      "mapUnavailable": "The map did not load. Without it the pin cannot be placed; try again in a while.",
+      "forbidden": "Only approved coordinators of this emergency can place the pin.",
+      "reload": "Reload"
     }
   },
   "worksiteUpdates": {
