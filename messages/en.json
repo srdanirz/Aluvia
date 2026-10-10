@@ -364,7 +364,8 @@
     "layer_too_large": "The layer has too many features to import.",
     "layer_unsupported": "That layer is not in the expected format (polygons, for the area).",
     "invalid_field": "Use field names with letters, numbers and underscores.",
-    "address_fields_required": "Give at least one address field."
+    "address_fields_required": "Give at least one address field.",
+    "emergency_open": "The emergency is still open. Close it before deleting its data."
   },
   "admin": {
     "meta": {
@@ -479,7 +480,12 @@
       "layerSubmit": "Import",
       "layerImported": "{features, plural, one {# feature read} other {# features read}} · {created, plural, one {# new home} other {# new homes}}",
       "staleAfterLabel": "Hours until \"to confirm\"",
-      "staleAfterHint": "A home with open work and no activity for this long shows as to confirm on the map: it may already be done. From 1 to 168."
+      "staleAfterHint": "A home with open work and no activity for this long shows as to confirm on the map: it may already be done. From 1 to 168.",
+      "purgeTitle": "Delete personal data",
+      "purgeLead": "Deletes this emergency's contacts, sign-ups, members and notices, and the people no longer in any open emergency. Counts of homes and work stay. This cannot be undone.",
+      "purgeButton": "Delete personal data",
+      "purgeConfirm": "Yes, delete it",
+      "purgeDone": "Data deleted · {count, plural, one {# person removed} other {# people removed}}"
     },
     "disasterTypes": {
       "title": "Disaster types",
@@ -596,7 +602,7 @@
       "name": "Name",
       "phone": "Phone",
       "notes": "What happened",
-      "logged": "Coordinators only. Your view is logged.",
+      "logged": "Everyone sees the address. Name and phone only if the neighbor chose to publish them; notes and vulnerable people, coordinators only. Your view is logged.",
       "vulnerable": "Vulnerable people",
       "vulnerableYes": "Elderly people, children or people with disabilities live here"
     },

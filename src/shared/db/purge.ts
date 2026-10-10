@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 
-import type { Database } from "./types";
+import type { Executor } from "./types";
 
 /**
  * Every foreign key to users(id) and how the purge treats it. A table that adds one must add it
@@ -48,7 +48,9 @@ export type PurgeResult =
  * emergency is refused: purging it would strand the people helping right now.
  */
 export async function purgeEmergencyPersonalData(
-  database: Database,
+  // A transaction makes the purge a savepoint of the caller's, so it commits with what the caller
+  // logs about it (the admin's admin_events entry) or not at all.
+  database: Executor,
   emergencyId: string,
 ): Promise<PurgeResult> {
   return database.transaction(async (tx) => {

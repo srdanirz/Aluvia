@@ -129,6 +129,7 @@ export const emergencyAreaSchema = z.object({ emergencyId: z.uuid(), version, ar
 export type EmergencyAreaInput = z.infer<typeof emergencyAreaSchema>;
 
 export const closeEmergencySchema = z.object({ emergencyId: z.uuid() });
+export const purgeEmergencySchema = z.object({ emergencyId: z.uuid() });
 
 const NOTICE_MAX = 500;
 

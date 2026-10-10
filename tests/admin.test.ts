@@ -8,6 +8,7 @@ import { createDisasterType, updateDisasterType } from "@/features/admin/server/
 import {
   closeEmergency,
   createEmergency,
+  purgeEmergency,
   updateEmergencyArea,
   updateEmergencySettings,
 } from "@/features/admin/server/emergencies";
@@ -29,6 +30,8 @@ import {
   emergencySettings,
   users,
   workTypes,
+  worksites,
+  worksiteContacts,
 } from "@/shared/db/schema";
 import { seedDatabase } from "@/shared/db/seeds";
 import { PAGE_SIZE } from "@/shared/lib/pagination";
@@ -397,6 +400,51 @@ describe("closing an emergency", () => {
       .from(adminEvents)
       .where(sql`${adminEvents.emergencyId} = ${id} and ${adminEvents.action} = 'emergency_closed'`);
     expect(closed).toHaveLength(1);
+  });
+});
+
+describe("purging personal data", () => {
+  async function closedEmergencyWithContact() {
+    const { id } = await newEmergency();
+    const worksiteId = randomUUID();
+    await db
+      .insert(worksites)
+      .values({ id: worksiteId, emergencyId: id, location: { x: -70.5, y: -33.4 }, source: "neighbor" });
+    await db.insert(worksiteContacts).values({ worksiteId, addressText: "Calle Inventada 1" });
+    await closeEmergency(db, actorId, { emergencyId: id });
+    return { id, worksiteId };
+  }
+
+  const contactsOf = async (worksiteId: string) =>
+    (await db.select().from(worksiteContacts).where(eq(worksiteContacts.worksiteId, worksiteId))).length;
+
+  it("refuses an open emergency", async () => {
+    const { id } = await newEmergency();
+    expect(await purgeEmergency(db, actorId, { emergencyId: id })).toEqual({
+      ok: false,
+      code: "emergency_open",
+    });
+  });
+
+  it("deletes contacts, keeps the homes and logs who purged, all at once", async () => {
+    const { id, worksiteId } = await closedEmergencyWithContact();
+    expect((await purgeEmergency(db, actorId, { emergencyId: id })).ok).toBe(true);
+    expect(await contactsOf(worksiteId)).toBe(0);
+    expect(await db.$count(worksites, eq(worksites.id, worksiteId))).toBe(1);
+    const [event] = await db
+      .select({ actorId: adminEvents.actorId })
+      .from(adminEvents)
+      .where(
+        sql`${adminEvents.emergencyId} = ${id} and ${adminEvents.action} = 'emergency_personal_data_purged'`,
+      );
+    expect(event?.actorId).toBe(actorId);
+  });
+
+  it("deletes nothing when its log entry cannot be written", async () => {
+    const { id, worksiteId } = await closedEmergencyWithContact();
+    // An actor that does not exist breaks the admin_events foreign key, after the purge ran.
+    await expect(purgeEmergency(db, randomUUID(), { emergencyId: id })).rejects.toThrow();
+    expect(await contactsOf(worksiteId)).toBe(1);
   });
 });
 

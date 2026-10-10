@@ -9,6 +9,7 @@ import {
   NoticeForm,
   OfficialLayerForm,
   PageHeader,
+  PurgeEmergency,
 } from "@/features/admin";
 import { readLocalizedText } from "@/shared/i18n/localized-text";
 import { DEFAULT_LOCALE } from "@/shared/i18n/locales";
@@ -101,7 +102,11 @@ export default async function EmergencyPage({ params }: PageProps<"/[locale]/adm
             <CloseEmergency emergencyId={emergency.id} />
           </Section>
         </>
-      ) : null}
+      ) : (
+        <Section title={t("purgeTitle")}>
+          <PurgeEmergency emergencyId={emergency.id} />
+        </Section>
+      )}
     </div>
   );
 }

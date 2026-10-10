@@ -364,7 +364,8 @@
     "layer_too_large": "La capa tiene demasiados elementos para importarla.",
     "layer_unsupported": "Esa capa no tiene el formato esperado (para el área, polígonos).",
     "invalid_field": "Usa nombres de campo con letras, números y guion bajo.",
-    "address_fields_required": "Indica al menos un campo de dirección."
+    "address_fields_required": "Indica al menos un campo de dirección.",
+    "emergency_open": "La emergencia sigue abierta. Ciérrala antes de borrar sus datos."
   },
   "admin": {
     "meta": {
@@ -479,7 +480,12 @@
       "layerSubmit": "Importar",
       "layerImported": "{features, plural, one {# elemento leído} other {# elementos leídos}} · {created, plural, one {# casa nueva} other {# casas nuevas}}",
       "staleAfterLabel": "Horas hasta \"por confirmar\"",
-      "staleAfterHint": "Una casa con trabajo abierto y sin movimiento por este tiempo se ve en el mapa como por confirmar: puede que ya esté lista. De 1 a 168."
+      "staleAfterHint": "Una casa con trabajo abierto y sin movimiento por este tiempo se ve en el mapa como por confirmar: puede que ya esté lista. De 1 a 168.",
+      "purgeTitle": "Borrar datos personales",
+      "purgeLead": "Borra contactos, inscripciones, miembros y avisos de esta emergencia, y a las personas que ya no participan en ninguna abierta. Se conservan los conteos de casas y trabajos. No se puede deshacer.",
+      "purgeButton": "Borrar datos personales",
+      "purgeConfirm": "Sí, borrarlos",
+      "purgeDone": "Datos borrados · {count, plural, one {# persona eliminada} other {# personas eliminadas}}"
     },
     "disasterTypes": {
       "title": "Tipos de desastre",
@@ -596,7 +602,7 @@
       "name": "Nombre",
       "phone": "Teléfono",
       "notes": "Qué pasa",
-      "logged": "Solo coordinadores. Queda registrado que lo viste.",
+      "logged": "Todos ven la dirección. El nombre y el teléfono, solo si el vecino eligió publicarlos; notas y personas vulnerables, solo coordinadores. Queda registrado que lo viste.",
       "vulnerable": "Personas vulnerables",
       "vulnerableYes": "Viven personas mayores, niños o con discapacidad"
     },
