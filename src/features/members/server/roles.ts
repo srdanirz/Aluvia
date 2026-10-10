@@ -15,7 +15,7 @@ export function roleRank(role: SQL): SQL {
   return sql`(CASE ${role} WHEN 'volunteer' THEN 0 WHEN 'field_volunteer' THEN 1 WHEN 'coordinator' THEN 2 END)`;
 }
 
-/** Inside a statement on emergency_members: whether the actor is a platform admin right now. */
-export function actorIsPlatformAdmin(actorId: string): SQL {
-  return sql`EXISTS (SELECT 1 FROM users WHERE id = ${actorId} AND platform_role = 'admin')`;
+/** Inside a statement: whether `userId` (a value or a column) is a platform admin right now. */
+export function isPlatformAdminSql(userId: string | SQL): SQL {
+  return sql`EXISTS (SELECT 1 FROM users WHERE id = ${userId} AND platform_role = 'admin')`;
 }

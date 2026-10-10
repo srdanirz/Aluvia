@@ -19,9 +19,11 @@ const HOUR = 60 * 60;
 const CODES_PER_PHONE_PER_HOUR = 5;
 const CODES_PER_IP_PER_HOUR = 30;
 const VERIFICATIONS_PER_IP_PER_HOUR = 60;
-// Caps guessing across codes and IPs at 20 tries a day per phone (1 in 50,000 a day of hitting
-// one account), and how long someone else can keep a phone locked out by burning its codes.
-const VERIFICATIONS_PER_PHONE_PER_DAY = 20;
+// Guesses per phone and day. From one address the cap is low, so one device cannot keep someone
+// else locked out for a day; across addresses it is higher, and still bounds a distributed
+// guesser to 1 in 10,000 a day of hitting one account.
+const VERIFICATIONS_PER_PHONE_AND_IP_PER_DAY = 20;
+const VERIFICATIONS_PER_PHONE_PER_DAY = 100;
 const DAY = 24 * HOUR;
 
 export type RequestLoginCodeResult = { ok: true } | { ok: false; code: "rate_limited" | "code_not_sent" };
@@ -74,11 +76,16 @@ export async function verifyLoginCode(
   { phone, code, ipKey }: { phone: string; code: string; ipKey: string },
 ): Promise<VerifyLoginCodeResult> {
   const phoneHash = hashSecret(phone);
-  const [ipAllowed, phoneAllowed] = await Promise.all([
+  const limits = await Promise.all([
     hitRateLimit(db, {
       key: `login_verify:ip:${ipKey}`,
       limit: VERIFICATIONS_PER_IP_PER_HOUR,
       windowSeconds: HOUR,
+    }),
+    hitRateLimit(db, {
+      key: `login_verify:phone_ip:${phoneHash}:${ipKey}`,
+      limit: VERIFICATIONS_PER_PHONE_AND_IP_PER_DAY,
+      windowSeconds: DAY,
     }),
     hitRateLimit(db, {
       key: `login_verify:phone:${phoneHash}`,
@@ -86,7 +93,7 @@ export async function verifyLoginCode(
       windowSeconds: DAY,
     }),
   ]);
-  if (!ipAllowed || !phoneAllowed) return { ok: false, code: "rate_limited" };
+  if (!limits.every(Boolean)) return { ok: false, code: "rate_limited" };
 
   const [attempt] = await db.execute<{ id: string; code_hash: string; attempts: number }>(sql`
     UPDATE login_codes SET attempts = attempts + 1

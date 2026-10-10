@@ -19,8 +19,8 @@ Tomar un trabajo pide solo nombre y teléfono, una vez (DESIGN.md, "Primero: sin
 
 - **Implementación propia sobre nuestro Postgres**, sin librería de auth. Better Auth y Auth.js exigen email en el usuario: con login por teléfono llenarían `users.email` de direcciones falsas y traerían tablas de cuentas y verificaciones que no usamos. Lo nuestro son tres tablas y reglas que decide la base, como el resto del repo.
 - `login_codes` guarda **HMAC** del teléfono y del código con `AUTH_SECRET`: una fila no identifica a nadie y no sirve para adivinar offline. Un código vale 10 minutos y 5 intentos; verificar suma el intento y consume el código con `UPDATE` condicionales, así un código abre una sola sesión aunque llegue repetido.
-- Límites en `rate_limits` (compartida con los reportes públicos): 5 códigos por teléfono y 30 por IP por hora, 60 verificaciones por IP por hora. Generosos por IP porque las redes móviles comparten dirección (SECURITY.md).
-- `sessions` guarda el SHA-256 del token; la cookie `aluvia_session` es `httpOnly`, `sameSite=lax` (un link de WhatsApp tiene que llegar con sesión) y `secure` en producción. La sesión dura 30 días desde el último uso.
+- Límites en `rate_limits` (compartida con los reportes públicos): 5 códigos por teléfono y 30 por IP por hora; 60 verificaciones por IP por hora, 20 por teléfono y dirección al día y 100 por teléfono al día, así un solo aparato no deja a otra persona sin entrar. Generosos por IP porque las redes móviles comparten dirección (SECURITY.md).
+- `sessions` guarda el SHA-256 del token; la cookie es `httpOnly`, `sameSite=lax` (un link de WhatsApp tiene que llegar con sesión) y en producción se llama `__Host-aluvia_session` (solo HTTPS y solo este host). Entrar de nuevo en un aparato cierra la sesión anterior. La sesión dura 30 días desde el último uso.
 - **Excepción al outbox (ADR 0007):** el código se envía directo desde la acción, después de guardar. Tiene que llegar en segundos, no puede guardarse en claro y no hay un cambio de dominio que acompañar en la misma transacción. Es el único mensaje que sale así.
 - Producción no arranca sin WhatsApp o Twilio configurado. En desarrollo, sin proveedor, el código aparece en el log del servidor.
 
@@ -40,7 +40,7 @@ Tomar un trabajo pide solo nombre y teléfono, una vez (DESIGN.md, "Primero: sin
 ### Invitaciones
 
 - Un admin crea un link por emergencia con rol, vencimiento (1, 3 o 7 días) y usos máximos; se revoca cuando quiera. Un link de voluntario puede ser ilimitado; uno que otorga un rol siempre tiene tope (`CHECK`). Desde la ficha de una casa sale un link de un uso que además asigna esa casa.
-- Se guarda el SHA-256 del token. Aceptar es un `UPDATE` condicional sobre `uses`: un link de un uso admite exactamente a una persona. Quien lo creó queda como aprobador, por eso su propio link no lo asciende.
+- Se guarda el SHA-256 del token. Aceptar es un `UPDATE` condicional sobre `uses`: un link de un uso admite exactamente a una persona. Quien lo creó queda como aprobador, por eso su propio link no lo asciende, y un link que otorga un rol deja de servir si su creador ya no es admin.
 - Aceptar nunca baja de rol a quien ya tiene uno mayor.
 
 ### Autorización para las demás features

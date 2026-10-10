@@ -7,7 +7,7 @@ import { adminEvents } from "@/shared/db/schema";
 import type { Executor } from "@/shared/db/types";
 
 import { canManageMembers } from "./policy";
-import { actorIsPlatformAdmin, roleRank } from "./roles";
+import { isPlatformAdminSql, roleRank } from "./roles";
 
 export type ElevatedRole = Exclude<MemberRole, "volunteer">;
 
@@ -85,7 +85,7 @@ export async function approveMemberRole(
       UPDATE emergency_members
       SET role = requested_role, requested_role = NULL, approved_at = now(), approved_by = ${actorId}
       WHERE emergency_id = ${emergencyId} AND user_id = ${userId} AND requested_role = ${role}
-        AND ${actorIsPlatformAdmin(actorId)}
+        AND ${isPlatformAdminSql(actorId)}
         AND EXISTS (SELECT 1 FROM emergencies WHERE id = ${emergencyId} AND status = 'open')
       RETURNING role`);
     if (!row) return { ok: false, code: "no_pending_request" } as const;
@@ -115,7 +115,7 @@ export async function rejectMemberRole(
       FROM (SELECT requested_role AS role FROM emergency_members
             WHERE emergency_id = ${emergencyId} AND user_id = ${userId} FOR UPDATE) before
       WHERE m.emergency_id = ${emergencyId} AND m.user_id = ${userId} AND m.requested_role IS NOT NULL
-        AND ${actorIsPlatformAdmin(actorId)}
+        AND ${isPlatformAdminSql(actorId)}
       RETURNING before.role`);
     if (!row) return { ok: false, code: "no_pending_request" } as const;
     await tx.insert(adminEvents).values({
@@ -145,7 +145,7 @@ export async function revokeMemberRole(
       FROM (SELECT role FROM emergency_members
             WHERE emergency_id = ${emergencyId} AND user_id = ${userId} FOR UPDATE) before
       WHERE m.emergency_id = ${emergencyId} AND m.user_id = ${userId} AND m.role <> 'volunteer'
-        AND ${actorIsPlatformAdmin(actorId)}
+        AND ${isPlatformAdminSql(actorId)}
       RETURNING before.role`);
     if (!row) return { ok: false, code: "no_role_to_revoke" } as const;
     await tx.execute(sql`

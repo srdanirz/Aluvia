@@ -55,6 +55,9 @@ export async function submitLogin(
     if (!input.success) return { step: "code", phone, error: "invalid_code" };
     const result = await verifyLoginCode(db, { phone, code: input.data.code, ipKey });
     if (!result.ok) return { step: "code", phone, error: result.code };
+    // A device holds one session: logging in again (maybe as someone else) ends the old one.
+    const previous = await readSessionToken();
+    if (previous) await deleteSession(db, previous);
     await setSessionCookie(result.token);
     if (!result.hasName) return { step: "name" };
     return redirect({ href: next, locale });

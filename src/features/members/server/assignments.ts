@@ -6,7 +6,7 @@ import { adminEvents } from "@/shared/db/schema";
 import type { Executor } from "@/shared/db/types";
 
 import { canManageMembers } from "./policy";
-import { actorIsPlatformAdmin } from "./roles";
+import { isPlatformAdminSql } from "./roles";
 
 type Assignment = { emergencyId: string; worksiteId: string; userId: string };
 
@@ -34,7 +34,7 @@ export async function assignWorksite(
         INSERT INTO worksite_assignments (emergency_id, worksite_id, user_id, assigned_by)
         SELECT emergency_id, ${worksiteId}, user_id, ${actorId} FROM emergency_members
         WHERE emergency_id = ${emergencyId} AND user_id = ${userId} AND role = 'field_volunteer'
-          AND ${actorIsPlatformAdmin(actorId)}
+          AND ${isPlatformAdminSql(actorId)}
           AND EXISTS (SELECT 1 FROM emergencies WHERE id = ${emergencyId} AND status = 'open')
         ON CONFLICT (worksite_id, user_id) DO UPDATE SET assigned_at = worksite_assignments.assigned_at
         RETURNING (xmax = 0) AS inserted`);
@@ -68,7 +68,7 @@ export async function unassignWorksite(
     const rows = await tx.execute(sql`
       DELETE FROM worksite_assignments
       WHERE emergency_id = ${emergencyId} AND worksite_id = ${worksiteId} AND user_id = ${userId}
-        AND ${actorIsPlatformAdmin(actorId)}
+        AND ${isPlatformAdminSql(actorId)}
       RETURNING 1`);
     if (rows.length === 0) return { ok: false, code: "assignment_not_found" } as const;
     await tx.insert(adminEvents).values({

@@ -8,6 +8,7 @@ import type { Executor } from "@/shared/db/types";
 import { decodeTimeCursor, encodeTimeCursor, type Page, PAGE_SIZE, pageOf } from "@/shared/lib/pagination";
 
 import type { ElevatedRole } from "./membership";
+import { isPlatformAdminSql } from "./roles";
 
 export type EmergencyRef = {
   id: string;
@@ -163,6 +164,7 @@ export async function listActiveInvitations(
     FROM invitations i
     WHERE i.emergency_id = ${emergencyId} AND i.revoked_at IS NULL AND i.expires_at > now()
       AND (i.max_uses IS NULL OR i.uses < i.max_uses)
+      AND (i.role = 'volunteer' OR ${isPlatformAdminSql(sql`i.created_by`)})
       ${cursor ? sql`AND (i.created_at, i.id) < (${cursor[0]}::timestamptz, ${cursor[1]}::uuid)` : sql``}
     ORDER BY i.created_at DESC, i.id DESC
     LIMIT ${PAGE_SIZE + 1}`);

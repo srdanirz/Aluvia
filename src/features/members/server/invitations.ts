@@ -11,7 +11,7 @@ import type { InvitationInput } from "../schemas";
 import type { ElevatedRole } from "./membership";
 import { canManageMembers } from "./policy";
 import { findMembership } from "./queries";
-import { actorIsPlatformAdmin, ROLE_RANK, roleRank } from "./roles";
+import { isPlatformAdminSql, ROLE_RANK, roleRank } from "./roles";
 
 /**
  * Creates a link for `emergencyId`. Returns the token once: only its hash is stored, so a lost
@@ -32,7 +32,7 @@ export async function createInvitation(
       INSERT INTO invitations (emergency_id, token_hash, role, created_by, expires_at, max_uses)
       SELECT id, ${hashToken(token)}, ${input.role}, ${actorId},
         now() + make_interval(hours => ${input.expiresInHours}), ${input.maxUses}
-      FROM emergencies WHERE id = ${input.emergencyId} AND status = 'open' AND ${actorIsPlatformAdmin(actorId)}
+      FROM emergencies WHERE id = ${input.emergencyId} AND status = 'open' AND ${isPlatformAdminSql(actorId)}
       RETURNING id`);
     if (!row) return { ok: false, code: "emergency_closed" } as const;
 
@@ -65,7 +65,7 @@ export async function revokeInvitation(
     const [row] = await tx.execute<{ id: string }>(sql`
       UPDATE invitations SET revoked_at = now(), revoked_by = ${actorId}
       WHERE id = ${invitationId} AND emergency_id = ${emergencyId} AND revoked_at IS NULL
-        AND ${actorIsPlatformAdmin(actorId)}
+        AND ${isPlatformAdminSql(actorId)}
       RETURNING id`);
     if (!row) return { ok: false, code: "invitation_not_found" } as const;
     await tx.insert(adminEvents).values({
@@ -107,6 +107,7 @@ export async function findInvitation(
         WHEN e.status <> 'open' THEN 'emergency_closed'
         WHEN i.expires_at <= now() THEN 'expired'
         WHEN i.max_uses IS NOT NULL AND i.uses >= i.max_uses THEN 'used_up'
+        WHEN i.role <> 'volunteer' AND NOT ${isPlatformAdminSql(sql`i.created_by`)} THEN 'revoked'
         WHEN i.role <> 'volunteer' AND i.created_by = ${userId}::uuid THEN 'own_invitation'
         ELSE 'valid'
       END AS status
@@ -145,6 +146,8 @@ export async function acceptInvitation(
         AND i.revoked_at IS NULL AND i.expires_at > now()
         AND (i.max_uses IS NULL OR i.uses < i.max_uses)
         AND (i.role = 'volunteer' OR i.created_by IS DISTINCT FROM ${userId})
+        -- A role is granted on behalf of its creator, so the creator must still be an admin.
+        AND (i.role = 'volunteer' OR ${isPlatformAdminSql(sql`i.created_by`)})
         -- Someone who already holds more than this role does not spend a use meant for another
         -- person; the same role only accepts again when the link brings homes to add.
         AND NOT EXISTS (

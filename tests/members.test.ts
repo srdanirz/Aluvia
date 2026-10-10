@@ -310,6 +310,25 @@ describe("invitations", () => {
     expect(await canUpdateWorksite(db, access, home)).toBe(true);
   });
 
+  it("grants a role only while its creator is still an admin", async () => {
+    const formerAdmin = await createUser("admin");
+    const result = await createInvitation(db, formerAdmin, {
+      emergencyId: emergency,
+      role: "coordinator",
+      expiresInHours: 24,
+      maxUses: 1,
+      worksiteIds: [],
+    });
+    if (!result.ok) throw new Error(result.code);
+    await db.execute(sql`UPDATE users SET platform_role = NULL WHERE id = ${formerAdmin}`);
+    const userId = await createUser();
+    expect(await acceptInvitation(db, { token: result.token, userId })).toEqual({
+      ok: false,
+      code: "revoked",
+    });
+    expect(await memberRole(emergency, userId)).toBeNull();
+  });
+
   it("cannot promote the admin who made it", async () => {
     const { token: link } = await token({ role: "coordinator", maxUses: 1 });
     expect(await acceptInvitation(db, { token: link, userId: admin })).toEqual({

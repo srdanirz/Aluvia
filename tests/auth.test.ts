@@ -16,9 +16,9 @@ const RACERS = 8;
 const { db, close } = createTestDb({ connections: RACERS + 2 });
 afterAll(close);
 
-// Placeholder numbers: libphonenumber's documented example and unassigned shapes, never real people (SECURITY.md).
+// Clearly fictional numbers (+56 9 00...), never real people (SECURITY.md).
 let phoneSeq = 0;
-const nextPhone = () => `+5699${String(1_000_000 + phoneSeq++).slice(1)}0`;
+const nextPhone = () => `+56900${String(phoneSeq++).padStart(6, "0")}`;
 const ipKey = "test-ip";
 
 /** Requests a code and returns it, captured from the sender instead of a phone. */
@@ -44,8 +44,8 @@ beforeEach(async () => {
 
 describe("phone numbers", () => {
   it("normalizes numbers of allowed countries to E.164 and rejects the rest", () => {
-    expect(normalizePhone("2 2123 4567")).toBe("+56221234567");
-    expect(normalizePhone("+56 2 2123 4567")).toBe("+56221234567");
+    expect(normalizePhone("9 0000 0001")).toBe("+56900000001");
+    expect(normalizePhone("+56 9 0000 0001")).toBe("+56900000001");
     expect(normalizePhone("+54 9 11 1234 5678")).toBeNull();
     expect(normalizePhone("9 1234")).toBeNull();
     expect(normalizePhone("hola")).toBeNull();
@@ -145,15 +145,29 @@ describe("login codes", () => {
     expect(results.filter((r) => !r.ok && r.code === "rate_limited")).toHaveLength(2);
   });
 
-  it("caps guesses per phone across codes and addresses", async () => {
+  it("caps guesses per phone from one address without locking the phone out elsewhere", async () => {
     const phone = nextPhone();
     const code = await requestCode(phone);
-    const guesses = await Promise.all(
-      Array.from({ length: 21 }, (_, i) =>
-        verifyLoginCode(db, { phone, code: wrong(code), ipKey: `ip-${i}` }),
+    const fromOne = await Promise.all(
+      Array.from({ length: 21 }, () =>
+        verifyLoginCode(db, { phone, code: wrong(code), ipKey: "one-device" }),
       ),
     );
-    expect(guesses.filter((r) => !r.ok && r.code === "rate_limited")).toHaveLength(1);
+    expect(fromOne.filter((r) => !r.ok && r.code === "rate_limited")).toHaveLength(1);
+    const fresh = await requestCode(phone);
+    expect(await verifyLoginCode(db, { phone, code: fresh, ipKey: "the-owner" })).toMatchObject({ ok: true });
+  });
+
+  it("caps guesses per phone across addresses", async () => {
+    const phone = nextPhone();
+    const code = await requestCode(phone);
+    // 6 addresses x 17 guesses: each address stays under its own cap of 20, the phone does not.
+    const guesses = await Promise.all(
+      Array.from({ length: 102 }, (_, i) =>
+        verifyLoginCode(db, { phone, code: wrong(code), ipKey: `spread-${i % 6}` }),
+      ),
+    );
+    expect(guesses.filter((r) => !r.ok && r.code === "rate_limited")).toHaveLength(2);
   });
 
   it("purges expired codes, sessions and stale counters", async () => {
