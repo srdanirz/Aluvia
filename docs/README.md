@@ -12,4 +12,4 @@ Ingeniería:
 - [STYLEGUIDE](STYLEGUIDE.md): convenciones de código, performance, concurrencia y UI.
 - [AI_PITFALLS](AI_PITFALLS.md): errores repetibles y cómo evitarlos.
 - [CODE_MAP](CODE_MAP.md): qué módulo hace qué.
-- [Decisiones de arquitectura](adr/): nube, stack, mapa, design system, modelo de datos, notificaciones, observabilidad.
+- [Decisiones de arquitectura](adr/): nube, stack, mapa, design system, modelo de datos, notificaciones, observabilidad, multi-desastre.

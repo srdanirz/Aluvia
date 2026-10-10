@@ -28,8 +28,9 @@ Decisiones de base: [stack](adr/0002-stack.md) · [mapa](adr/0006-google-maps.md
 - Flujo en un solo sentido: `shared → features → app`. Una feature no importa los archivos internos de otra; usa su `index.ts` o el código se mueve a `shared/`.
 - **Una página nunca toca la base de datos.** Llama a `features/<x>/server/`. Esa carpeta es el único lugar con Drizzle o SQL.
 - Un archivo hace una sola cosa. Pasado ~200 líneas o con dos responsabilidades, se divide.
-- **Registro para lo que crece uno a uno.** Tipos de trabajo (barro, agua, techo, medicamentos…) son datos en un catálogo, no `if` repartidos por el código. Agregar uno no toca nada central.
+- **Registro para lo que crece uno a uno.** Tipos de trabajo y tipos de desastre son datos en un catálogo, no `if` repartidos por el código. Agregar uno no toca nada central.
 - **Todo cuelga de una emergencia.** Cada tabla de dominio lleva `emergency_id` y cada consulta filtra por él. Las Condes 2026 es la primera emergencia, no la única.
+- **Nada de un desastre en el código de la app.** Tipo, comunas, zona y catálogo de trabajos son configuración de la emergencia en la base (ADR 0009). La única excepción son los seeds revisados de `src/shared/db/seeds/`.
 
 ## Datos
 
@@ -40,7 +41,7 @@ Decisiones de base: [stack](adr/0002-stack.md) · [mapa](adr/0006-google-maps.md
 - Solo migraciones aditivas en un deploy: renombrar o cambiar un tipo se hace en tres PRs (agregar, copiar datos, borrar). (origen: sur, `strong_migrations`)
 - Cada FK y cada columna que aparece en un `WHERE` u `ORDER BY` de un listado lleva índice **en la misma migración** que crea la consulta.
 - Ubicación como `geometry(Point, 4326)` con índice GiST. Las consultas por zona usan `ST_Intersects` en la base, nunca se filtra en JS. **Para distancias en metros**, `ST_DWithin(geom::geography, …)` con índice GiST sobre la expresión `(geom::geography)`: sobre `geometry` en 4326, la distancia se mide en grados.
-- Instantes en `timestamptz` (UTC). Se muestran en `America/Santiago` con `Intl`.
+- Instantes en `timestamptz` (UTC). Se muestran en la zona horaria de la emergencia (`emergencies.time_zone`) con `Intl`; los horarios silenciosos de avisos (ADR 0007) también se cuentan en esa zona.
 - Los nombres guardados (tablas, columnas, valores de enums) están en inglés desde el día uno: renombrarlos después deja atrás los datos ya escritos. (origen: sonda, `test_persisted_schema.py`)
 - Nada se borra en duro mientras dura una emergencia: un trabajo resuelto cambia de estado. Los datos personales se borran al cerrar la emergencia (SECURITY.md).
 
@@ -155,14 +156,14 @@ Un concepto, un nombre, en todas las capas: la tabla `work_items`, la carpeta `f
 
 ### Rutas y endpoints
 
-- **Páginas:** segmentos en inglés, `kebab-case`, sustantivos en plural, sin verbos: `/worksites`, `/worksites/[id]`, `/shifts/[id]`. Si un idioma necesita URLs traducidas, se hace con los *pathnames* localizados de next-intl, sin renombrar carpetas.
+- **Páginas:** segmentos en inglés, `kebab-case`, sustantivos en plural, sin verbos, colgando de la emergencia (ADR 0009): `/emergencies/[slug]/worksites/[id]`, `/emergencies/[slug]/shifts/[id]`. Si un idioma necesita URLs traducidas, se hace con los *pathnames* localizados de next-intl, sin renombrar carpetas.
 - **Quién usa qué:**
   - **Mutaciones de la app → Server Actions** (`claimWorkItem`, `createWorksite`, `subscribeToPush`). No hay endpoint para eso.
   - **Lecturas del cliente → route handler `GET`**, para lo que el navegador pide solo (el mapa por bbox con TanStack Query). Lo que se lee al renderizar lo hace el Server Component directo con `queries.ts`.
   - **Terceros y procesos → route handlers**: webhooks de proveedores, exportación para el municipio, el worker de notificaciones.
 - **Route handlers:** versionados y REST, `/api/v1/<recurso-en-plural>`. Ejemplos de cada categoría:
-  - `GET /api/v1/worksites?bbox=…&cursor=…` (lectura del mapa).
-  - `GET /api/v1/exports/worksites` (exportación para el municipio).
+  - `GET /api/v1/emergencies/[slug]/worksites?bbox=…&cursor=…` (lectura del mapa).
+  - `GET /api/v1/emergencies/[slug]/exports/worksites` (exportación para el municipio).
   - `POST /api/v1/webhooks/<proveedor>` (estado de entrega de un SMS).
   - Una acción que no es CRUD es un subrecurso con verbo, siempre `POST`: `POST /api/v1/notifications/dispatch` (el worker).
   - Query params en `camelCase` (`pageSize`, `cursor`), igual que el JSON.
@@ -195,10 +196,11 @@ Detalle y razones en [ADR 0004](adr/0004-design-system.md). La regla corta: **si
 
 ### Idiomas
 
-Agregar un idioma tiene que ser **agregar un archivo**, sin tocar código.
+Agregar un idioma a la interfaz tiene que ser **agregar un archivo**, sin tocar código.
 
 - Los idiomas viven en un registro (`src/shared/i18n/locales.ts`). Agregar uno es una línea ahí más `messages/<código>.json`.
-- **Todo texto visible sale de `messages/*.json`** vía next-intl, también `alt`, `aria-label`, `title`, mensajes de error y correos.
+- **Todo texto de la interfaz sale de `messages/*.json`** vía next-intl, también `alt`, `aria-label`, `title`, mensajes de error y correos.
+- **Excepción: datos de una emergencia** (su nombre, sus tipos de trabajo). Vienen de la base en `jsonb` por idioma, con respaldo en el idioma por defecto de la emergencia. El admin muestra qué falta traducir (ADR 0009).
 - Nada de armar frases concatenando pedazos: una frase es una clave con variables (`"{count, plural, one {# casa} other {# casas}}"`). El orden de las palabras cambia entre idiomas.
 - Fechas, números, monedas y listas por `Intl` con el locale activo, nunca con `"es-CL"` fijo. (origen: sonda)
 - El servidor responde códigos (`already_claimed`), nunca frases.

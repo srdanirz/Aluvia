@@ -1,6 +1,6 @@
 # Aluvia
 
-Open-source platform to coordinate aid after a mudslide (aluvión): which homes are affected, what work each one needs, who has taken it, where volunteers are needed. Born from the 2026-10-08 Las Condes aluvión; the data model follows Crisis Cleanup (worksite → work items → claimed → status). Two maintainers, every change lands by PR with cross review. Next.js + Postgres/PostGIS on GCP.
+Open-source platform to coordinate aid after any disaster: which homes are affected, what work each one needs, who has taken it, where volunteers are needed. Born from the 2026-10-08 Las Condes aluvión; the data model follows Crisis Cleanup (worksite → work items → claimed → status). Two maintainers, every change lands by PR with cross review. Next.js + Postgres/PostGIS on GCP.
 
 ## Commands
 
@@ -34,6 +34,7 @@ When you adopt a convention, hit a mistake twice, add a module or make a long-ta
 - **One central database.** Everything lives in the same Postgres and schema (`src/shared/db/schema/`). A new use case adds tables by migration and references the shared entities (`emergencies`, `users`, `worksites`, `work_items`); it never creates another database, a Firestore collection, a spreadsheet, or its own copy of people or homes. Reuse beats isolation: it is what keeps the product stable.
 - **Notifications go through the outbox** (`docs/adr/0007-notificaciones.md`): insert into `notifications` in the same transaction as the change; never call a provider from an action. Emergency/evacuation alerts are out of scope (that is SENAPRED's SAE).
 - **Observable by default** (`docs/adr/0008-observabilidad.md`): every feature ships its metrics, its product events from `src/shared/analytics/events.ts` and, if failure leaves someone without help, its alert. No personal data in events, metrics, logs or errors.
+- **Disaster-agnostic.** No disaster type, comuna, place or work type is written in code: it is emergency configuration in the database, edited from the admin (`/[locale]/admin`) (`docs/adr/0009-multi-desastre-y-admin.md`); the only exception is reviewed seeds in `src/shared/db/seeds/`. `messages/*.json` holds only interface text; emergency data is per-locale `jsonb`.
 - **Pages never touch the database.** They call `features/<x>/server/`.
 
 ## Product rule: zero friction
