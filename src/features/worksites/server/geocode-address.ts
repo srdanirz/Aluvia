@@ -31,6 +31,23 @@ type GeocodeResponse = {
   results?: { geometry?: { location?: { lat: number; lng: number }; location_type?: string } }[];
 };
 
+// What neighbors write after the number: the unit inside a lot ("Casa 4 Y 5", "depto 3"). Google
+// reads it as noise and falls back to the street's center, which PRECISE_TYPES then refuses.
+const UNIT_SUFFIX =
+  /[\s,]+(casa|depto|dpto|dpt|dep|departamento|block|blk|torre|of|oficina|piso|local|lote|sitio)\b.*$/i;
+
+/**
+ * The written address as Google finds the door: thousands dots joined ("10.745" is 10745, which
+ * Google otherwise reads as number 10) and the unit inside the lot dropped. The saved address
+ * keeps what the neighbor wrote.
+ */
+export function geocodingQuery(address: string): string {
+  return address
+    .replace(/(\d{1,3})\.(\d{3})(?!\d)/g, "$1$2")
+    .replace(UNIT_SUFFIX, "")
+    .trim();
+}
+
 function isNear(area: Bbox | null, point: { lng: number; lat: number }): boolean {
   if (!area) return true;
   return (
@@ -42,7 +59,7 @@ function isNear(area: Bbox | null, point: { lng: number; lat: number }): boolean
 }
 
 function requestUrl(address: string, bias: GeocodeBias, key: string): string {
-  const params = new URLSearchParams({ address, region: "cl", language: "es", key });
+  const params = new URLSearchParams({ address: geocodingQuery(address), region: "cl", language: "es", key });
   // locality only biases (it does not filter) and takes one value, so it goes in for a single comuna.
   const components = ["country:CL", ...(bias.comunas.length === 1 ? [`locality:${bias.comunas[0]}`] : [])];
   params.set("components", components.join("|"));
