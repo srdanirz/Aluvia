@@ -20,6 +20,7 @@ export { Logo } from "./logo";
 export { LogoMark } from "./logo-mark";
 export { Section } from "./section";
 export { MapMarker } from "./map-marker";
+export { MediaGallery, type MediaGalleryItem } from "./media-gallery";
 export { Page } from "./page";
 export { SegmentedControl } from "./segmented-control";
 export { Select } from "./select";

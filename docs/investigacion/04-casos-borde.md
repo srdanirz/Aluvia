@@ -45,7 +45,7 @@ Qué suele salir mal en apps de coordinación de ayuda y qué hace Aluvia al res
 | El mismo hogar reportado dos veces (el vecino y un vecino de al lado, o dos historias de Instagram) | Aviso de posible duplicado cuando hay un reporte a pocos metros. El coordinador fusiona. Estado "duplicado" ya existe. Los duplicados hacen gastar recursos dos veces ([estudio sobre Typhoon Dujuan](https://scholars.lib.ntu.edu.tw/entities/publication/9888a945-f0d2-43f4-8958-4dfc23e65567)) | falta | salida |
 | Dirección mal escrita, sin número, parcela, condominio o calle con el mismo nombre en otra comuna | Manda el pin que el vecino confirma. Si no hay pin, queda pendiente de que un coordinador la ubique (ADR 0006) | listo | salida |
 | Coordenadas fuera de la zona afectada (error de GPS, latitud y longitud invertidas) | Rechazar o marcar para revisión si el punto cae fuera del área de la emergencia (`emergencies.area`) | falta | salida |
-| La foto vieja o de otro lugar | Quitar metadatos EXIF, y mostrar al coordinador la fecha de recepción, no la de la foto | #20 | semana |
+| La foto vieja o de otro lugar | Quitar metadatos EXIF, y mostrar al coordinador la fecha de recepción, no la de la foto (ADR 0020) | #79 | listo |
 | La cobertura cambia entre que el voluntario abre el mapa y llega | Datos frescos con refresco automático y la hora de la última lectura a la vista | falta | semana |
 
 ## 5. Seguridad de los voluntarios
@@ -82,7 +82,7 @@ Qué suele salir mal en apps de coordinación de ayuda y qué hace Aluvia al res
 | WhatsApp se cae o Meta bloquea el número por spam | Segundo canal (SMS) y la web como respaldo. Si falla un solo canal, el sistema sigue. Cuando WhatsApp se cae, los pedidos no llegan ([nota](https://comunidad.espoesia.com/benchb327/whatsapp-down-how-outages-impact-emergency-communications-and-public-safety/)) | falta | salida |
 | Meta solo deja contestar libremente 24 horas después del último mensaje | Plantillas aprobadas para avisos fuera de ventana. Pedir su aprobación hoy, porque tarda | #20 | salida |
 | Audio con ruido de maquinaria, acento o mala conexión | Mostrar lo entendido y pedir confirmación. Nada se guarda sin confirmar | #17 | salida |
-| Foto o audio muy pesado | Compresión en el celular y reintento. Límite de tamaño | falta | semana |
+| Foto o audio muy pesado | Compresión en el celular y reintento. Límite de tamaño: fotos achicadas a 2048 px, video de 30 s y 50 MB (ADR 0020). Audio pendiente | #79, #17 | semana |
 | El vecino manda solo "ayuda" sin ubicación | El bot pide el pin de WhatsApp, y si no puede, pide una referencia (esquina, almacén, junta de vecinos) | #20 | salida |
 | Mensaje en otro idioma o con faltas | Mensajes en lenguaje simple. i18n listo para sumar idiomas | listo | semana |
 
@@ -90,7 +90,7 @@ Qué suele salir mal en apps de coordinación de ayuda y qué hace Aluvia al res
 
 | Caso | Mitigación | Estado | Prioridad |
 |---|---|---|---|
-| Foto con cédula, rostros, niños o documentos a la vista | Fotos privadas, solo visibles para coordinadores. Advertir al vecino que no incluya personas ni documentos | #20 | salida |
+| Foto con cédula, rostros, niños o documentos a la vista | Advertencia antes de elegir, metadatos borrados y un coordinador oculta lo que no corresponde. Las fotos son públicas en la ficha: los mantenedores priorizan que el voluntario vea el daño (ADR 0020) | #79 | listo |
 | El vecino pide borrar sus datos | Canal claro para pedirlo y borrado efectivo (Ley 19.628). Borrado al cerrar la emergencia (ADR 0005) | listo, #20 | salida |
 | Un menor reporta o es reportado | Se permite reportar. No se pide edad, y no se muestran nombres | falta | semana |
 | El teléfono del vecino aparece en el mapa por error | Contacto en tabla aparte. Pruebas que fallan si una vista pública devuelve campos de contacto | listo | salida |

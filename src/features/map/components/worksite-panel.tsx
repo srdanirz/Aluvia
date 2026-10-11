@@ -28,6 +28,7 @@ export async function WorksitePanel({
   adminTools,
   contact,
   fieldState,
+  media,
 }: {
   slug: string;
   home: PublicWorksite;
@@ -40,6 +41,8 @@ export async function WorksitePanel({
   contact?: ReactNode;
   /** People and supplies (features/worksite-updates): current state, update button, history. */
   fieldState?: ReactNode;
+  /** Photos and videos with the way to add more (features/worksite-media); nothing when media is off. */
+  media?: ReactNode;
 }) {
   const t = await getTranslations("worksite");
   const tMap = await getTranslations("map");
@@ -183,6 +186,8 @@ export async function WorksitePanel({
           )}
         </section>
       </WorksiteJobs>
+
+      {media}
 
       {adminTools}
 

@@ -53,3 +53,7 @@ export const zoneKind = pgEnum("zone_kind", ["no_entry", "restricted", "meeting_
 export const collectionPointStatus = pgEnum("collection_point_status", ["receiving", "full", "only_some"]);
 // What someone sends from the feedback page ("Comentarios").
 export const feedbackCategory = pgEnum("feedback_category", ["problem", "idea", "other"]);
+// A photo or a short video of a home (ADR 0020).
+export const mediaKind = pgEnum("media_kind", ["image", "video"]);
+// `pending` while the browser uploads the original; `ready` once the server re-encoded it.
+export const mediaStatus = pgEnum("media_status", ["pending", "ready"]);

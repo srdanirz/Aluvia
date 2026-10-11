@@ -20,5 +20,6 @@ export * from "./users";
 export * from "./work-items";
 export * from "./work-types";
 export * from "./worksite-assignments";
+export * from "./worksite-media";
 export * from "./worksite-updates";
 export * from "./worksites";

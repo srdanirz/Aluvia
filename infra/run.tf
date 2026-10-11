@@ -47,6 +47,8 @@ locals {
     TRUSTED_PROXY_HOPS = "2"
     # Scheduled routes accept only Cloud Scheduler's OIDC token for this account (scheduler.tf).
     SCHEDULER_SERVICE_ACCOUNT = google_service_account.scheduler.email
+    # Photos and videos of homes (ADR 0020, media.tf).
+    MEDIA_BUCKET = google_storage_bucket.media.name
   }, var.env)
 }
 

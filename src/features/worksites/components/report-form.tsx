@@ -10,6 +10,8 @@ import { discardOutboxEntry, enqueue } from "@/shared/offline/outbox";
 import { usePersistedState } from "@/shared/offline/use-persisted-state";
 import { Button, Card, Field, FormError, Input, Spinner, Textarea, ToggleTile } from "@/shared/ui";
 
+import { enqueueMedia, MediaPicker, type PickedMedia } from "@/features/worksite-media/components";
+
 import { toE164 } from "../phone";
 import type { WorksiteReportInput, WorksiteSource } from "../schemas";
 import type { EmergencyNumber } from "../server/queries";
@@ -25,6 +27,8 @@ type ReportFormProps = {
   emergencyNumbers: EmergencyNumber[];
   /** For the product event only; the server decides the stored source on its own. */
   source: Extract<WorksiteSource, "neighbor" | "coordinator">;
+  /** This deployment stores photos and videos (a media bucket is configured). */
+  mediaEnabled: boolean;
 };
 
 type Sent = { worksiteId: string; delivery: "sent" | "queued" };
@@ -44,7 +48,7 @@ function answeredWorksiteId(response: unknown, fallback: string): string {
  * put the pin on the wrong block. The draft lives in the phone until it is sent, and a send
  * without signal stays queued in the outbox, so nothing typed is ever lost.
  */
-export function ReportForm({ slug, workTypes, emergencyNumbers, source }: ReportFormProps) {
+export function ReportForm({ slug, workTypes, emergencyNumbers, source, mediaEnabled }: ReportFormProps) {
   const t = useTranslations("worksites.report");
   const errorMessage = useErrorMessage();
   const locale = useLocale();
@@ -53,6 +57,8 @@ export function ReportForm({ slug, workTypes, emergencyNumbers, source }: Report
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState<Sent | null>(null);
   const [rejection, setRejection] = useState<string | null>(null);
+  // Files cannot live in the persisted draft; they join the outbox when the report does.
+  const [media, setMedia] = useState<PickedMedia[]>([]);
 
   const phone = toE164(draft.phone, typeof navigator === "undefined" ? [] : navigator.languages);
   const phoneError = draft.phone.trim() !== "" && phone === null;
@@ -111,6 +117,12 @@ export function ReportForm({ slug, workTypes, emergencyNumbers, source }: Report
       workTypeCount: draft.workTypeKeys.length,
       delivery: result.status,
     });
+    if (media.length > 0) {
+      // Not awaited: the photos follow the report in the outbox and upload in the background.
+      void enqueueMedia({ slug, target: id, items: media });
+      media.forEach((item) => URL.revokeObjectURL(item.previewUrl));
+      setMedia([]);
+    }
     clearDraft();
     setDetailsOpen(false);
     // A report naming an official parcel ends on that home, not on its own id; the server says which.
@@ -210,6 +222,8 @@ export function ReportForm({ slug, workTypes, emergencyNumbers, source }: Report
           </div>
         ) : null}
       </section>
+
+      {mediaEnabled ? <MediaPicker value={media} onChange={setMedia} /> : null}
 
       <div className="flex flex-col gap-3">
         <Button type="submit" block disabled={missing !== null || phoneError || sending}>

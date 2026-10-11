@@ -90,7 +90,7 @@ variable "env" {
 }
 
 variable "scheduled_calls" {
-  description = "Which minute-by-minute calls in scheduler.tf are on (notifications-dispatch, work-items-release). Turn one on once its route is on main."
+  description = "Which minute-by-minute calls in scheduler.tf are on (notifications-dispatch, work-items-release, media-delete-queued). Turn one on once its route is on main."
   type        = set(string)
   default     = []
 }

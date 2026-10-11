@@ -24,6 +24,9 @@ export const EVENTS = {
     supplyCount: z.number().int().nonnegative(),
     delivery: z.enum(["sent", "queued"]),
   }),
+  // Photos and videos of a home (ADR 0020): published once the server re-encoded them.
+  worksite_media_published: z.strictObject({ kind: z.enum(["image", "video"]) }),
+  worksite_media_hidden: z.strictObject({ hidden: z.boolean() }),
   worksite_drafts_extracted: z.strictObject({ count: z.number().int().nonnegative() }),
   worksite_placed: z.strictObject({ hadNearby: z.boolean() }),
   // Coordinator review queue (issue #43).

@@ -37,6 +37,7 @@ import {
   Section,
   Select,
   MapMarker,
+  MediaGallery,
   Skeleton,
   Spinner,
   TextLink,
@@ -159,6 +160,22 @@ export default async function DesignSystemPage() {
             <MapMarker tone="pending" icon={<Footprints />} selected />
             <MapMarker tone="place" icon={<Package />} />
           </div>
+        </Section>
+
+        <Section title={t("media")}>
+          <MediaGallery
+            items={[
+              { id: "a", kind: "image", src: "/icon.svg", alt: t("mediaAlt"), caption: t("mediaCaption") },
+              {
+                id: "b",
+                kind: "image",
+                src: "/icon.svg",
+                alt: t("mediaAlt"),
+                muted: true,
+                badge: <Chip tone="closed">{t("mediaHidden")}</Chip>,
+              },
+            ]}
+          />
         </Section>
 
         <Section title={t("segmented")}>

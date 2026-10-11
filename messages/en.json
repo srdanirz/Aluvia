@@ -90,7 +90,11 @@
     "copy": "Copy",
     "copied": "Copied",
     "textLinks": "Links in text",
-    "textLinkSample": "A sentence with <link>a link</link> in it."
+    "textLinkSample": "A sentence with <link>a link</link> in it.",
+    "media": "Gallery",
+    "mediaAlt": "Sample photo",
+    "mediaCaption": "Received 2 hours ago",
+    "mediaHidden": "Hidden"
   },
   "notFound": {
     "title": "We could not find this page",
@@ -382,7 +386,16 @@
     "emergency_open": "The emergency is still open. Close it before deleting its data.",
     "nothing_to_revert": "The last change can no longer be undone. Reload to see the current status.",
     "organization_exists": "An organization with that name already exists in this emergency.",
-    "organization_not_found": "That organization does not exist in this emergency."
+    "organization_not_found": "That organization does not exist in this emergency.",
+    "media_limit_reached": "This home already has all the photos and videos it takes.",
+    "media_unavailable": "Photos cannot be uploaded right now.",
+    "invalid_media": "The file could not be opened. Try another photo or video.",
+    "upload_missing": "The upload did not finish. It will be retried.",
+    "media_lost": "The file was deleted from the phone before it was sent. Choose it again.",
+    "media_not_found": "That photo is gone.",
+    "media_type_not_allowed": "That file is not a photo or video we can use.",
+    "media_too_large": "The file is too large.",
+    "video_too_long": "The video is longer than 30 seconds."
   },
   "admin": {
     "meta": {
@@ -1023,6 +1036,41 @@
       "unnamed": "No name",
       "remove": "Remove as coordinator",
       "more": "Show more"
+    }
+  },
+  "worksiteMedia": {
+    "picker": {
+      "title": "Photos or video",
+      "lead": "Optional. Up to 5 photos and one 30-second video.",
+      "warning": "Before choosing: no faces, children, license plates or documents. Photos show on the home's public page.",
+      "add": "Add photos or video",
+      "preparing": "Preparing",
+      "remove": "Remove",
+      "itemAlt": "Chosen photo {position}",
+      "errors": {
+        "media_type_not_allowed": "That file is not a photo or video we can use.",
+        "media_too_large": "The video is over 50 MB. Record a shorter one.",
+        "video_too_long": "The video is longer than 30 seconds. Record a shorter one.",
+        "media_limit_reached": "There are already 5 photos and a video. Remove one to add another."
+      }
+    },
+    "uploader": {
+      "send": "{count, plural, one {Send # file} other {Send # files}}",
+      "sending": "Sending",
+      "outcome": {
+        "sent": "Sent. It shows in the gallery in a few seconds.",
+        "queued": "Waiting for signal. It will send by itself.",
+        "rejected": "Could not send. Check the pending sends."
+      }
+    },
+    "gallery": {
+      "title": "Photos and videos",
+      "empty": "No photos of this home yet.",
+      "itemAlt": "Photo {position} of the home",
+      "hidden": "Hidden",
+      "hide": "Hide from the public",
+      "show": "Show to the public",
+      "received": "Received {relative}"
     }
   }
 }

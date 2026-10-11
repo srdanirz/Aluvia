@@ -9,6 +9,7 @@ import { loadOfficialNotice, OfficialNotice } from "@/features/admin";
 import { LEVEL_STATE } from "@/features/map/attention";
 import { WorksitePanel } from "@/features/map/components/worksite-panel";
 import { WorksiteAssignments } from "@/features/members";
+import { WorksiteGallery } from "@/features/worksite-media/components/worksite-gallery";
 import { WorksiteContactCard } from "@/features/worksites/components";
 import { WorksiteFieldState } from "@/features/worksite-updates/components";
 import { slugSchema, worksiteIdSchema } from "@/features/map/schemas";
@@ -57,6 +58,7 @@ export default async function WorksitePage({ params }: { params: Params }) {
       fieldState={
         <WorksiteFieldState slug={slug} emergencyId={home.emergencyId} worksiteId={home.id} now={now} />
       }
+      media={<WorksiteGallery slug={slug} emergencyId={home.emergencyId} worksiteId={home.id} now={now} />}
     />
   );
 }

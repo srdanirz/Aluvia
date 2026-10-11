@@ -8,13 +8,17 @@
  * queued yesterday would hit a missing action today.
  */
 
+import { deleteBlob } from "./blob-store";
+import { sendMediaEntry } from "./media-delivery";
+import { type DeliveryResult, readAnswer } from "./read-answer";
+
 const STORAGE_KEY = "aluvia.outbox.v1";
 const CHANGE_EVENT = "aluvia:outbox";
 
 export type OutboxEntry = {
   id: string;
   /** What the entry creates, for the screens that list pending writes. */
-  kind: "worksite" | "worksite_update";
+  kind: "worksite" | "worksite_update" | "worksite_media";
   url: string;
   body: unknown;
   queuedAt: string;
@@ -23,9 +27,7 @@ export type OutboxEntry = {
   code?: string;
 };
 
-/** `response` is the server's JSON answer to a sent entry, or null when it had none. */
-export type DeliveryResult =
-  { status: "sent"; response: unknown } | { status: "queued" } | { status: "rejected"; code: string };
+export type { DeliveryResult };
 
 // The queue this tab works from when localStorage is blocked or full. It is lost with the tab,
 // so the form still shows the entry as waiting and keeps it sending while the tab lives.
@@ -92,12 +94,21 @@ export function subscribeOutbox(listener: () => void): () => void {
 
 export function discardOutboxEntry(id: string) {
   remove(id);
+  void deleteBlob(id);
 }
 
-// 408 and 429 are "try later", like a 5xx; every other 4xx is a definitive answer.
-const RETRYABLE_STATUS = new Set([408, 429]);
-
 async function deliver(entry: OutboxEntry): Promise<DeliveryResult> {
+  // A photo or video travels in three steps with its file from IndexedDB (media-delivery.ts).
+  const result = entry.kind === "worksite_media" ? await sendMediaEntry(entry) : await sendJson(entry);
+  if (result.status === "sent") {
+    remove(entry.id);
+    if (entry.kind === "worksite_media") await deleteBlob(entry.id);
+  }
+  if (result.status === "rejected") upsert({ ...entry, status: "rejected", code: result.code });
+  return result;
+}
+
+async function sendJson(entry: OutboxEntry): Promise<DeliveryResult> {
   let response: Response;
   try {
     response = await fetch(entry.url, {
@@ -110,19 +121,7 @@ async function deliver(entry: OutboxEntry): Promise<DeliveryResult> {
     // No network or the request died mid-way; the id makes the retry safe.
     return { status: "queued" };
   }
-  if (response.ok) {
-    remove(entry.id);
-    // The write is done whatever the body says; an unreadable one only loses the answer.
-    const json: unknown = await response.json().catch(() => null);
-    return { status: "sent", response: json };
-  }
-  if (response.status >= 500 || RETRYABLE_STATUS.has(response.status)) return { status: "queued" };
-  const code = await response
-    .json()
-    .then((json: { code?: unknown }) => (typeof json.code === "string" ? json.code : "unknown"))
-    .catch(() => "unknown");
-  upsert({ ...entry, status: "rejected", code });
-  return { status: "rejected", code };
+  return readAnswer(response);
 }
 
 /** Stores the write first, then tries to send it. Resolves once the outcome of this attempt is known. */
@@ -130,6 +129,15 @@ export function enqueue(entry: Omit<OutboxEntry, "queuedAt" | "status">): Promis
   const stored: OutboxEntry = { ...entry, queuedAt: new Date().toISOString(), status: "pending" };
   upsert(stored);
   return deliver(stored);
+}
+
+/**
+ * Stores the write without sending it now; the next flush sends it after what is already queued.
+ * For files: a report and its photos go out in the order they were queued, and the form does not
+ * wait for a 50 MB upload.
+ */
+export function enqueueLater(entry: Omit<OutboxEntry, "queuedAt" | "status">): void {
+  upsert({ ...entry, queuedAt: new Date().toISOString(), status: "pending" });
 }
 
 let flushing: Promise<void> | null = null;

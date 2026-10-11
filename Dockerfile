@@ -53,6 +53,8 @@ ENTRYPOINT ["sh", "-c", "test -n \"$1\" || { echo 'Usage: --args=<script>[,arg..
 
 FROM node:22-slim@sha256:c3de60bf2f9dd0ac6370e6117950ff62d6e339527e7472301c9c78a017978392 AS app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=8080 HOSTNAME=0.0.0.0
+# ffmpeg and ffprobe strip a home video's metadata (GPS) and check its length (ADR 0020).
+RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=build --chown=node:node /app/.next/standalone ./
 COPY --from=build --chown=node:node /app/.next/static ./.next/static
