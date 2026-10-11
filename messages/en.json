@@ -259,7 +259,8 @@
       "emptyReport": "Report a home",
       "contact": "Contact: {name} · {phone}",
       "vulnerable": "Vulnerable people",
-      "updated": "Last news {relative}"
+      "updated": "Last news {relative}",
+      "attendedBy": "Attended by: {organizations}"
     }
   },
   "worksiteUpdates": {
@@ -379,7 +380,9 @@
     "invalid_field": "Use field names with letters, numbers and underscores.",
     "address_fields_required": "Give at least one address field.",
     "emergency_open": "The emergency is still open. Close it before deleting its data.",
-    "nothing_to_revert": "The last change can no longer be undone. Reload to see the current status."
+    "nothing_to_revert": "The last change can no longer be undone. Reload to see the current status.",
+    "organization_exists": "An organization with that name already exists in this emergency.",
+    "organization_not_found": "That organization does not exist in this emergency."
   },
   "admin": {
     "meta": {
@@ -500,7 +503,10 @@
       "purgeLead": "Deletes this emergency's contacts, sign-ups, members and notices, and the people no longer in any open emergency. Counts of homes and work stay. This cannot be undone.",
       "purgeButton": "Delete personal data",
       "purgeConfirm": "Yes, delete it",
-      "purgeDone": "Data deleted · {count, plural, one {# person removed} other {# people removed}}"
+      "purgeDone": "Data deleted · {count, plural, one {# person removed} other {# people removed}}",
+      "organizationsTitle": "Organizations",
+      "organizationsLead": "Create neighborhood councils, churches or NGOs and invite their coordinators.",
+      "organizationsLink": "View organizations"
     },
     "disasterTypes": {
       "title": "Disaster types",
@@ -636,7 +642,9 @@
     "publicContact": {
       "title": "Contact",
       "call": "Call {phone}"
-    }
+    },
+    "attendedBy": "Attended by: {organizations}",
+    "organizationContact": "{organization}: {contact}"
   },
   "workItems": {
     "status": {
@@ -760,7 +768,8 @@
       "accept": "Accept invitation",
       "acceptHint": "If you have not logged in before, we ask for your phone and your name.",
       "unavailable": "This invitation no longer works",
-      "askAgain": "Ask whoever invited you for a new link."
+      "askAgain": "Ask whoever invited you for a new link.",
+      "leadOrganization": "You join as {role} of {organization}."
     },
     "admin": {
       "title": "Members of {emergency}",
@@ -796,7 +805,8 @@
       "copy": "Copy link",
       "copied": "Copied",
       "whatsapp": "Send by WhatsApp",
-      "whatsappText": "Join me helping on Aluvia: {url}"
+      "whatsappText": "Join me helping on Aluvia: {url}",
+      "organizationTitle": "Invite coordinators"
     },
     "assignments": {
       "title": "Field volunteers",
@@ -990,6 +1000,29 @@
       "sending": "Sending",
       "sentTitle": "Thanks, we got it",
       "sentBody": "We will read it. If you left a contact, we will write back if needed."
+    }
+  },
+  "organizations": {
+    "form": {
+      "title": "New organization",
+      "nameLabel": "Name",
+      "nameHint": "As neighbors know it: the neighborhood council, the parish, the NGO.",
+      "contactLabel": "Public contact (optional)",
+      "contactHint": "A phone or website of the organization. Shown on the homes it attends.",
+      "create": "Create organization"
+    },
+    "admin": {
+      "title": "Organizations",
+      "lead": "Neighborhood councils, churches or NGOs with their own coordinators. Their coordinators have the same permissions as any coordinator of the emergency.",
+      "closed": "The emergency is closed: no new organizations or invitations.",
+      "list": "Organizations of the emergency",
+      "empty": "No organizations yet.",
+      "createdOn": "Created on {date}",
+      "coordinators": "{count, plural, =0 {No coordinators} one {# coordinator} other {# coordinators}}",
+      "noCoordinators": "Invite its coordinators with a link.",
+      "unnamed": "No name",
+      "remove": "Remove as coordinator",
+      "more": "Show more"
     }
   }
 }

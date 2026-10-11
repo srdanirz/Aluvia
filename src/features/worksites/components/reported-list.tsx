@@ -76,6 +76,16 @@ export async function ReportedList({
                       : (home.contactName ?? home.contactPhone)}
                   </CardBody>
                 ) : null}
+                {home.organizations.length > 0 ? (
+                  <CardBody>
+                    {t("attendedBy", {
+                      organizations: format.list(
+                        home.organizations.map((organization) => organization.name),
+                        { type: "conjunction" },
+                      ),
+                    })}
+                  </CardBody>
+                ) : null}
                 {waiting ? (
                   <p className="text-caption text-ink-muted">
                     <time dateTime={home.waitingSince.toISOString()}>

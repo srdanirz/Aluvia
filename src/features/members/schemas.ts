@@ -21,17 +21,26 @@ export const invitationInputSchema = z
       z.coerce.number().int().min(1).max(MAX_ELEVATED_USES).nullable(),
     ),
     worksiteIds: z.array(z.uuid()).max(MAX_WORKSITES_PER_INVITATION).default([]),
+    // Accepting makes the person a coordinator of this organization (ADR 0019).
+    organizationId: z.uuid().nullable().default(null),
   })
   .refine((input) => input.role === "volunteer" || input.maxUses !== null, { path: ["maxUses"] })
   .refine((input) => input.role === "field_volunteer" || input.worksiteIds.length === 0, {
     path: ["worksiteIds"],
+  })
+  .refine((input) => input.organizationId === null || input.role === "coordinator", {
+    path: ["organizationId"],
   });
 
 export type InvitationInput = z.infer<typeof invitationInputSchema>;
 
 export const memberTargetSchema = z.object({ emergencyId: z.uuid(), userId: z.uuid() });
 export const approvalTargetSchema = memberTargetSchema.extend({ role: elevatedRoleSchema });
-export const invitationContextSchema = z.object({ emergencyId: z.uuid(), worksiteId: z.uuid().optional() });
+export const invitationContextSchema = z.object({
+  emergencyId: z.uuid(),
+  worksiteId: z.uuid().optional(),
+  organizationId: z.uuid().optional(),
+});
 export const assignmentSchema = memberTargetSchema.extend({ worksiteId: z.uuid() });
 export const invitationTargetSchema = z.object({ emergencyId: z.uuid(), invitationId: z.uuid() });
 
@@ -53,7 +62,8 @@ export type MemberErrorCode =
   | "own_invitation"
   | "not_field_volunteer"
   | "worksite_not_found"
-  | "assignment_not_found";
+  | "assignment_not_found"
+  | "organization_not_found";
 
 /** What a member form shows after submitting: nothing yet, done, or an error to translate. */
 export type MemberActionState = { ok: true } | { ok: false; code: MemberErrorCode } | null;

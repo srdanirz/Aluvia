@@ -130,7 +130,10 @@ export async function rejectMemberRole(
   });
 }
 
-/** Takes a coordinator or field volunteer back to volunteer, and drops their home assignments. */
+/**
+ * Takes a coordinator or field volunteer back to volunteer, out of their organization (ADR 0019),
+ * and drops their home assignments.
+ */
 export async function revokeMemberRole(
   db: Executor,
   actorId: string,
@@ -141,7 +144,8 @@ export async function revokeMemberRole(
   return db.transaction(async (tx) => {
     const [row] = await tx.execute<{ role: string }>(sql`
       UPDATE emergency_members m
-      SET role = 'volunteer', requested_role = NULL, approved_at = NULL, approved_by = NULL
+      SET role = 'volunteer', requested_role = NULL, approved_at = NULL, approved_by = NULL,
+        organization_id = NULL
       FROM (SELECT role FROM emergency_members
             WHERE emergency_id = ${emergencyId} AND user_id = ${userId} FOR UPDATE) before
       WHERE m.emergency_id = ${emergencyId} AND m.user_id = ${userId} AND m.role <> 'volunteer'

@@ -14,6 +14,7 @@ import {
 } from "@/features/map/server/attention-level";
 import type { damageLevel } from "@/shared/db/schema/enums";
 import { publicAddressSql, publicContactSql } from "@/features/map/server/public-address";
+import { type AttendingOrganization, attendingOrganizationsSql } from "@/features/organizations/server";
 
 /**
  * The reported homes of an emergency, where help is most needed first. The order is decided in
@@ -56,6 +57,8 @@ export type ReportedWorksite = {
   needs: string[];
   /** Since when its open work waits for someone, or when it was reported if nothing waits. */
   waitingSince: Date;
+  /** Organizations whose coordinators claimed its work (ADR 0019). */
+  organizations: AttendingOrganization[];
 };
 
 export type ReportedWorksitesPage = { items: ReportedWorksite[]; nextCursor: string | null };
@@ -78,6 +81,7 @@ type Row = {
   open_unclaimed: number;
   waiting_key: string;
   created_key: string;
+  organizations: AttendingOrganization[] | null;
 };
 
 // The sort key of the last row shown. Timestamps travel as the text the query printed (UTC with
@@ -219,7 +223,9 @@ export async function listReportedWorksites(
       damage_level, volunteer_count, vulnerable AS has_vulnerable_people, ${utcText("updated_at")} AS updated_at,
       ${utcText("waiting_since")} AS waiting_since,
       CASE WHEN waiting_at = 'infinity' THEN 'infinity' ELSE ${utcText("waiting_at")} END AS waiting_key,
-      ${utcText("created_at")} AS created_key
+      ${utcText("created_at")} AS created_key,
+      -- Here and not in page: evaluated for the rows shown, after the LIMIT.
+      ${attendingOrganizationsSql(sql`page.id`)} AS organizations
     FROM page
     ORDER BY row_index
   `);
@@ -241,6 +247,7 @@ export async function listReportedWorksites(
       reportCount: row.report_count,
       needs: [...new Set(row.needs ?? [])],
       waitingSince: new Date(row.waiting_since),
+      organizations: row.organizations ?? [],
     })),
     nextCursor: rows.length > REPORTS_PAGE_SIZE && last ? encodeCursor(last) : null,
   };
