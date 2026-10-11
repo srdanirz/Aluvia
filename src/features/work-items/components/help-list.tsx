@@ -1,6 +1,7 @@
 import { ArrowRight, MapPin, PackageOpen, Users } from "lucide-react";
 import { getFormatter, getTranslations } from "next-intl/server";
 
+import { joinPath } from "@/features/members";
 import { Link } from "@/shared/i18n/navigation";
 import { Button, Card, CardBody, CardTitle, Chip } from "@/shared/ui";
 
@@ -24,7 +25,6 @@ type HelpListProps = {
 export async function HelpList({ slug, emergencyId, homes, viewer, now }: HelpListProps) {
   const t = await getTranslations("work");
   const format = await getFormatter();
-  const listPath = `/emergencies/${slug}/work-items`;
 
   if (homes.length === 0) {
     return (
@@ -97,7 +97,7 @@ export async function HelpList({ slug, emergencyId, homes, viewer, now }: HelpLi
                 <PrimaryAction
                   viewer={viewer}
                   slug={slug}
-                  next={listPath}
+                  returnTo={`/emergencies/${slug}/worksites/${home.worksiteId}`}
                   claim={{
                     emergencyId,
                     workItemId: first.id,
@@ -122,26 +122,27 @@ export async function HelpList({ slug, emergencyId, homes, viewer, now }: HelpLi
 async function PrimaryAction({
   viewer,
   slug,
-  next,
+  returnTo,
   claim,
 }: {
   viewer: Viewer;
   slug: string;
-  next: string;
+  // The home this card is about: signing in and joining come back to it.
+  returnTo: string;
   claim: { emergencyId: string; workItemId: string; label: string };
 }) {
   const t = await getTranslations("work.help");
   if (viewer === "anonymous") {
     return (
       <Button variant="accent" block asChild>
-        <Link href={{ pathname: "/login", query: { next } }}>{t("signIn")}</Link>
+        <Link href={{ pathname: "/login", query: { next: joinPath(slug, returnTo) } }}>{t("signIn")}</Link>
       </Button>
     );
   }
   if (viewer === "guest") {
     return (
       <Button variant="accent" block asChild>
-        <Link href={`/emergencies/${slug}/join`}>{t("join")}</Link>
+        <Link href={joinPath(slug, returnTo)}>{t("join")}</Link>
       </Button>
     );
   }

@@ -5,6 +5,7 @@ import { readLocalizedText } from "@/shared/i18n/localized-text";
 import { Link } from "@/shared/i18n/navigation";
 import { Button, Chip, GlassPanel } from "@/shared/ui";
 
+import { joinPath } from "../schemas";
 import { joinEmergencyAction, requestMemberRoleAction } from "../server/actions";
 import type { JoinView } from "../server/views";
 import { ActionButton } from "./action-button";
@@ -15,7 +16,7 @@ export async function JoinPanel({ view }: { view: JoinView }) {
   const t = await getTranslations("members.join");
   const tRoles = await getTranslations("roles");
   const locale = await getLocale();
-  const { emergency, user, membership } = view;
+  const { emergency, user, membership, returnTo } = view;
   const name = readLocalizedText(emergency.name, locale, emergency.defaultLocale);
   const canRequest =
     user && emergency.status === "open" && membership?.role !== "coordinator" && !membership?.requestedRole;
@@ -31,7 +32,7 @@ export async function JoinPanel({ view }: { view: JoinView }) {
       {emergency.status === "open" && !user ? (
         <div className="flex flex-col gap-2">
           <Button block asChild>
-            <Link href={{ pathname: "/login", query: { next: `/emergencies/${emergency.slug}/join` } }}>
+            <Link href={{ pathname: "/login", query: { next: joinPath(emergency.slug, returnTo) } }}>
               {t("start")}
             </Link>
           </Button>
@@ -41,7 +42,7 @@ export async function JoinPanel({ view }: { view: JoinView }) {
 
       {emergency.status === "open" && user && !membership ? (
         <ActionButton
-          action={joinEmergencyAction.bind(null, locale, emergency.slug)}
+          action={joinEmergencyAction.bind(null, locale, emergency.slug, returnTo)}
           label={t("join")}
           variant="primary"
           block
@@ -57,7 +58,7 @@ export async function JoinPanel({ view }: { view: JoinView }) {
             </Chip>
           ) : null}
           <Button block asChild>
-            <Link href={`/emergencies/${emergency.slug}`}>{t("open")}</Link>
+            <Link href={returnTo}>{t("open")}</Link>
           </Button>
         </div>
       ) : null}

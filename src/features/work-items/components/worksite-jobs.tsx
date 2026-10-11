@@ -2,7 +2,9 @@ import { getFormatter, getTranslations } from "next-intl/server";
 import * as rootParams from "next/root-params";
 import type { ReactNode } from "react";
 
-import { Card, Chip, WorkStatusChip } from "@/shared/ui";
+import { joinPath } from "@/features/members";
+import { Link } from "@/shared/i18n/navigation";
+import { Button, Card, Chip, WorkStatusChip } from "@/shared/ui";
 
 import { loadWorksiteJobsView } from "../server";
 import { ClaimButton } from "./claim-button";
@@ -12,8 +14,8 @@ import { MyWorkCard } from "./my-work-card";
 
 /**
  * A home's jobs with what the viewer can do: anyone updates a status (ADR 0018), a member takes a
- * job and works the ones they hold, a coordinator verifies, marks duplicates and undoes the last
- * change. A home without jobs gets `children`. Mounted by features/map's WorksitePanel.
+ * job and works the ones they hold (anyone else signs in or joins and comes back here), a
+ * coordinator verifies, marks duplicates and undoes the last change. A home without jobs gets `children`. Mounted by features/map's WorksitePanel.
  */
 export async function WorksiteJobs({
   slug,
@@ -32,9 +34,13 @@ export async function WorksiteJobs({
   const t = await getTranslations("work.jobs");
   const tStatus = await getTranslations("workItems.status");
   const tHazard = await getTranslations("work.hazard");
+  const tHelp = await getTranslations("work.help");
   const format = await getFormatter();
   const now = new Date();
   const canClaim = viewer === "member" || viewer === "coordinator";
+  // Someone who cannot take a job yet signs in or joins, and comes back to this home.
+  const join = joinPath(slug, `/emergencies/${slug}/worksites/${worksiteId}`);
+  const hasClaimable = jobs.some((job) => job.status.startsWith("open_") && !job.isClaimed && !job.isBlocked);
 
   return (
     <section className="flex flex-col gap-3">
@@ -93,6 +99,15 @@ export async function WorksiteJobs({
           );
         })}
       </ul>
+      {!canClaim && hasClaimable ? (
+        <Button variant="accent" block asChild>
+          {viewer === "anonymous" ? (
+            <Link href={{ pathname: "/login", query: { next: join } }}>{tHelp("signIn")}</Link>
+          ) : (
+            <Link href={join}>{tHelp("join")}</Link>
+          )}
+        </Button>
+      ) : null}
     </section>
   );
 }

@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { safePathSchema } from "@/shared/lib/safe-path";
+
 // How long a link stays valid. A day covers "send it now by WhatsApp"; a week, a recurring crew.
 export const INVITATION_HOURS = [24, 72, 168] as const;
 // A link that grants a role is for a known few, so its uses are capped (invitations_elevated_check).
@@ -69,3 +71,20 @@ export type MemberErrorCode =
 export type MemberActionState = { ok: true } | { ok: false; code: MemberErrorCode } | null;
 
 export type InvitationActionState = { ok: true; path: string } | { ok: false; code: MemberErrorCode } | null;
+
+/**
+ * Where joining an emergency returns to: a path inside that emergency (the home someone was
+ * looking at), or its map. Anything else, including another emergency, falls back to the map.
+ */
+export function joinReturnPath(slug: string, next: unknown): string {
+  const home = `/emergencies/${slug}`;
+  // Resolved first, so dot segments cannot climb out of the emergency once a browser follows it.
+  const url = new URL(safePathSchema.parse(next), "http://aluvia.invalid");
+  const path = `${url.pathname}${url.search}`;
+  return path === home || path.startsWith(`${home}/`) ? path : home;
+}
+
+/** The join page for an emergency that comes back to `returnTo` once the person has joined. */
+export function joinPath(slug: string, returnTo: string): string {
+  return `/emergencies/${slug}/join?${new URLSearchParams({ next: returnTo })}`;
+}

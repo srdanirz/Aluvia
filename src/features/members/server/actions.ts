@@ -16,6 +16,8 @@ import {
   invitationInputSchema,
   type InvitationActionState,
   invitationTargetSchema,
+  joinPath,
+  joinReturnPath,
   type MemberActionState,
   memberTargetSchema,
 } from "../schemas";
@@ -30,15 +32,19 @@ import {
 } from "./membership";
 import { findEmergencyBySlug } from "./queries";
 
-/** Joins as a volunteer and opens the emergency's map. */
-export async function joinEmergencyAction(locale: string, slug: string): Promise<MemberActionState> {
-  const user = await requireUser(`/emergencies/${slug}/join`, toActionLocale(locale));
+/** Joins as a volunteer and goes back to the home that sent the person here, or to the map. */
+export async function joinEmergencyAction(
+  locale: string,
+  slug: string,
+  returnTo: string,
+): Promise<MemberActionState> {
+  const user = await requireUser(joinPath(slug, returnTo), toActionLocale(locale));
   const emergency = await findEmergencyBySlug(db, slug);
   if (!emergency) return { ok: false, code: "emergency_not_found" };
   const result = await joinEmergency(db, { userId: user.id, emergencyId: emergency.id });
   if (!result.ok) return result;
   trackServerEvent("emergency_joined", { emergencyId: emergency.id }, { distinctId: user.id });
-  return redirect({ href: `/emergencies/${emergency.slug}`, locale: toActionLocale(locale) });
+  return redirect({ href: joinReturnPath(emergency.slug, returnTo), locale: toActionLocale(locale) });
 }
 
 export async function requestMemberRoleAction(
