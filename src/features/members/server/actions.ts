@@ -120,7 +120,7 @@ export async function revokeMemberRoleAction(locale: string, target: Target): Pr
 }
 
 export async function createInvitationAction(
-  context: { emergencyId: string; worksiteId?: string; locale: string },
+  context: { emergencyId: string; worksiteId?: string; organizationId?: string; locale: string },
   _state: InvitationActionState,
   formData: FormData,
 ): Promise<InvitationActionState> {
@@ -132,6 +132,7 @@ export async function createInvitationAction(
     expiresInHours: formData.get("expiresInHours"),
     maxUses: formData.get("maxUses") ?? undefined,
     worksiteIds: scope.data.worksiteId ? [scope.data.worksiteId] : [],
+    organizationId: scope.data.organizationId ?? null,
   });
   if (!input.success) return { ok: false, code: "invalid_input" };
   const result = await createInvitation(db, user.id, { ...input.data, emergencyId: scope.data.emergencyId });
@@ -142,6 +143,7 @@ export async function createInvitationAction(
       emergencyId: scope.data.emergencyId,
       role: input.data.role,
       withWorksite: Boolean(scope.data.worksiteId),
+      withOrganization: Boolean(scope.data.organizationId),
     },
     { distinctId: user.id },
   );

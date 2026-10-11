@@ -120,6 +120,28 @@ export async function WorksitePanel({
         </div>
       </header>
       <DescriptionList items={facts} />
+      {home.organizations.length > 0 ? (
+        <section className="flex flex-col gap-2">
+          <h2 className="text-subheading font-medium text-ink">
+            {t("attendedBy", {
+              organizations: format.list(
+                home.organizations.map((organization) => organization.name),
+                { type: "conjunction" },
+              ),
+            })}
+          </h2>
+          {home.organizations.map((organization) =>
+            organization.publicContact ? (
+              <p key={organization.name} className="text-body-sm text-ink-soft">
+                {t("organizationContact", {
+                  organization: organization.name,
+                  contact: organization.publicContact,
+                })}
+              </p>
+            ) : null,
+          )}
+        </section>
+      ) : null}
       {contact}
       {showPublicContact ? (
         <section className="flex flex-col gap-2">

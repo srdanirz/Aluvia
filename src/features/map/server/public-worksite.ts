@@ -5,6 +5,7 @@ import { sql } from "drizzle-orm";
 import { db } from "@/shared/db/client";
 import type { damageLevel, worksiteHazard } from "@/shared/db/schema/enums";
 import type { Executor } from "@/shared/db/types";
+import { type AttendingOrganization, attendingOrganizationsSql } from "@/features/organizations/server";
 
 import type { AttentionLevel, WorkItemStatus } from "../attention";
 import { attentionLevelSql, isOpenWorkItemSql, lastActivitySql, staleBeforeSql } from "./attention-level";
@@ -41,6 +42,8 @@ export type PublicWorksite = {
   /** Name and phone, only when the reporter chose to show them (ADR 0017); null otherwise. */
   contactName: string | null;
   contactPhone: string | null;
+  /** Organizations whose coordinators claimed its work (ADR 0019): "Atiende: ...". */
+  organizations: AttendingOrganization[];
 };
 
 type WorksiteRow = {
@@ -62,6 +65,7 @@ type WorksiteRow = {
   address: string | null;
   contact_name: string | null;
   contact_phone: string | null;
+  organizations: AttendingOrganization[] | null;
 };
 
 /**
@@ -98,7 +102,8 @@ export async function findPublicWorksite(
       coalesce(w.unclaimed_since, w.created_at) AS waiting_since,
       ${publicAddressSql(sql`c.address_text`)} AS address,
       ${publicContactSql("c", "name")} AS contact_name,
-      ${publicContactSql("c", "phone")} AS contact_phone
+      ${publicContactSql("c", "phone")} AS contact_phone,
+      ${attendingOrganizationsSql(sql`w.id`)} AS organizations
     FROM worksites w
     LEFT JOIN worksite_contacts c ON c.worksite_id = w.id
     JOIN emergencies e ON e.id = w.emergency_id
@@ -133,5 +138,6 @@ export async function findPublicWorksite(
     address: row.address,
     contactName: row.contact_name,
     contactPhone: row.contact_phone,
+    organizations: row.organizations ?? [],
   };
 }

@@ -14,6 +14,7 @@ import {
 
 import { emergencies } from "./emergencies";
 import { memberRole } from "./enums";
+import { organizations } from "./organizations";
 import { users } from "./users";
 import { worksites } from "./worksites";
 
@@ -38,9 +39,21 @@ export const invitations = pgTable(
     uses: integer("uses").notNull().default(0),
     revokedAt: timestamp("revoked_at", { withTimezone: true }),
     revokedBy: uuid("revoked_by").references(() => users.id, { onDelete: "set null" }),
+    // Accepting makes the person a coordinator of this organization (ADR 0019).
+    organizationId: uuid("organization_id"),
   },
   (t) => [
     unique("invitations_id_emergency_id_key").on(t.id, t.emergencyId),
+    // A deleted organization takes its pending links with it.
+    foreignKey({
+      name: "invitations_organization_fk",
+      columns: [t.organizationId, t.emergencyId],
+      foreignColumns: [organizations.id, organizations.emergencyId],
+    }).onDelete("cascade"),
+    index("invitations_organization_id_idx")
+      .on(t.organizationId)
+      .where(sql`${t.organizationId} IS NOT NULL`),
+    check("invitations_organization_check", sql`${t.organizationId} IS NULL OR ${t.role} = 'coordinator'`),
     index("invitations_emergency_id_created_at_idx").on(t.emergencyId, t.createdAt),
     check("invitations_expiry_check", sql`${t.expiresAt} > ${t.createdAt}`),
     check(

@@ -81,6 +81,14 @@ export default async function EmergencyPage({ params }: PageProps<"/[locale]/adm
         </div>
       </Section>
 
+      <Section title={t("organizationsTitle")} lead={t("organizationsLead")}>
+        <div>
+          <Button variant="secondary" asChild>
+            <Link href={`/admin/emergencies/${emergency.slug}/organizations`}>{t("organizationsLink")}</Link>
+          </Button>
+        </div>
+      </Section>
+
       <Section title={t("settingsTitle")} lead={t("settingsLead")}>
         <EmergencySettingsForm
           emergencyId={emergency.id}

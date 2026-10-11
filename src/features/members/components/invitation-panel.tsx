@@ -32,7 +32,14 @@ export async function InvitationPanel({ view, token }: { view: InvitationPageVie
       <header className="flex flex-col gap-2">
         <p className="text-caption font-medium tracking-label text-ink-muted uppercase">{t("eyebrow")}</p>
         <h1 className="text-heading-sm text-ink">{t("title", { emergency })}</h1>
-        <p className="text-body-sm text-ink-soft">{t("lead", { role: tRoles(invitation.role) })}</p>
+        <p className="text-body-sm text-ink-soft">
+          {invitation.organizationName
+            ? t("leadOrganization", {
+                role: tRoles(invitation.role),
+                organization: invitation.organizationName,
+              })
+            : t("lead", { role: tRoles(invitation.role) })}
+        </p>
       </header>
       {user?.name ? (
         <ActionButton

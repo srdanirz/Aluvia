@@ -259,7 +259,8 @@
       "emptyReport": "Reportar una casa",
       "contact": "Contacto: {name} · {phone}",
       "vulnerable": "Personas vulnerables",
-      "updated": "Última novedad {relative}"
+      "updated": "Última novedad {relative}",
+      "attendedBy": "Atiende: {organizations}"
     }
   },
   "worksiteUpdates": {
@@ -379,7 +380,9 @@
     "invalid_field": "Usa nombres de campo con letras, números y guion bajo.",
     "address_fields_required": "Indica al menos un campo de dirección.",
     "emergency_open": "La emergencia sigue abierta. Ciérrala antes de borrar sus datos.",
-    "nothing_to_revert": "El último cambio ya no se puede deshacer. Recarga para ver el estado actual."
+    "nothing_to_revert": "El último cambio ya no se puede deshacer. Recarga para ver el estado actual.",
+    "organization_exists": "Ya existe una organización con ese nombre en esta emergencia.",
+    "organization_not_found": "Esa organización no existe en esta emergencia."
   },
   "admin": {
     "meta": {
@@ -500,7 +503,10 @@
       "purgeLead": "Borra contactos, inscripciones, miembros y avisos de esta emergencia, y a las personas que ya no participan en ninguna abierta. Se conservan los conteos de casas y trabajos. No se puede deshacer.",
       "purgeButton": "Borrar datos personales",
       "purgeConfirm": "Sí, borrarlos",
-      "purgeDone": "Datos borrados · {count, plural, one {# persona eliminada} other {# personas eliminadas}}"
+      "purgeDone": "Datos borrados · {count, plural, one {# persona eliminada} other {# personas eliminadas}}",
+      "organizationsTitle": "Organizaciones",
+      "organizationsLead": "Crea juntas de vecinos, iglesias u ONG e invita a sus coordinadores.",
+      "organizationsLink": "Ver organizaciones"
     },
     "disasterTypes": {
       "title": "Tipos de desastre",
@@ -636,7 +642,9 @@
     "publicContact": {
       "title": "Contacto",
       "call": "Llamar al {phone}"
-    }
+    },
+    "attendedBy": "Atiende: {organizations}",
+    "organizationContact": "{organization}: {contact}"
   },
   "workItems": {
     "status": {
@@ -760,7 +768,8 @@
       "accept": "Aceptar invitación",
       "acceptHint": "Si no has entrado antes, te pedimos tu teléfono y tu nombre.",
       "unavailable": "Esta invitación ya no sirve",
-      "askAgain": "Pide un link nuevo a quien te invitó."
+      "askAgain": "Pide un link nuevo a quien te invitó.",
+      "leadOrganization": "Entras como {role} de {organization}."
     },
     "admin": {
       "title": "Miembros de {emergency}",
@@ -796,7 +805,8 @@
       "copy": "Copiar link",
       "copied": "Copiado",
       "whatsapp": "Mandar por WhatsApp",
-      "whatsappText": "Te invito a ayudar en Aluvia: {url}"
+      "whatsappText": "Te invito a ayudar en Aluvia: {url}",
+      "organizationTitle": "Invitar coordinadores"
     },
     "assignments": {
       "title": "Voluntarios de terreno",
@@ -990,6 +1000,29 @@
       "sending": "Enviando",
       "sentTitle": "Gracias, lo recibimos",
       "sentBody": "Lo vamos a leer. Si dejaste un contacto, te escribimos si hace falta."
+    }
+  },
+  "organizations": {
+    "form": {
+      "title": "Nueva organización",
+      "nameLabel": "Nombre",
+      "nameHint": "Como la conocen los vecinos: la junta de vecinos, la parroquia, la ONG.",
+      "contactLabel": "Contacto público (opcional)",
+      "contactHint": "Un teléfono o sitio de la organización. Se muestra en las casas que atiende.",
+      "create": "Crear organización"
+    },
+    "admin": {
+      "title": "Organizaciones",
+      "lead": "Juntas de vecinos, iglesias u ONG con sus propios coordinadores. Sus coordinadores tienen los mismos permisos que cualquier coordinador de la emergencia.",
+      "closed": "La emergencia está cerrada: no se crean organizaciones ni invitaciones.",
+      "list": "Organizaciones de la emergencia",
+      "empty": "Todavía no hay organizaciones.",
+      "createdOn": "Creada el {date}",
+      "coordinators": "{count, plural, =0 {Sin coordinadores} one {# coordinador} other {# coordinadores}}",
+      "noCoordinators": "Invita a sus coordinadores con un link.",
+      "unnamed": "Sin nombre",
+      "remove": "Quitar como coordinador",
+      "more": "Ver más"
     }
   }
 }

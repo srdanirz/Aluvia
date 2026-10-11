@@ -20,21 +20,39 @@ import { isPlatformAdminSql, ROLE_RANK, roleRank } from "./roles";
 export async function createInvitation(
   db: Executor,
   actorId: string,
-  input: InvitationInput & { emergencyId: string },
+  {
+    organizationId = null,
+    ...input
+  }: Omit<InvitationInput, "organizationId"> & {
+    emergencyId: string;
+    organizationId?: string | null;
+  },
 ): Promise<
-  { ok: true; invitationId: string; token: string } | { ok: false; code: "forbidden" | "emergency_closed" }
+  | { ok: true; invitationId: string; token: string }
+  | { ok: false; code: "forbidden" | "emergency_closed" | "organization_not_found" }
 > {
   if (!(await canManageMembers(db, actorId))) return { ok: false, code: "forbidden" };
   const token = createToken();
 
   return db.transaction(async (tx) => {
     const [row] = await tx.execute<{ id: string }>(sql`
-      INSERT INTO invitations (emergency_id, token_hash, role, created_by, expires_at, max_uses)
+      INSERT INTO invitations (emergency_id, token_hash, role, created_by, expires_at, max_uses, organization_id)
       SELECT id, ${hashToken(token)}, ${input.role}, ${actorId},
-        now() + make_interval(hours => ${input.expiresInHours}), ${input.maxUses}
-      FROM emergencies WHERE id = ${input.emergencyId} AND status = 'open' AND ${isPlatformAdminSql(actorId)}
+        now() + make_interval(hours => ${input.expiresInHours}), ${input.maxUses}, ${organizationId}::uuid
+      FROM emergencies e WHERE id = ${input.emergencyId} AND status = 'open' AND ${isPlatformAdminSql(actorId)}
+        AND (${organizationId}::uuid IS NULL OR EXISTS (
+          SELECT 1 FROM organizations o WHERE o.id = ${organizationId}::uuid AND o.emergency_id = e.id))
       RETURNING id`);
-    if (!row) return { ok: false, code: "emergency_closed" } as const;
+    if (!row) {
+      // Only the message is picked here; the INSERT above already refused.
+      const [open] = await tx.execute(
+        sql`SELECT 1 FROM emergencies WHERE id = ${input.emergencyId} AND status = 'open'`,
+      );
+      return {
+        ok: false,
+        code: open && organizationId ? "organization_not_found" : "emergency_closed",
+      } as const;
+    }
 
     if (input.worksiteIds.length > 0) {
       // The composite key rejects a home of another emergency, rolling the invitation back too.
@@ -48,7 +66,11 @@ export async function createInvitation(
       targetType: "invitation",
       targetId: row.id,
       emergencyId: input.emergencyId,
-      payload: { role: input.role, worksites: String(input.worksiteIds.length) },
+      payload: {
+        role: input.role,
+        worksites: String(input.worksiteIds.length),
+        ...(organizationId ? { organizationId: organizationId } : {}),
+      },
     });
     return { ok: true, invitationId: row.id, token } as const;
   });
@@ -85,6 +107,8 @@ export type InvitationStatus =
 export type InvitationView = {
   status: InvitationStatus;
   role: "volunteer" | ElevatedRole;
+  /** The organization the person would coordinate for (ADR 0019); null for a plain link. */
+  organizationName: string | null;
   emergency: { id: string; slug: string; name: Record<string, string>; defaultLocale: string };
 };
 
@@ -100,8 +124,9 @@ export async function findInvitation(
     slug: string;
     name: Record<string, string>;
     default_locale: string;
+    organization_name: string | null;
   }>(sql`
-    SELECT i.role, e.id AS emergency_id, e.slug, e.name, e.default_locale,
+    SELECT i.role, e.id AS emergency_id, e.slug, e.name, e.default_locale, o.name AS organization_name,
       CASE
         WHEN i.revoked_at IS NOT NULL THEN 'revoked'
         WHEN e.status <> 'open' THEN 'emergency_closed'
@@ -112,11 +137,13 @@ export async function findInvitation(
         ELSE 'valid'
       END AS status
     FROM invitations i JOIN emergencies e ON e.id = i.emergency_id
+    LEFT JOIN organizations o ON o.id = i.organization_id
     WHERE i.token_hash = ${hashToken(token)}`);
   if (!row) return null;
   return {
     status: row.status,
     role: row.role,
+    organizationName: row.organization_name,
     emergency: { id: row.emergency_id, slug: row.slug, name: row.name, defaultLocale: row.default_locale },
   };
 }
@@ -139,6 +166,7 @@ export async function acceptInvitation(
       emergency_id: string;
       role: InvitationView["role"];
       created_by: string | null;
+      organization_id: string | null;
     }>(sql`
       UPDATE invitations i SET uses = uses + 1
       FROM emergencies e
@@ -149,27 +177,32 @@ export async function acceptInvitation(
         -- A role is granted on behalf of its creator, so the creator must still be an admin.
         AND (i.role = 'volunteer' OR ${isPlatformAdminSql(sql`i.created_by`)})
         -- Someone who already holds more than this role does not spend a use meant for another
-        -- person; the same role only accepts again when the link brings homes to add.
+        -- person; the same role only accepts again when the link brings homes to add, or brings an
+        -- organization to a coordinator who answers for none.
         AND NOT EXISTS (
           SELECT 1 FROM emergency_members m
           WHERE m.emergency_id = i.emergency_id AND m.user_id = ${userId}
             AND (${roleRank(sql`m.role`)} > ${roleRank(sql`i.role`)}
               OR (${roleRank(sql`m.role`)} = ${roleRank(sql`i.role`)}
-                  AND NOT EXISTS (SELECT 1 FROM invitation_worksites w WHERE w.invitation_id = i.id))))
-      RETURNING i.id, i.emergency_id, i.role, i.created_by`);
+                  AND NOT EXISTS (SELECT 1 FROM invitation_worksites w WHERE w.invitation_id = i.id)
+                  AND NOT (i.organization_id IS NOT NULL AND m.organization_id IS NULL))))
+      RETURNING i.id, i.emergency_id, i.role, i.created_by, i.organization_id`);
     if (!invitation) return null;
 
     const elevated = invitation.role !== "volunteer";
     await tx.execute(sql`
-      INSERT INTO emergency_members (emergency_id, user_id, role, approved_at, approved_by)
+      INSERT INTO emergency_members (emergency_id, user_id, role, approved_at, approved_by, organization_id)
       VALUES (${invitation.emergency_id}, ${userId}, ${invitation.role},
-        ${elevated ? sql`now()` : null}, ${elevated ? invitation.created_by : null})
+        ${elevated ? sql`now()` : null}, ${elevated ? invitation.created_by : null}, ${invitation.organization_id}::uuid)
       ON CONFLICT (emergency_id, user_id) DO UPDATE SET
         role = EXCLUDED.role, approved_at = EXCLUDED.approved_at, approved_by = EXCLUDED.approved_by,
+        organization_id = EXCLUDED.organization_id,
         requested_role = CASE
           WHEN ${roleRank(sql`emergency_members.requested_role`)} <= ${roleRank(sql`EXCLUDED.role`)} THEN NULL
           ELSE emergency_members.requested_role END
-      WHERE ${roleRank(sql`emergency_members.role`)} < ${roleRank(sql`EXCLUDED.role`)}`);
+      WHERE ${roleRank(sql`emergency_members.role`)} < ${roleRank(sql`EXCLUDED.role`)}
+        OR (emergency_members.organization_id IS NULL AND EXCLUDED.organization_id IS NOT NULL
+            AND emergency_members.role = EXCLUDED.role)`);
 
     if (invitation.role === "field_volunteer") {
       await tx.execute(sql`
@@ -184,7 +217,10 @@ export async function acceptInvitation(
       targetType: "invitation",
       targetId: invitation.id,
       emergencyId: invitation.emergency_id,
-      payload: { role: invitation.role },
+      payload: {
+        role: invitation.role,
+        ...(invitation.organization_id ? { organizationId: invitation.organization_id } : {}),
+      },
     });
     return invitation.emergency_id;
   });

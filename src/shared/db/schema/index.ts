@@ -11,6 +11,7 @@ export * from "./enums";
 export * from "./feedback";
 export * from "./invitations";
 export * from "./notifications";
+export * from "./organizations";
 export * from "./rate-limits";
 export * from "./report-receipts";
 export * from "./shifts";

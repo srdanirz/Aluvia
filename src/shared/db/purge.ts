@@ -22,6 +22,7 @@ export const USER_REFERENCES = {
   "invitations.revoked_by": "deleted with the row",
   "notification_preferences.user_id": "deleted with the user",
   "notifications.user_id": "deleted",
+  "organizations.created_by": "anonymized",
   "push_subscriptions.user_id": "deleted with the user",
   "sessions.user_id": "deleted with the user",
   "shift_signups.user_id": "deleted",
@@ -110,6 +111,11 @@ export async function purgeEmergencyPersonalData(
     );
     // Feedback sent from this emergency's pages stays (it is about the product); the way to reply goes.
     await tx.execute(sql`UPDATE feedback SET contact = NULL WHERE emergency_id = ${emergencyId}`);
+    // Organizations stay (who attended is history, ADR 0019); who created them does not, and the
+    // public contact goes too, in case it was a coordinator's own phone.
+    await tx.execute(
+      sql`UPDATE organizations SET created_by = NULL, public_contact = NULL WHERE emergency_id = ${emergencyId}`,
+    );
     // The admin log keeps the action; who did it and on whom go (the trigger allows only this).
     await tx.execute(
       sql`UPDATE admin_events SET actor_id = NULL, target_id = NULL WHERE emergency_id = ${emergencyId}`,
