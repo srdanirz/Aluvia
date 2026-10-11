@@ -10,7 +10,9 @@ const BIAS = { area: AREA, comunas: ["Comuna Inventada"] };
 const KEY = "test-geocoding-key";
 
 function answer(body: unknown, status = 200) {
-  const fetchMock = vi.fn(async (_url: string) => new Response(JSON.stringify(body), { status }));
+  const fetchMock = vi.fn<(url: string) => Promise<Response>>(
+    async () => new Response(JSON.stringify(body), { status }),
+  );
   vi.stubGlobal("fetch", fetchMock);
   return fetchMock;
 }
