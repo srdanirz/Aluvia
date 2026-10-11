@@ -153,11 +153,15 @@ export type WorksiteJob = {
   isVerified: boolean;
   /** The home has an unreviewed "do not enter" risk: nobody can take this job yet. */
   isBlocked: boolean;
+  updatedAt: Date;
+  /** Its newest event is a status change a coordinator can undo (revertWorkItemStatus). */
+  isRevertible: boolean;
 };
 
 /**
- * One home's jobs for a signed-in member: what they can take, what is theirs and, for coordinators,
- * what to verify. Never says who holds a job, only whether it is the viewer. One query.
+ * One home's jobs for anyone (ADR 0018), signed in or not (`userId` null): what can be taken, what
+ * is the viewer's, what a coordinator can verify or undo. Never says who holds a job, only whether
+ * it is the viewer. One query.
  */
 export async function listWorksiteJobs(
   db: Executor,
@@ -166,7 +170,7 @@ export async function listWorksiteJobs(
     worksiteId,
     userId,
     locale,
-  }: { emergencyId: string; worksiteId: string; userId: string; locale: string },
+  }: { emergencyId: string; worksiteId: string; userId: string | null; locale: string },
 ): Promise<WorksiteJob[]> {
   const rows = await db.execute<{
     id: string;
@@ -179,14 +183,22 @@ export async function listWorksiteJobs(
     arrived_at: Date | string | null;
     is_verified: boolean;
     is_blocked: boolean;
+    updated_at: Date | string;
+    is_revertible: boolean;
   }>(sql`
     SELECT wi.id, ${workTypeName(locale)} AS work_type, wi.status, wi.version,
       NOT ${worksiteAcceptsClaims(sql`wi.worksite_id`)} AS is_blocked,
-      wi.claimed_by IS NOT DISTINCT FROM ${userId}::uuid AS is_mine,
+      coalesce(wi.claimed_by = ${userId}::uuid, false) AS is_mine,
       wi.claimed_by IS NOT NULL AS is_claimed,
       CASE WHEN wi.claimed_by = ${userId}::uuid THEN wi.claim_expires_at END AS claim_expires_at,
       CASE WHEN wi.claimed_by = ${userId}::uuid THEN wi.arrived_at END AS arrived_at,
-      wi.verified_at IS NOT NULL AS is_verified
+      wi.verified_at IS NOT NULL AS is_verified,
+      wi.updated_at,
+      coalesce((
+        SELECT ev.kind = 'status_changed' AND ev.from_status IS NOT NULL AND ev.to_status = wi.status
+        FROM work_item_events ev WHERE ev.work_item_id = wi.id
+        ORDER BY ev.created_at DESC, ev.id DESC LIMIT 1
+      ), false) AS is_revertible
     FROM work_items wi
     JOIN emergencies e ON e.id = wi.emergency_id
     JOIN work_types wt ON wt.emergency_id = wi.emergency_id AND wt.key = wi.work_type_key
@@ -203,17 +215,7 @@ export async function listWorksiteJobs(
     arrivedAt: row.arrived_at ? new Date(row.arrived_at) : null,
     isVerified: row.is_verified,
     isBlocked: row.is_blocked,
+    updatedAt: new Date(row.updated_at),
+    isRevertible: row.is_revertible,
   }));
-}
-
-/** The emergency's supply names in the viewer's language, by key; to show what a home is missing. */
-export async function listSupplyNames(
-  db: Executor,
-  { emergencyId, locale }: { emergencyId: string; locale: string },
-): Promise<Record<string, string>> {
-  const rows = await db.execute<{ key: string; name: string }>(sql`
-    SELECT st.key, coalesce(st.name ->> ${locale}, st.name ->> e.default_locale, st.key) AS name
-    FROM supply_types st JOIN emergencies e ON e.id = st.emergency_id
-    WHERE st.emergency_id = ${emergencyId}::uuid`);
-  return Object.fromEntries(rows.map((row) => [row.key, row.name]));
 }

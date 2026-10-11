@@ -266,7 +266,6 @@
     "form": {
       "title": "People and supplies",
       "lead": "Count who is working now and mark what is missing.",
-      "openLink": "Update people and supplies",
       "people": "People working now",
       "decrement": "One person less",
       "increment": "One person more",
@@ -281,8 +280,22 @@
       "queuedBody": "There is no signal. It will send on its own as soon as it comes back, even if you close the page.",
       "actions": "What to do now",
       "viewHome": "View the home",
-      "again": "Count again",
-      "signIn": "To update this home, sign in with the link your coordinator sent you."
+      "again": "Count again"
+    },
+    "state": {
+      "title": "People and supplies",
+      "people": "{count, plural, =0 {Nobody working now} one {# person working} other {# people working}}",
+      "missing": "Missing: {supplies}",
+      "nothingMissing": "Nothing missing",
+      "updated": "Updated {relative}",
+      "empty": "Nobody has counted yet. Anyone can, no account needed.",
+      "update": "Update people and supplies",
+      "history": "{count, plural, one {Latest update} other {Latest # updates}}",
+      "hidden": "Hidden",
+      "entryMeta": "{relative} · {actor}",
+      "actorMember": "volunteer with an account",
+      "actorDevice": "phone {tag}",
+      "hide": "Hide"
     }
   },
   "outbox": {
@@ -300,9 +313,7 @@
     "invalid_supply_type": "One of the supplies is no longer available. Check the list and send again.",
     "emergency_not_found": "This emergency no longer takes reports.",
     "worksite_not_found": "This home is no longer in the emergency.",
-    "rate_limited": "Many reports came from this network. Wait a few minutes and it will send on its own.",
-    "sign_in_required": "Sign in with the link your coordinator sent you to send this.",
-    "not_assigned": "This home is not assigned to you.",
+    "rate_limited": "Too many submissions came from this network or this phone. Wait a few minutes and try again.",
     "forbidden": "You are not allowed to do this.",
     "extraction_unavailable": "Bulk import is not enabled on this server.",
     "extraction_refused": "We could not read that text. Try another one or create the homes one by one.",
@@ -367,7 +378,8 @@
     "layer_unsupported": "That layer is not in the expected format (polygons, for the area).",
     "invalid_field": "Use field names with letters, numbers and underscores.",
     "address_fields_required": "Give at least one address field.",
-    "emergency_open": "The emergency is still open. Close it before deleting its data."
+    "emergency_open": "The emergency is still open. Close it before deleting its data.",
+    "nothing_to_revert": "The last change can no longer be undone. Reload to see the current status."
   },
   "admin": {
     "meta": {
@@ -788,8 +800,8 @@
     },
     "assignments": {
       "title": "Field volunteers",
-      "lead": "Only they update this home, besides the coordinators.",
-      "empty": "This emergency has no field volunteers. Invite one to this home.",
+      "lead": "Optional: who takes charge of this home. Anyone can update it, with or without an account.",
+      "empty": "This emergency has no field volunteers yet.",
       "assign": "Assign",
       "unassign": "Remove",
       "assigned": "Assigned",
@@ -868,7 +880,17 @@
       "verified": "Verified",
       "duplicate": "It is a duplicate",
       "coordinatorActions": "Coordinator actions",
-      "claim": "On my way"
+      "claim": "On my way",
+      "updated": "Updated {relative}",
+      "updateStatus": "Update status",
+      "updateStatusHint": "No account needed. It is recorded and a coordinator can undo it.",
+      "markPartial": "Some progress",
+      "markFollowUp": "Needs more help",
+      "markDone": "Done",
+      "markDoneByOthers": "Already done",
+      "markNoHelpWanted": "No help wanted",
+      "otherClosings": "Other closings",
+      "revert": "Undo last change"
     },
     "saving": "Saving"
   },

@@ -27,6 +27,8 @@ export const workItemEventKind = pgEnum("work_item_event_kind", [
   "released",
   "expired",
   "verified",
+  // A coordinator undid the last status change (ADR 0018); from/to are the undone change reversed.
+  "status_reverted",
 ]);
 export const notificationChannel = pgEnum("notification_channel", ["push", "email", "sms", "whatsapp"]);
 export const notificationLevel = pgEnum("notification_level", [

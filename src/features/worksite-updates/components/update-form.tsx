@@ -19,7 +19,7 @@ type UpdateFormProps = {
   worksiteId: string;
   supplyTypes: { key: string; name: string }[];
   /** The home's current state, so the volunteer corrects it instead of starting from zero. */
-  current: { peoplePresent: number; missingSupplyKeys: string[]; createdAt: string } | null;
+  current: { id: string; peoplePresent: number; missingSupplyKeys: string[]; createdAt: string } | null;
 };
 
 /**
@@ -46,13 +46,21 @@ export function UpdateForm({ slug, worksiteId, supplyTypes, current }: UpdateFor
   const [sending, setSending] = useState(false);
   const [done, setDone] = useState<"sent" | "queued" | null>(null);
   const [rejection, setRejection] = useState<string | null>(null);
+  // The live update this form builds on: the page's, then each one this form sent ("Contar de nuevo").
+  const [baseUpdateId, setBaseUpdateId] = useState(current?.id ?? null);
 
   const submit = async () => {
     if (sending) return;
     setSending(true);
     setRejection(null);
     const id = crypto.randomUUID();
-    const body: WorksiteUpdate = { id, peoplePresent: people, supplyTypeKeys: missing };
+    // The version check (ADR 0018): refused if someone else updated the home since this page loaded.
+    const body: WorksiteUpdate = {
+      id,
+      previousUpdateId: baseUpdateId,
+      peoplePresent: people,
+      supplyTypeKeys: missing,
+    };
     const result = await enqueue({
       id,
       kind: "worksite_update",
@@ -67,6 +75,7 @@ export function UpdateForm({ slug, worksiteId, supplyTypes, current }: UpdateFor
     }
     track("worksite_update_recorded", { supplyCount: missing.length, delivery: result.status });
     clearDraft();
+    setBaseUpdateId(id);
     setDone(result.status);
   };
 

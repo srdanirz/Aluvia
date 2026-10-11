@@ -10,6 +10,7 @@ import { LEVEL_STATE } from "@/features/map/attention";
 import { WorksitePanel } from "@/features/map/components/worksite-panel";
 import { WorksiteAssignments } from "@/features/members";
 import { WorksiteContactCard } from "@/features/worksites/components";
+import { WorksiteFieldState } from "@/features/worksite-updates/components";
 import { slugSchema, worksiteIdSchema } from "@/features/map/schemas";
 import { findPublicWorksite } from "@/features/map/server/public-worksite";
 
@@ -53,6 +54,9 @@ export default async function WorksitePage({ params }: { params: Params }) {
       notice={<OfficialNotice text={notice} />}
       adminTools={<WorksiteAssignments emergencyId={home.emergencyId} worksiteId={home.id} />}
       contact={<WorksiteContactCard emergencyId={home.emergencyId} worksiteId={home.id} />}
+      fieldState={
+        <WorksiteFieldState slug={slug} emergencyId={home.emergencyId} worksiteId={home.id} now={now} />
+      }
     />
   );
 }

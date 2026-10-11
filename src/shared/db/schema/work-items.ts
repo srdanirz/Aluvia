@@ -96,6 +96,9 @@ export const workItemEvents = pgTable(
     fromStatus: workItemStatus("from_status"),
     toStatus: workItemStatus("to_status").notNull(),
     actorId: uuid("actor_id").references(() => users.id, { onDelete: "set null" }),
+    // Anonymous actor (ADR 0018): HMACs of the device cookie and of the IP; nulled by the purge.
+    deviceKey: text("device_key"),
+    ipKey: text("ip_key"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [

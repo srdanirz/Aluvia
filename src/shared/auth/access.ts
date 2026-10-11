@@ -39,27 +39,3 @@ export const isCoordinator = (access: EmergencyAccess | null) => access?.role ==
 export const canClaimWorkItems = isMember;
 // SECURITY.md: only approved coordinators read contacts, and every read goes to contact_views.
 export const canViewContacts = isCoordinator;
-
-/**
- * Whether the person may change a home's state: any coordinator of its emergency, or a field
- * volunteer assigned to it. Also false when the home belongs to another emergency. One query.
- */
-export async function canUpdateWorksite(
-  db: Executor,
-  access: EmergencyAccess | null,
-  worksiteId: string,
-): Promise<boolean> {
-  if (!access) return false;
-  if (access.role === "coordinator") {
-    const rows = await db.execute(sql`
-      SELECT 1 FROM worksites WHERE id = ${worksiteId} AND emergency_id = ${access.emergencyId}`);
-    return rows.length > 0;
-  }
-  if (access.role === "field_volunteer") {
-    const rows = await db.execute(sql`
-      SELECT 1 FROM worksite_assignments
-      WHERE worksite_id = ${worksiteId} AND user_id = ${access.userId} AND emergency_id = ${access.emergencyId}`);
-    return rows.length > 0;
-  }
-  return false;
-}

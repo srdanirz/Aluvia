@@ -4,7 +4,8 @@ import { refresh } from "next/cache";
 import type { z } from "zod";
 
 import { trackServerEvent } from "@/shared/analytics/server";
-import { canClaimWorkItems, getCurrentUser, getEmergencyAccess } from "@/shared/auth";
+import { hitFieldWriteLimit, resolveActorKeys, scheduleRateLimitPurge } from "@/shared/anonymous-actor";
+import { canClaimWorkItems, getCurrentUser, getEmergencyAccess, isCoordinator } from "@/shared/auth";
 import { db } from "@/shared/db/client";
 
 import {
@@ -13,12 +14,13 @@ import {
   type MarkStatusFailure,
   markWorkItemStatusSchema,
   type OwnClaimFailure,
+  revertWorkItemStatusSchema,
   verifyWorkItemSchema,
   workItemClaimSchema,
 } from "../schemas";
 import { claimWorkItem, markWorkItemArrived, releaseWorkItem, renewWorkItemClaim } from "./claims";
 import { workItemActions } from "./metrics";
-import { markWorkItemStatus, verifyWorkItem } from "./status";
+import { markWorkItemStatus, type RevertFailure, revertWorkItemStatus, verifyWorkItem } from "./status";
 
 /**
  * The volunteer's buttons (issues #12, #13). Each parses at the border, checks the session and
@@ -26,7 +28,7 @@ import { markWorkItemStatus, verifyWorkItem } from "./status";
  * are codes the client translates (`errors.<code>`), never sentences.
  */
 
-type SessionFailure = "invalid_input" | "unauthenticated" | "not_member";
+type SessionFailure = "invalid_input" | "unauthenticated" | "not_member" | "rate_limited";
 type ActionResult<Code extends string> = { ok: true } | { ok: false; code: Code | SessionFailure };
 
 /** Parses the input and resolves who is acting, or the code that stops them. */
@@ -108,25 +110,51 @@ export async function releaseWorkItemAction(input: unknown): Promise<ActionResul
   return settle("release", result);
 }
 
+/**
+ * Open to anyone, with or without an account (ADR 0018): no membership check, but a rate limit per
+ * IP and device for everyone except coordinators, and the device and network keys on the event.
+ */
 export async function markWorkItemStatusAction(input: unknown): Promise<ActionResult<MarkStatusFailure>> {
-  const auth = await authorize(markWorkItemStatusSchema, input);
-  if (!auth.ok) return settle("mark_status", auth);
-  const { emergencyId, workItemId, status, version } = auth.input;
-  const result = await markWorkItemStatus(db, {
-    emergencyId,
-    workItemId,
-    status,
-    version,
-    userId: auth.userId,
-  });
+  const parsed = markWorkItemStatusSchema.safeParse(input);
+  if (!parsed.success) return settle("mark_status", { ok: false, code: "invalid_input" });
+  const { emergencyId, workItemId, status, version } = parsed.data;
+  const user = await getCurrentUser();
+  const [access, actor] = await Promise.all([
+    user ? getEmergencyAccess(emergencyId) : null,
+    resolveActorKeys(),
+  ]);
+  if (!isCoordinator(access)) {
+    scheduleRateLimitPurge(db);
+    if (!(await hitFieldWriteLimit(db, actor)))
+      return settle("mark_status", { ok: false, code: "rate_limited" });
+  }
+  // A signed-in person who has not joined acts like anyone else: named only as a member.
+  const userId = access?.role ? access.userId : null;
+  const result = await markWorkItemStatus(db, { emergencyId, workItemId, status, version, userId, actor });
   if (result.ok) {
     trackServerEvent(
       "work_item_status_marked",
-      { emergencyId, workTypeKey: result.data.workTypeKey, status, isCoordinator: result.data.isCoordinator },
-      { distinctId: auth.userId },
+      {
+        emergencyId,
+        workTypeKey: result.data.workTypeKey,
+        status,
+        isCoordinator: result.data.isCoordinator,
+        isAnonymous: userId === null,
+      },
+      userId ? { distinctId: userId } : {},
     );
   }
   return settle("mark_status", result);
+}
+
+/** A coordinator undoes a job's last status change (ADR 0018); the statement re-checks the role. */
+export async function revertWorkItemStatusAction(input: unknown): Promise<ActionResult<RevertFailure>> {
+  const auth = await authorize(revertWorkItemStatusSchema, input);
+  if (!auth.ok) return settle("revert_status", auth);
+  const { emergencyId, workItemId, version } = auth.input;
+  const result = await revertWorkItemStatus(db, { emergencyId, workItemId, version, userId: auth.userId });
+  if (result.ok) trackServerEvent("work_item_status_reverted", { emergencyId }, { distinctId: auth.userId });
+  return settle("revert_status", result);
 }
 
 export async function verifyWorkItemAction(input: unknown): Promise<ActionResult<MarkStatusFailure>> {

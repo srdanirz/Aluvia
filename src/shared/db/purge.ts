@@ -89,9 +89,12 @@ export async function purgeEmergencyPersonalData(
     await tx.execute(
       sql`UPDATE work_items SET claimed_by = NULL, verified_by = NULL WHERE emergency_id = ${emergencyId}`,
     );
-    await tx.execute(sql`UPDATE work_item_events SET actor_id = NULL WHERE emergency_id = ${emergencyId}`);
     await tx.execute(
-      sql`UPDATE worksite_updates SET reported_by = NULL, cancelled_by = NULL WHERE emergency_id = ${emergencyId}`,
+      sql`UPDATE work_item_events SET actor_id = NULL, device_key = NULL, ip_key = NULL WHERE emergency_id = ${emergencyId}`,
+    );
+    await tx.execute(
+      sql`UPDATE worksite_updates SET reported_by = NULL, cancelled_by = NULL, device_key = NULL, ip_key = NULL
+        WHERE emergency_id = ${emergencyId}`,
     );
     await tx.execute(
       sql`UPDATE worksites SET hazards_reviewed_by = NULL WHERE emergency_id = ${emergencyId}`,

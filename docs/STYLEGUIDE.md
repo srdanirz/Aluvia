@@ -93,14 +93,14 @@ Dos voluntarios van a tocar "tomar" sobre la misma tarea en el mismo segundo. **
 
 Reglas completas en [SECURITY.md](../SECURITY.md). En el código:
 
-- Cada Server Action y route handler llama a la `policy` de su feature antes de leer o escribir. Sin excepción por "es solo lectura". La sesión y el acceso por emergencia salen de `@/shared/auth` (`getEmergencyAccess`, `canUpdateWorksite`; `src/shared/auth/access.ts:46`), nunca de leer `emergency_members` a mano en la feature.
+- Cada Server Action y route handler llama a la `policy` de su feature antes de leer o escribir. Sin excepción por "es solo lectura". La sesión y el acceso por emergencia salen de `@/shared/auth` (`getEmergencyAccess`, `canViewContacts`; `src/shared/auth/access.ts:41`), nunca de leer `emergency_members` a mano en la feature.
 - Una escritura de admin vuelve a verificar el rol **dentro de su propia sentencia** (`AND EXISTS (... platform_role = 'admin')`, `src/features/members/server/roles.ts:14`) y deja su fila en `admin_events` en la misma transacción.
 - **Dos formas de cada casa, en funciones distintas**: la pública (punto, nivel de daño, tipos de trabajo) y la de coordinador (dirección, teléfono, notas). La pública no tiene forma de devolver campos de contacto: no los selecciona.
 - La forma pública lleva el punto exacto y la dirección escrita completa (`publicAddressSql`); nombre y teléfono solo con `public_contact` (`publicContactSql`), y la vulnerabilidad nunca (`src/features/map/server/public-worksite.ts`, ADR 0011 y 0017).
 - Ver un contacto deja registro (`contact_views`: quién, qué casa, cuándo).
 - **Nada público responde "hay una casa a X metros de este punto"**: confirmaría que una dirección escrita corresponde a un reporte, y eso liga la dirección privada (en `worksite_contacts`) con la casa del mapa. El aviso de duplicado para el vecino es una marca para el coordinador (`worksites.review_flags`), no una respuesta; solo un coordinador ve los vecinos cercanos (`placeWorksite`).
 - Logs sin PII: ni teléfono, ni dirección, ni RUT. Se loguea el `id`.
-- Endpoints públicos de reporte con límite de tasa por IP.
+- Endpoints públicos de reporte con límite de tasa por IP. Una escritura abierta sin cuenta (ADR 0018) pasa por `hitFieldWriteLimit` y guarda `resolveActorKeys()` (HMAC de aparato e IP), nunca la IP (`src/shared/anonymous-actor.ts`).
 
 ## Observabilidad
 
