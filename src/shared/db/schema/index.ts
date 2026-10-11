@@ -8,6 +8,7 @@ export * from "./emergency-members";
 export * from "./emergency-zones";
 export * from "./emergency-notices";
 export * from "./enums";
+export * from "./feedback";
 export * from "./invitations";
 export * from "./notifications";
 export * from "./rate-limits";

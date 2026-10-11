@@ -49,3 +49,5 @@ export const zoneKind = pgEnum("zone_kind", ["no_entry", "restricted", "meeting_
 
 // Whether a donation collection point takes what people bring: everything it lists, nothing, or only part.
 export const collectionPointStatus = pgEnum("collection_point_status", ["receiving", "full", "only_some"]);
+// What someone sends from the feedback page ("Comentarios").
+export const feedbackCategory = pgEnum("feedback_category", ["problem", "idea", "other"]);

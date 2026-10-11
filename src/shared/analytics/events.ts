@@ -137,6 +137,12 @@ export const EVENTS = {
     featureCount: z.number().int().nonnegative(),
     createdCount: z.number().int().nonnegative(),
   }),
+  // Feedback page. The category and whether a way to reply came with it; never the text itself.
+  feedback_sent: z.strictObject({
+    category: z.enum(["problem", "idea", "other"]),
+    withReply: z.boolean(),
+    fromEmergency: z.boolean(),
+  }),
 };
 
 export type EventName = keyof typeof EVENTS;

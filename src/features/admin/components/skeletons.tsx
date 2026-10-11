@@ -11,10 +11,10 @@ function HeaderSkeleton({ withAction = false }: { withAction?: boolean }) {
   );
 }
 
-export function ListSkeleton() {
+export function ListSkeleton({ withAction = true }: { withAction?: boolean }) {
   return (
     <div className="flex flex-col gap-12">
-      <HeaderSkeleton withAction />
+      <HeaderSkeleton withAction={withAction} />
       <div className="flex flex-col gap-3">
         {[0, 1, 2].map((row) => (
           <Card key={row}>

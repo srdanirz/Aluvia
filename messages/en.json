@@ -88,7 +88,9 @@
     "mapMarkers": "Map markers",
     "copyValue": "https://aluvia.example/en/invitations/example",
     "copy": "Copy",
-    "copied": "Copied"
+    "copied": "Copied",
+    "textLinks": "Links in text",
+    "textLinkSample": "A sentence with <link>a link</link> in it."
   },
   "notFound": {
     "title": "We could not find this page",
@@ -374,7 +376,8 @@
     "nav": {
       "label": "Administration",
       "emergencies": "Emergencies",
-      "disasterTypes": "Disaster types"
+      "disasterTypes": "Disaster types",
+      "feedback": "Feedback"
     },
     "common": {
       "save": "Save",
@@ -514,6 +517,17 @@
     },
     "notice": {
       "label": "Official notice"
+    },
+    "feedback": {
+      "title": "Feedback",
+      "lead": "What people say about Aluvia, newest first.",
+      "empty": "No feedback yet.",
+      "contact": "Contact: {contact}",
+      "categories": {
+        "problem": "Problem",
+        "idea": "Idea",
+        "other": "Other"
+      }
     }
   },
   "map": {
@@ -560,7 +574,8 @@
     "waiting": "{waiting, plural, =0 {None waiting for help now} one {# waiting for help} other {# waiting for help}}",
     "askHelp": "Ask for help",
     "offerHelp": "I want to help",
-    "legendToggle": "What each color means"
+    "legendToggle": "What each color means",
+    "feedback": "Feedback"
   },
   "worksite": {
     "title": "Home in {emergency}",
@@ -932,5 +947,27 @@
     "actions": "Collection point actions",
     "call": "Call {phone}",
     "marker": "Collection point {name}: {status}"
+  },
+  "feedback": {
+    "title": "Feedback",
+    "lead": "Tell us what broke, what is missing or what you would improve. The people who build Aluvia read it.",
+    "back": "Back to the map",
+    "developers": "Are you a developer? Aluvia is open source. Contribute at <repo>github.com/srdanirz/Aluvia</repo> following the <guide>contributing guide</guide>.",
+    "form": {
+      "categoryLabel": "Kind of feedback",
+      "categories": {
+        "problem": "Problem",
+        "idea": "Idea",
+        "other": "Other"
+      },
+      "messageLabel": "Your feedback",
+      "messageHint": "Up to {max} characters.",
+      "contactLabel": "Contact (optional)",
+      "contactHint": "An email or phone, only if you want a reply.",
+      "submit": "Send",
+      "sending": "Sending",
+      "sentTitle": "Thanks, we got it",
+      "sentBody": "We will read it. If you left a contact, we will write back if needed."
+    }
   }
 }

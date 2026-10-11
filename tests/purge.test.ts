@@ -11,6 +11,7 @@ import {
   emergencies,
   emergencyMembers,
   emergencyNotices,
+  feedback,
   invitations,
   notificationPreferences,
   notifications,
@@ -160,6 +161,12 @@ async function seedEmergency(
     expiresAt: new Date(NOW.getTime() + 24 * 60 * 60 * 1000),
     createdBy: people.coordinator,
   });
+  await db.insert(feedback).values({
+    emergencyId,
+    category: "problem",
+    message: "Comentario inventado",
+    contact: "correo@ejemplo.invalid",
+  });
   return { worksiteId, workItemId };
 }
 
@@ -242,6 +249,9 @@ describe("purgeEmergencyPersonalData", () => {
     expect(await n("invitations", byEmergency(invitations))).toBe(0);
     expect(await n("shift_signups", sql`user_id = ${people.volunteer}`)).toBe(0);
     expect(await n("rate_limits", sql`key = 'report:ip:hash'`)).toBe(0);
+    // Feedback stays without its way to reply.
+    expect(await n("feedback", sql`emergency_id = ${closedId} AND contact IS NULL`)).toBe(1);
+    expect(await n("feedback", sql`emergency_id = ${closedId} AND contact IS NOT NULL`)).toBe(0);
 
     const [item] = await db.select().from(workItems).where(eq(workItems.id, seeded.workItemId));
     expect(item).toMatchObject({ claimedBy: null, verifiedBy: null, status: "open_claimed" });

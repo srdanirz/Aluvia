@@ -39,6 +39,7 @@ import {
   MapMarker,
   Skeleton,
   Spinner,
+  TextLink,
   ThemeSwitcher,
 } from "@/shared/ui";
 
@@ -162,6 +163,12 @@ export default async function DesignSystemPage() {
 
         <Section title={t("segmented")}>
           <SegmentedDemo label={t("viewLabel")} open={t("viewOpen")} taken={t("viewTaken")} />
+        </Section>
+
+        <Section title={t("textLinks")}>
+          <p className="max-w-prose text-body text-ink-soft">
+            {t.rich("textLinkSample", { link: (chunks) => <TextLink href="#">{chunks}</TextLink> })}
+          </p>
         </Section>
 
         <Section title={t("cards")}>

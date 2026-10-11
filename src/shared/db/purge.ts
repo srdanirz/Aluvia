@@ -6,7 +6,7 @@ import type { Executor } from "./types";
  * Every foreign key to users(id) and how the purge treats it. A table that adds one must add it
  * here and to the purge below; a test fails until it does (tests/purge.test.ts). The test sees
  * only direct keys to users: personal columns without one (worksite_contacts, admin_events
- * target ids) and keys to emergency_members are this file's job to remember.
+ * target ids, feedback.contact) and keys to emergency_members are this file's job to remember.
  */
 export const USER_REFERENCES = {
   "admin_events.actor_id": "anonymized",
@@ -105,6 +105,8 @@ export async function purgeEmergencyPersonalData(
     await tx.execute(
       sql`UPDATE collection_points SET created_by = NULL, updated_by = NULL, phone = NULL WHERE emergency_id = ${emergencyId}`,
     );
+    // Feedback sent from this emergency's pages stays (it is about the product); the way to reply goes.
+    await tx.execute(sql`UPDATE feedback SET contact = NULL WHERE emergency_id = ${emergencyId}`);
     // The admin log keeps the action; who did it and on whom go (the trigger allows only this).
     await tx.execute(
       sql`UPDATE admin_events SET actor_id = NULL, target_id = NULL WHERE emergency_id = ${emergencyId}`,
