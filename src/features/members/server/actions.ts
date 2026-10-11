@@ -30,7 +30,7 @@ import {
 } from "./membership";
 import { findEmergencyBySlug } from "./queries";
 
-/** Joins as a volunteer and opens the emergency. */
+/** Joins as a volunteer and opens the emergency's map. */
 export async function joinEmergencyAction(locale: string, slug: string): Promise<MemberActionState> {
   const user = await requireUser(`/emergencies/${slug}/join`, toActionLocale(locale));
   const emergency = await findEmergencyBySlug(db, slug);
@@ -38,9 +38,7 @@ export async function joinEmergencyAction(locale: string, slug: string): Promise
   const result = await joinEmergency(db, { userId: user.id, emergencyId: emergency.id });
   if (!result.ok) return result;
   trackServerEvent("emergency_joined", { emergencyId: emergency.id }, { distinctId: user.id });
-  // The join page shows the membership; it links on to the emergency once that page exists.
-  refresh();
-  return { ok: true };
+  return redirect({ href: `/emergencies/${emergency.slug}`, locale: toActionLocale(locale) });
 }
 
 export async function requestMemberRoleAction(
