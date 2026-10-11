@@ -30,7 +30,7 @@ firestore-debug.log*
 ui-debug.log*
 
 # Node
-node_modules/
+node_modules
 .pnpm-store/
 npm-debug.log*
 yarn-error.log*

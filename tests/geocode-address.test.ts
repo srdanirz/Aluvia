@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { geocodeAddress } from "@/features/worksites/server/geocode-address";
+import { geocodeAddress, geocodingQuery } from "@/features/worksites/server/geocode-address";
 import { env } from "@/shared/env";
 
 // Made-up address and box; the Geocoding API is replaced by a fetch stub.
@@ -10,7 +10,9 @@ const BIAS = { area: AREA, comunas: ["Comuna Inventada"] };
 const KEY = "test-geocoding-key";
 
 function answer(body: unknown, status = 200) {
-  const fetchMock = vi.fn(async (_url: string) => new Response(JSON.stringify(body), { status }));
+  const fetchMock = vi.fn<(url: string) => Promise<Response>>(
+    async () => new Response(JSON.stringify(body), { status }),
+  );
   vi.stubGlobal("fetch", fetchMock);
   return fetchMock;
 }
@@ -31,6 +33,18 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+describe("geocodingQuery", () => {
+  it("joins thousands dots and drops the unit inside the lot", () => {
+    expect(geocodingQuery("Calle Inventada 10.745, Casa 4 Y 5")).toBe("Calle Inventada 10745");
+    expect(geocodingQuery("Pasaje Inventado 1.200 depto 12")).toBe("Pasaje Inventado 1200");
+    expect(geocodingQuery("Calle Inventada 500")).toBe("Calle Inventada 500");
+  });
+
+  it("keeps a street whose name holds a unit-like word", () => {
+    expect(geocodingQuery("Calle Casablanca 300")).toBe("Calle Casablanca 300");
+  });
+});
+
 describe("geocodeAddress", () => {
   it("asks Google for Chile in Spanish, biased to the emergency's box and comuna", async () => {
     withKey(KEY);
@@ -42,7 +56,8 @@ describe("geocodeAddress", () => {
     });
     const url = new URL(String(fetchMock.mock.calls[0]?.[0]));
     expect(url.origin + url.pathname).toBe("https://maps.googleapis.com/maps/api/geocode/json");
-    expect(url.searchParams.get("address")).toBe(ADDRESS);
+    // The unit inside the lot ("depto 3") is dropped: Google would fall back to the street.
+    expect(url.searchParams.get("address")).toBe("Calle Inventada 500");
     expect(url.searchParams.get("region")).toBe("cl");
     expect(url.searchParams.get("language")).toBe("es");
     expect(url.searchParams.get("components")).toBe("country:CL|locality:Comuna Inventada");
