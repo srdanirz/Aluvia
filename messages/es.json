@@ -90,7 +90,11 @@
     "copy": "Copiar",
     "copied": "Copiado",
     "textLinks": "Links en el texto",
-    "textLinkSample": "Un texto con <link>un link</link> en medio."
+    "textLinkSample": "Un texto con <link>un link</link> en medio.",
+    "media": "Galería",
+    "mediaAlt": "Foto de ejemplo",
+    "mediaCaption": "Recibida hace 2 horas",
+    "mediaHidden": "Oculta"
   },
   "notFound": {
     "title": "No encontramos esta página",
@@ -382,7 +386,16 @@
     "emergency_open": "La emergencia sigue abierta. Ciérrala antes de borrar sus datos.",
     "nothing_to_revert": "El último cambio ya no se puede deshacer. Recarga para ver el estado actual.",
     "organization_exists": "Ya existe una organización con ese nombre en esta emergencia.",
-    "organization_not_found": "Esa organización no existe en esta emergencia."
+    "organization_not_found": "Esa organización no existe en esta emergencia.",
+    "media_limit_reached": "Esta casa ya tiene todas las fotos y videos que admite.",
+    "media_unavailable": "Por ahora no se pueden subir fotos.",
+    "invalid_media": "El archivo no se pudo abrir. Prueba con otra foto o video.",
+    "upload_missing": "La subida no terminó. Se volverá a intentar.",
+    "media_lost": "El archivo se borró del teléfono antes de enviarse. Elígelo de nuevo.",
+    "media_not_found": "Esa foto ya no está.",
+    "media_type_not_allowed": "Ese archivo no es una foto ni un video que podamos usar.",
+    "media_too_large": "El archivo pesa demasiado.",
+    "video_too_long": "El video dura más de 30 segundos."
   },
   "admin": {
     "meta": {
@@ -1023,6 +1036,41 @@
       "unnamed": "Sin nombre",
       "remove": "Quitar como coordinador",
       "more": "Ver más"
+    }
+  },
+  "worksiteMedia": {
+    "picker": {
+      "title": "Fotos o video",
+      "lead": "Opcional. Hasta 5 fotos y un video de 30 segundos.",
+      "warning": "Antes de elegir: que no aparezcan caras, niños, patentes ni documentos. Las fotos se ven en la ficha pública de la casa.",
+      "add": "Agregar fotos o video",
+      "preparing": "Preparando",
+      "remove": "Quitar",
+      "itemAlt": "Foto {position} elegida",
+      "errors": {
+        "media_type_not_allowed": "Ese archivo no es una foto ni un video que podamos usar.",
+        "media_too_large": "El video pesa más de 50 MB. Graba uno más corto.",
+        "video_too_long": "El video dura más de 30 segundos. Graba uno más corto.",
+        "media_limit_reached": "Ya hay 5 fotos y un video. Quita uno para agregar otro."
+      }
+    },
+    "uploader": {
+      "send": "{count, plural, one {Enviar # archivo} other {Enviar # archivos}}",
+      "sending": "Enviando",
+      "outcome": {
+        "sent": "Enviado. Aparece en la galería en unos segundos.",
+        "queued": "Esperando señal. Se enviará solo.",
+        "rejected": "No se pudo enviar. Revisa los envíos pendientes."
+      }
+    },
+    "gallery": {
+      "title": "Fotos y videos",
+      "empty": "Todavía no hay fotos de esta casa.",
+      "itemAlt": "Foto {position} de la casa",
+      "hidden": "Oculta",
+      "hide": "Ocultar al público",
+      "show": "Mostrar al público",
+      "received": "Recibida {relative}"
     }
   }
 }

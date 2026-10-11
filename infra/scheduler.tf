@@ -13,6 +13,7 @@ locals {
   scheduled_calls = {
     notifications-dispatch = "/api/v1/notifications/dispatch"
     work-items-release     = "/api/v1/work-items/release-expired"
+    media-delete-queued    = "/api/v1/media/delete-queued"
   }
   enabled_calls = { for name, path in local.scheduled_calls : name => "https://${var.domain}${path}" if contains(var.scheduled_calls, name) }
 }

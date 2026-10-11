@@ -24,6 +24,7 @@ import {
   workItems,
   workTypes,
   worksiteContacts,
+  worksiteMedia,
   worksites,
   worksiteUpdates,
 } from "@/shared/db/schema";
@@ -94,6 +95,25 @@ async function seedEmergency(
     addressText: "Calle inventada 1",
   });
   await db.insert(contactViews).values({ emergencyId, worksiteId, userId: people.coordinator });
+  // One published photo, hidden by a coordinator, and one upload still pending.
+  const photoId = randomUUID();
+  const pendingId = randomUUID();
+  await db.insert(worksiteMedia).values([
+    {
+      id: photoId,
+      emergencyId,
+      worksiteId,
+      kind: "image",
+      status: "ready",
+      contentType: "image/webp",
+      sizeBytes: 1000,
+      objectKey: `media/${emergencyId}/${photoId}.webp`,
+      uploadedBy: people.volunteer,
+      hiddenAt: NOW,
+      hiddenBy: people.coordinator,
+    },
+    { id: pendingId, emergencyId, worksiteId, kind: "image", contentType: "image/jpeg", sizeBytes: 1000 },
+  ]);
   const workItemId = randomUUID();
   await db.insert(workItems).values({
     id: workItemId,
@@ -252,6 +272,16 @@ describe("purgeEmergencyPersonalData", () => {
     // Feedback stays without its way to reply.
     expect(await n("feedback", sql`emergency_id = ${closedId} AND contact IS NULL`)).toBe(1);
     expect(await n("feedback", sql`emergency_id = ${closedId} AND contact IS NOT NULL`)).toBe(0);
+    // Media rows go; every object they had (originals and public copies) waits in the queue.
+    expect(await n("worksite_media", sql`emergency_id = ${closedId}`)).toBe(0);
+    const queued = await db.execute<{ object_key: string }>(
+      sql`SELECT object_key FROM media_object_deletions WHERE object_key LIKE ${`%${closedId}%`} ORDER BY object_key`,
+    );
+    expect(queued.map((row) => row.object_key.replace(/[0-9a-f-]{36}(\.webp)?$/, "<id>$1"))).toEqual([
+      `media/${closedId}/<id>.webp`,
+      `uploads/${closedId}/<id>`,
+      `uploads/${closedId}/<id>`,
+    ]);
 
     const [item] = await db.select().from(workItems).where(eq(workItems.id, seeded.workItemId));
     expect(item).toMatchObject({ claimedBy: null, verifiedBy: null, status: "open_claimed" });

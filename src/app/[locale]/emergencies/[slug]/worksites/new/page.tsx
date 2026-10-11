@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { ReportForm, ReportPage } from "@/features/worksites/components";
+import { isMediaEnabled } from "@/features/worksite-media/server";
 import { findReportForm, reportSourceFor } from "@/features/worksites/server";
 import { loadOfficialNotice, OfficialNotice } from "@/features/admin";
 import { getEmergencyAccess } from "@/shared/auth";
@@ -33,6 +34,7 @@ export default async function NewWorksitePage({
         workTypes={form.workTypes}
         emergencyNumbers={form.emergencyNumbers}
         source={reportSourceFor(access)}
+        mediaEnabled={isMediaEnabled()}
       />
     </ReportPage>
   );

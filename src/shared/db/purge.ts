@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 
+import { originalObjectKeySql } from "../storage/media-keys";
 import type { Executor } from "./types";
 
 /**
@@ -32,6 +33,8 @@ export const USER_REFERENCES = {
   "worksite_updates.cancelled_by": "anonymized",
   "worksite_updates.reported_by": "anonymized",
   "worksite_assignments.assigned_by": "deleted with the members",
+  "worksite_media.hidden_by": "deleted with the row",
+  "worksite_media.uploaded_by": "deleted with the row",
   "worksites.hazards_reviewed_by": "anonymized",
 } as const;
 
@@ -40,7 +43,8 @@ export type PurgeResult =
 
 /**
  * Deletes the personal data of a closed emergency, in one transaction (ADR 0005, SECURITY.md):
- * contacts, contact views, sign-ups, members, notifications and official notices go; every
+ * contacts, contact views, sign-ups, members, notifications, official notices and the homes'
+ * photos and videos go (their bucket objects queued in media_object_deletions); every
  * person reference left in work, updates, homes and the admin log is nulled; aggregates stay
  * (how many homes, how much work, shift counts). Then the people it touched are deleted, unless
  * they are platform admins or still belong to or hold work in an open emergency.
@@ -74,6 +78,8 @@ export async function purgeEmergencyPersonalData(
       UNION SELECT reported_by FROM worksite_updates WHERE emergency_id = ${emergencyId}
       UNION SELECT cancelled_by FROM worksite_updates WHERE emergency_id = ${emergencyId}
       UNION SELECT hazards_reviewed_by FROM worksites WHERE emergency_id = ${emergencyId}
+      UNION SELECT uploaded_by FROM worksite_media WHERE emergency_id = ${emergencyId}
+      UNION SELECT hidden_by FROM worksite_media WHERE emergency_id = ${emergencyId}
       UNION SELECT user_id FROM contact_views WHERE emergency_id = ${emergencyId}
       UNION SELECT s.user_id FROM shift_signups s JOIN shifts sh ON sh.id = s.shift_id
         WHERE sh.emergency_id = ${emergencyId}
@@ -125,6 +131,18 @@ export async function purgeEmergencyPersonalData(
       sql`DELETE FROM worksite_contacts WHERE worksite_id IN (SELECT id FROM worksites WHERE emergency_id = ${emergencyId})`,
     );
     await tx.execute(sql`DELETE FROM contact_views WHERE emergency_id = ${emergencyId}`);
+    // Photos can show faces, plates and documents whatever the warning said (ADR 0020). The
+    // objects go through the queue: no bucket call inside this transaction.
+    await tx.execute(sql`
+      WITH media AS (
+        DELETE FROM worksite_media m WHERE m.emergency_id = ${emergencyId}
+        RETURNING ${originalObjectKeySql("m")} AS original_key, m.object_key
+      )
+      INSERT INTO media_object_deletions (object_key)
+      SELECT original_key FROM media
+      UNION SELECT object_key FROM media WHERE object_key IS NOT NULL
+      ON CONFLICT (object_key) DO NOTHING
+    `);
     await tx.execute(
       sql`DELETE FROM shift_signups WHERE shift_id IN (SELECT id FROM shifts WHERE emergency_id = ${emergencyId})`,
     );
