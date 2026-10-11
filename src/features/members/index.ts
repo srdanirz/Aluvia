@@ -7,3 +7,4 @@ export { loadInvitationView, loadJoinView, loadMembersAdminView } from "./server
 export { ActionButton } from "./components/action-button";
 export { InvitationForm } from "./components/invitation-form";
 export { revokeMemberRoleAction } from "./server/actions";
+export { joinPath } from "./schemas";

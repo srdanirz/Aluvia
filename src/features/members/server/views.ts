@@ -7,6 +7,8 @@ import { requireUser } from "@/shared/auth/require-user";
 import { db } from "@/shared/db/client";
 
 import { findInvitation, type InvitationView } from "./invitations";
+import { joinReturnPath } from "../schemas";
+
 import { canManageMembers } from "./policy";
 import {
   type EmergencyRef,
@@ -21,13 +23,19 @@ import {
 
 // Each view's data is loaded here in one place and in parallel (DESIGN.md, Carga); pages only render it.
 
-export type JoinView = { emergency: EmergencyRef; user: SessionUser | null; membership: Membership | null };
+export type JoinView = {
+  emergency: EmergencyRef;
+  user: SessionUser | null;
+  membership: Membership | null;
+  /** Where to go once joined: the home that sent the person here, or the map. */
+  returnTo: string;
+};
 
-export async function loadJoinView(slug: string): Promise<JoinView> {
+export async function loadJoinView(slug: string, next?: unknown): Promise<JoinView> {
   const [emergency, user] = await Promise.all([findEmergencyBySlug(db, slug), getCurrentUser()]);
   if (!emergency) notFound();
   const membership = user ? await findMembership(db, { emergencyId: emergency.id, userId: user.id }) : null;
-  return { emergency, user, membership };
+  return { emergency, user, membership, returnTo: joinReturnPath(emergency.slug, next) };
 }
 
 export type InvitationPageView = { invitation: InvitationView; user: SessionUser | null };
