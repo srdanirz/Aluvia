@@ -15,16 +15,29 @@ export type MarkableStatus = (typeof MARKABLE_STATUSES)[number];
 export const COORDINATOR_ONLY_STATUSES: readonly MarkableStatus[] = ["closed_duplicate"];
 
 const workItemRef = z.strictObject({ emergencyId: z.uuid(), workItemId: z.uuid() });
+// Help is offered per home: "Voy para allá" takes every free job of it, and the volunteer's
+// buttons act on every job they hold there.
+const worksiteRef = z.strictObject({ emergencyId: z.uuid(), worksiteId: z.uuid() });
 
-export const claimWorkItemSchema = workItemRef;
-export const workItemClaimSchema = workItemRef;
-export const markWorkItemStatusSchema = workItemRef.extend({
+// A home has a handful of jobs; the cap only bounds a forged request.
+const MAX_ITEMS_PER_CHANGE = 50;
+
+export const claimWorksiteSchema = worksiteRef;
+export const worksiteClaimSchema = worksiteRef;
+export const markWorkItemStatusSchema = z.strictObject({
+  emergencyId: z.uuid(),
   status: z.enum(MARKABLE_STATUSES),
-  // Optimistic lock (STYLEGUIDE, Concurrencia): the version the person was looking at.
-  version: z.int().nonnegative(),
+  // Optimistic lock (STYLEGUIDE, Concurrencia): each job with the version the person was looking at.
+  items: z
+    .array(z.strictObject({ workItemId: z.uuid(), version: z.int().nonnegative() }))
+    .min(1)
+    .max(MAX_ITEMS_PER_CHANGE),
 });
 export const verifyWorkItemSchema = workItemRef.extend({ version: z.int().nonnegative() });
 export const revertWorkItemStatusSchema = verifyWorkItemSchema;
+
+/** A job a status change covers, with the version the person was looking at. */
+export type MarkedItem = { workItemId: string; version: number };
 
 export type ClaimFailure = "not_found" | "not_member" | "not_open" | "hazard_unreviewed" | "already_claimed";
 /** Renew, arrive and release only work on the caller's own live claim. */

@@ -19,8 +19,8 @@ type HelpListProps = {
 };
 
 /**
- * The homes nobody is on, longest waiting first, each with one concrete action: take its first
- * job. Who is looking decides that button: sign in, join the emergency, or "Voy para allá".
+ * The homes nobody is on, longest waiting first, each with one concrete action: take the
+ * home (every free job of it). Who is looking decides that button: sign in, join the emergency, or "Voy para allá".
  */
 export async function HelpList({ slug, emergencyId, homes, viewer, now }: HelpListProps) {
   const t = await getTranslations("work");
@@ -46,7 +46,7 @@ export async function HelpList({ slug, emergencyId, homes, viewer, now }: HelpLi
   return (
     <ul className="flex flex-col gap-3">
       {homes.map((home) => {
-        const first = home.workItems[0];
+        const hasFreeWork = home.workItems.length > 0;
         return (
           <li key={home.worksiteId}>
             <Card className="gap-3">
@@ -93,16 +93,12 @@ export async function HelpList({ slug, emergencyId, homes, viewer, now }: HelpLi
               </div>
               {home.isBlocked ? (
                 <CardBody>{t("hazard.body")}</CardBody>
-              ) : first ? (
+              ) : hasFreeWork ? (
                 <PrimaryAction
                   viewer={viewer}
                   slug={slug}
                   returnTo={`/emergencies/${slug}/worksites/${home.worksiteId}`}
-                  claim={{
-                    emergencyId,
-                    workItemId: first.id,
-                    label: t("help.claim", { workType: first.workType }),
-                  }}
+                  claim={{ emergencyId, worksiteId: home.worksiteId, label: t("help.claim") }}
                 />
               ) : null}
               <Button variant="ghost" className="self-start" asChild>
@@ -129,7 +125,7 @@ async function PrimaryAction({
   slug: string;
   // The home this card is about: signing in and joining come back to it.
   returnTo: string;
-  claim: { emergencyId: string; workItemId: string; label: string };
+  claim: { emergencyId: string; worksiteId: string; label: string };
 }) {
   const t = await getTranslations("work.help");
   if (viewer === "anonymous") {

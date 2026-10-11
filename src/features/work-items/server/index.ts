@@ -8,6 +8,7 @@ export {
   listMyWorkItems,
   listWorksiteJobs,
   listWorksitesToHelp,
+  type MyWorkHome,
   type MyWorkItem,
   type WorksiteJob,
 } from "./queries";

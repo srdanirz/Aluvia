@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 import { afterAll, describe, expect, it } from "vitest";
 
 import {
@@ -26,6 +26,12 @@ async function readItem(id: string) {
   const [item] = await db.select().from(workItems).where(eq(workItems.id, id));
   if (!item) throw new Error("work item missing");
   return item;
+}
+
+// The given jobs in one query, in the order asked.
+async function readItems(ids: string[]) {
+  const rows = await db.select().from(workItems).where(inArray(workItems.id, ids));
+  return ids.map((id) => rows.find((row) => row.id === id)!);
 }
 
 async function readUnclaimedSince(worksiteId: string) {
@@ -212,7 +218,7 @@ describe("reservation expiry", () => {
   it("lets another volunteer take a lapsed reservation before the sweeper runs", async () => {
     const emergency = await createEmergency(db, { holdMinutes: 30 });
     const [first, second] = await createUsers(db, emergency.id, 2);
-    const { workItemIds } = await createWorksite(db, emergency.id);
+    const { worksiteId, workItemIds } = await createWorksite(db, emergency.id);
     const workItemId = workItemIds[0]!;
     await claimWorkItem(db, { emergencyId: emergency.id, workItemId, userId: first!, now: NOW });
 
@@ -225,7 +231,10 @@ describe("reservation expiry", () => {
     expect(takeover.ok).toBe(true);
     expect((await readItem(workItemId)).claimedBy).toBe(second);
     expect(await eventKinds(workItemId)).toEqual(["claimed", "expired", "claimed"]);
-    const notices = await outboxFor(db, `work_item_claim_expired:${workItemId}:${NOW.toISOString()}`);
+    const notices = await outboxFor(
+      db,
+      `work_item_claim_expired:${worksiteId}:${minutesAfter(40).toISOString()}`,
+    );
     expect(notices.map((n) => n.user_id)).toEqual([first]);
   });
 
@@ -407,5 +416,108 @@ describe("work_items constraints", () => {
     await expect(
       db.execute(sql`UPDATE work_items SET claim_expires_at = now() WHERE id = ${workItemIds[0]!}`),
     ).rejects.toThrow();
+  });
+});
+
+describe("claiming a home", () => {
+  it("takes every free job of the home at once, with one neighbor notice", async () => {
+    const emergency = await createEmergency(db);
+    const [volunteer] = await createUsers(db, emergency.id, 1);
+    const { worksiteId, workItemIds } = await createWorksite(db, emergency.id, {
+      keys: ["mud", "debris"],
+      neighborChannel: "sms",
+    });
+
+    const result = await claimWorkItem(db, {
+      emergencyId: emergency.id,
+      worksiteId,
+      userId: volunteer!,
+      now: NOW,
+    });
+
+    expect(result.ok && [...result.data.workTypeKeys].sort()).toEqual(["debris", "mud"]);
+    expect((await readItems(workItemIds)).map((item) => [item.status, item.claimedBy])).toEqual([
+      ["open_claimed", volunteer],
+      ["open_claimed", volunteer],
+    ]);
+    expect(await readUnclaimedSince(worksiteId)).toBeNull();
+    const notices = await outboxFor(db, `work_item_claimed:${worksiteId}:${volunteer}:${NOW.toISOString()}`);
+    expect(notices).toHaveLength(1);
+  });
+
+  it("gives each job of a home to exactly one of many concurrent volunteers", async () => {
+    const emergency = await createEmergency(db);
+    const volunteers = await createUsers(db, emergency.id, RACERS);
+    const { worksiteId, workItemIds } = await createWorksite(db, emergency.id, { keys: ["mud", "debris"] });
+
+    const results = await Promise.all(
+      volunteers.map((userId) =>
+        claimWorkItem(db, { emergencyId: emergency.id, worksiteId, userId, now: NOW }),
+      ),
+    );
+
+    // The rows are locked in id order, so one caller takes the whole home and the rest find none.
+    expect(results.filter((r) => r.ok)).toHaveLength(1);
+    expect(new Set(results.flatMap((r) => (r.ok ? [] : [r.code])))).toEqual(new Set(["already_claimed"]));
+    const holders = new Set((await readItems(workItemIds)).map((item) => item.claimedBy));
+    expect(holders.size).toBe(1);
+    const events = await db
+      .select({ kind: workItemEvents.kind })
+      .from(workItemEvents)
+      .where(inArray(workItemEvents.workItemId, workItemIds));
+    expect(events.map((e) => e.kind)).toEqual(["claimed", "claimed"]);
+  });
+
+  it("leaves a job someone else holds and takes the rest", async () => {
+    const emergency = await createEmergency(db);
+    const [first, second] = await createUsers(db, emergency.id, 2);
+    const { worksiteId, workItemIds } = await createWorksite(db, emergency.id, { keys: ["mud", "debris"] });
+    await claimWorkItem(db, {
+      emergencyId: emergency.id,
+      workItemId: workItemIds[0]!,
+      userId: first!,
+      now: NOW,
+    });
+
+    const result = await claimWorkItem(db, {
+      emergencyId: emergency.id,
+      worksiteId,
+      userId: second!,
+      now: NOW,
+    });
+
+    expect(result.ok && result.data.workTypeKeys).toHaveLength(1);
+    expect((await readItem(workItemIds[0]!)).claimedBy).toBe(first);
+    expect((await readItem(workItemIds[1]!)).claimedBy).toBe(second);
+  });
+
+  it("arrives, renews and releases every job the volunteer holds at the home", async () => {
+    const emergency = await createEmergency(db, { holdMinutes: 30 });
+    const [volunteer] = await createUsers(db, emergency.id, 1);
+    const { worksiteId, workItemIds } = await createWorksite(db, emergency.id, { keys: ["mud", "debris"] });
+    const ref = { emergencyId: emergency.id, worksiteId, userId: volunteer! };
+    await claimWorkItem(db, { ...ref, now: NOW });
+
+    expect(await renewWorkItemClaim(db, { ...ref, now: minutesAfter(10) })).toEqual({
+      ok: true,
+      data: { expiresAt: minutesAfter(40) },
+    });
+    expect((await readItems(workItemIds)).map((item) => item.claimExpiresAt)).toEqual([
+      minutesAfter(40),
+      minutesAfter(40),
+    ]);
+
+    const arrived = await markWorkItemArrived(db, { ...ref, now: minutesAfter(20) });
+    expect(arrived.ok && [...arrived.data.workTypeKeys].sort()).toEqual(["debris", "mud"]);
+    expect((await readItems(workItemIds)).map((item) => item.arrivedAt)).toEqual([
+      minutesAfter(20),
+      minutesAfter(20),
+    ]);
+
+    expect((await releaseWorkItem(db, { ...ref, now: minutesAfter(30) })).ok).toBe(true);
+    expect((await readItems(workItemIds)).map((item) => [item.status, item.claimedBy])).toEqual([
+      ["open_unclaimed", null],
+      ["open_unclaimed", null],
+    ]);
   });
 });

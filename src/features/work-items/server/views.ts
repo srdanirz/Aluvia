@@ -12,7 +12,7 @@ import { db } from "@/shared/db/client";
 import { type EmergencyRef, findEmergencyBySlug } from "@/features/emergencies/server";
 import { listCurrentWorksiteUpdates, listSupplyNames } from "@/features/worksite-updates/server";
 
-import { listMyWorkItems, listWorksiteJobs, listWorksitesToHelp } from "./queries";
+import { groupMyWorkByHome, listMyWorkItems, listWorksiteJobs, listWorksitesToHelp } from "./queries";
 
 /**
  * Everything a work screen shows, fetched in one place so the view appears at once (DESIGN.md,
@@ -71,7 +71,7 @@ export async function loadHelpView({
   return {
     emergency,
     viewer,
-    mine,
+    mine: groupMyWorkByHome(mine),
     nextCursor: page.nextCursor,
     homes: page.items.map((home) => ({ ...home, field: fieldByWorksite.get(home.worksiteId) ?? null })),
   };

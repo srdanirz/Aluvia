@@ -843,7 +843,7 @@
       "locationDenied": "We could not read your location. The list is still sorted by waiting time.",
       "more": "Show more homes",
       "openHome": "See the home",
-      "claim": "On my way: {workType}",
+      "claim": "On my way",
       "signIn": "Sign in to take a job",
       "join": "Join this emergency to take jobs",
       "shifts": "See shifts",
@@ -879,7 +879,7 @@
       "doneByOthers": "Already done",
       "noHelpWanted": "They don't want help",
       "otherClosings": "Other outcomes",
-      "actions": "Job actions",
+      "actions": "Home actions",
       "openHome": "See the home"
     },
     "safety": {
