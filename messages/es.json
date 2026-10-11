@@ -266,7 +266,6 @@
     "form": {
       "title": "Personas e insumos",
       "lead": "Cuenta a quienes trabajan ahora y marca lo que falta.",
-      "openLink": "Actualizar personas e insumos",
       "people": "Personas trabajando ahora",
       "decrement": "Una persona menos",
       "increment": "Una persona más",
@@ -281,8 +280,22 @@
       "queuedBody": "No hay señal. Se enviará solo apenas vuelva, aunque cierres la página.",
       "actions": "Qué hacer ahora",
       "viewHome": "Ver la casa",
-      "again": "Contar de nuevo",
-      "signIn": "Para actualizar esta casa, entra con el link que te mandó el coordinador."
+      "again": "Contar de nuevo"
+    },
+    "state": {
+      "title": "Personas e insumos",
+      "people": "{count, plural, =0 {Nadie trabajando ahora} one {# persona trabajando} other {# personas trabajando}}",
+      "missing": "Falta: {supplies}",
+      "nothingMissing": "No falta nada",
+      "updated": "Actualizado {relative}",
+      "empty": "Nadie ha contado todavía. Cualquiera puede hacerlo, sin cuenta.",
+      "update": "Actualizar personas e insumos",
+      "history": "{count, plural, one {Última actualización} other {Últimas # actualizaciones}}",
+      "hidden": "Oculta",
+      "entryMeta": "{relative} · {actor}",
+      "actorMember": "voluntario con cuenta",
+      "actorDevice": "teléfono {tag}",
+      "hide": "Ocultar"
     }
   },
   "outbox": {
@@ -300,9 +313,7 @@
     "invalid_supply_type": "Uno de los insumos ya no está disponible. Revisa la lista y vuelve a enviar.",
     "emergency_not_found": "Esta emergencia ya no recibe reportes.",
     "worksite_not_found": "Esta casa ya no está en la emergencia.",
-    "rate_limited": "Llegaron muchos reportes desde esta red. Espera unos minutos y se enviará solo.",
-    "sign_in_required": "Entra con el link que te mandó el coordinador para enviar esto.",
-    "not_assigned": "Esta casa no está asignada a ti.",
+    "rate_limited": "Llegaron muchos envíos desde esta red o este teléfono. Espera unos minutos e inténtalo de nuevo.",
     "forbidden": "No tienes permiso para hacer esto.",
     "extraction_unavailable": "La carga en lote no está activa en este servidor.",
     "extraction_refused": "No pudimos leer ese texto. Prueba con otro o crea las casas una por una.",
@@ -367,7 +378,8 @@
     "layer_unsupported": "Esa capa no tiene el formato esperado (para el área, polígonos).",
     "invalid_field": "Usa nombres de campo con letras, números y guion bajo.",
     "address_fields_required": "Indica al menos un campo de dirección.",
-    "emergency_open": "La emergencia sigue abierta. Ciérrala antes de borrar sus datos."
+    "emergency_open": "La emergencia sigue abierta. Ciérrala antes de borrar sus datos.",
+    "nothing_to_revert": "El último cambio ya no se puede deshacer. Recarga para ver el estado actual."
   },
   "admin": {
     "meta": {
@@ -788,8 +800,8 @@
     },
     "assignments": {
       "title": "Voluntarios de terreno",
-      "lead": "Solo ellos actualizan esta casa, además de los coordinadores.",
-      "empty": "Esta emergencia no tiene voluntarios de terreno. Invita a uno a esta casa.",
+      "lead": "Opcional: quién se hace cargo de esta casa. Cualquiera puede actualizarla, con o sin cuenta.",
+      "empty": "Esta emergencia todavía no tiene voluntarios de terreno.",
       "assign": "Asignar",
       "unassign": "Quitar",
       "assigned": "Asignado",
@@ -868,7 +880,17 @@
       "verified": "Verificado",
       "duplicate": "Es duplicado",
       "coordinatorActions": "Acciones de coordinación",
-      "claim": "Voy para allá"
+      "claim": "Voy para allá",
+      "updated": "Actualizado {relative}",
+      "updateStatus": "Actualizar estado",
+      "updateStatusHint": "No necesitas cuenta. Queda registrado y un coordinador puede deshacerlo.",
+      "markPartial": "Hubo avance",
+      "markFollowUp": "Necesita más ayuda",
+      "markDone": "Terminado",
+      "markDoneByOthers": "Ya estaba hecho",
+      "markNoHelpWanted": "No quieren ayuda",
+      "otherClosings": "Otros cierres",
+      "revert": "Deshacer último cambio"
     },
     "saving": "Guardando"
   },

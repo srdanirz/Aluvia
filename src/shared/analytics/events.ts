@@ -16,6 +16,8 @@ export const EVENTS = {
     // Queued: saved on the phone without signal, sent when it comes back.
     delivery: z.enum(["sent", "queued"]),
   }),
+  // A coordinator hid an abusive or wrong field update (ADR 0018).
+  worksite_update_cancelled: z.strictObject({ emergencyId: z.uuid() }),
   // A server error code (`rate_limited`, `invalid_location`), never the message.
   worksite_report_rejected: z.strictObject({ code: z.string().regex(/^[a-z][a-z_]*$/) }),
   worksite_update_recorded: z.strictObject({
@@ -123,7 +125,10 @@ export const EVENTS = {
       "closed_duplicate",
     ]),
     isCoordinator: z.boolean(),
+    // Marked without an account (ADR 0018).
+    isAnonymous: z.boolean(),
   }),
+  work_item_status_reverted: z.strictObject({ emergencyId: z.uuid() }),
   work_item_verified: z.strictObject({ emergencyId: z.uuid() }),
   shift_signed_up: z.strictObject({ emergencyId: z.uuid() }),
   shift_signup_rejected: z.strictObject({

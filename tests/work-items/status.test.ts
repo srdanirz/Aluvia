@@ -1,7 +1,12 @@
 import { eq } from "drizzle-orm";
 import { afterAll, describe, expect, it } from "vitest";
 
-import { claimWorkItem, markWorkItemStatus, verifyWorkItem } from "@/features/work-items/server";
+import {
+  claimWorkItem,
+  markWorkItemStatus,
+  revertWorkItemStatus,
+  verifyWorkItem,
+} from "@/features/work-items/server";
 import {
   emergencies,
   emergencyMembers,
@@ -82,14 +87,54 @@ describe("markWorkItemStatus", () => {
     expect(notices.map((n) => n.user_id)).toEqual([job.coordinator]);
   });
 
-  it("refuses someone who neither holds the claim nor coordinates", async () => {
+  // ADR 0018: anyone updates a job's status, signed in or not; duplicates stay with coordinators.
+  it("lets anyone change an open job, without an account too, and records the anonymous actor", async () => {
     const job = await claimedJob();
     expect(
-      await markWorkItemStatus(db, { ...job, userId: job.bystander, status: "closed_done", now: NOW }),
-    ).toEqual({ ok: false, code: "forbidden" });
+      await markWorkItemStatus(db, {
+        ...job,
+        userId: job.bystander,
+        status: "open_partially_done",
+        now: NOW,
+      }),
+    ).toMatchObject({ ok: true, data: { isCoordinator: false } });
+
+    const other = await claimedJob();
+    const actor = { deviceKey: "device-key-a", ipKey: "ip-key-a" };
+    expect(
+      await markWorkItemStatus(db, { ...other, userId: null, actor, status: "closed_done", now: NOW }),
+    ).toMatchObject({ ok: true, data: { isCoordinator: false } });
+    expect(await readItem(other.workItemId)).toMatchObject({ status: "closed_done" });
+    const events = await db
+      .select()
+      .from(workItemEvents)
+      .where(eq(workItemEvents.workItemId, other.workItemId));
+    expect(events.at(-1)).toMatchObject({
+      kind: "status_changed",
+      toStatus: "closed_done",
+      actorId: null,
+      deviceKey: "device-key-a",
+      ipKey: "ip-key-a",
+    });
+  });
+
+  it("keeps closed_duplicate for coordinators and refuses a stale anonymous change", async () => {
+    const job = await claimedJob();
     expect(
       await markWorkItemStatus(db, { ...job, userId: job.volunteer, status: "closed_duplicate", now: NOW }),
     ).toEqual({ ok: false, code: "forbidden" });
+    expect(
+      await markWorkItemStatus(db, { ...job, userId: null, status: "closed_duplicate", now: NOW }),
+    ).toEqual({ ok: false, code: "forbidden" });
+    expect(
+      await markWorkItemStatus(db, {
+        ...job,
+        version: job.version + 5,
+        userId: null,
+        status: "closed_done",
+        now: NOW,
+      }),
+    ).toEqual({ ok: false, code: "stale_version" });
   });
 
   it("lets a coordinator change any open job, but never over a newer version", async () => {
@@ -234,5 +279,56 @@ describe("verifyWorkItem", () => {
       verifiedBy: null,
       verifiedAt: null,
     });
+  });
+});
+
+describe("revertWorkItemStatus", () => {
+  it("lets a coordinator undo an anonymous closing, and nobody else", async () => {
+    const job = await claimedJob();
+    await markWorkItemStatus(db, { ...job, userId: null, status: "closed_no_help_wanted", now: NOW });
+    const version = job.version + 1;
+
+    expect(await revertWorkItemStatus(db, { ...job, version, userId: job.volunteer, now: NOW })).toEqual({
+      ok: false,
+      code: "forbidden",
+    });
+    expect(
+      await revertWorkItemStatus(db, { ...job, version: job.version, userId: job.coordinator, now: NOW }),
+    ).toEqual({
+      ok: false,
+      code: "stale_version",
+    });
+    expect(await revertWorkItemStatus(db, { ...job, version, userId: job.coordinator, now: NOW })).toEqual({
+      ok: true,
+      data: null,
+    });
+    expect(await readItem(job.workItemId)).toMatchObject({
+      status: "open_claimed",
+      claimedBy: job.volunteer,
+      version: version + 1,
+    });
+    const events = await db
+      .select()
+      .from(workItemEvents)
+      .where(eq(workItemEvents.workItemId, job.workItemId));
+    expect(events.at(-1)).toMatchObject({
+      kind: "status_reverted",
+      fromStatus: "closed_no_help_wanted",
+      toStatus: "open_claimed",
+      actorId: job.coordinator,
+    });
+    // An undo is not undone again: the newest event is no longer a status change.
+    expect(
+      await revertWorkItemStatus(db, { ...job, version: version + 1, userId: job.coordinator, now: NOW }),
+    ).toEqual({ ok: false, code: "nothing_to_revert" });
+  });
+
+  it("falls back to unclaimed when the undone change had given the claim back", async () => {
+    const job = await claimedJob();
+    await markWorkItemStatus(db, { ...job, userId: null, status: "open_needs_follow_up", now: NOW });
+    expect(
+      await revertWorkItemStatus(db, { ...job, version: job.version + 1, userId: job.coordinator, now: NOW }),
+    ).toEqual({ ok: true, data: null });
+    expect(await readItem(job.workItemId)).toMatchObject({ status: "open_unclaimed", claimedBy: null });
   });
 });

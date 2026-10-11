@@ -27,6 +27,7 @@ export async function WorksitePanel({
   notice,
   adminTools,
   contact,
+  fieldState,
 }: {
   slug: string;
   home: PublicWorksite;
@@ -37,11 +38,12 @@ export async function WorksitePanel({
   adminTools?: ReactNode;
   /** Full address and contact for coordinators (features/worksites); nothing for anyone else. */
   contact?: ReactNode;
+  /** People and supplies (features/worksite-updates): current state, update button, history. */
+  fieldState?: ReactNode;
 }) {
   const t = await getTranslations("worksite");
   const tMap = await getTranslations("map");
   const tStatus = await getTranslations("workItems.status");
-  const tUpdates = await getTranslations("worksiteUpdates.form");
   const format = await getFormatter();
   const tFacts = await getTranslations("worksite.facts");
   const state = LEVEL_STATE[home.level];
@@ -137,7 +139,9 @@ export async function WorksitePanel({
         </section>
       ) : null}
 
-      {/* Members see the same jobs with their actions (take, arrive, close); everyone else, this list. */}
+      {fieldState}
+
+      {/* The jobs with what the viewer can do; a home without jobs keeps this list. */}
       <WorksiteJobs slug={slug} emergencyId={home.emergencyId} worksiteId={home.id}>
         <section className="flex flex-col gap-3">
           <h2 className="text-subheading font-medium text-ink">{t("work")}</h2>
@@ -171,9 +175,6 @@ export async function WorksitePanel({
 
       <div className="flex flex-wrap gap-3">
         <ShareButton title={title} />
-        <Button variant="secondary" asChild>
-          <Link href={`/emergencies/${slug}/worksites/${home.id}/updates/new`}>{tUpdates("openLink")}</Link>
-        </Button>
       </div>
     </GlassPanel>
   );

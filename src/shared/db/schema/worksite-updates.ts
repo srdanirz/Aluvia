@@ -34,6 +34,13 @@ export const worksiteUpdates = pgTable(
     peoplePresent: integer("people_present").notNull(),
     // Null for an anonymous report; anonymized when the emergency's personal data is purged.
     reportedBy: uuid("reported_by").references(() => users.id, { onDelete: "set null" }),
+    // The live update the reporter was looking at (null: none). A write based on an older one is
+    // refused as stale_version, so two counts never overwrite each other silently.
+    previousUpdateId: uuid("previous_update_id"),
+    // Anonymous actor (ADR 0018): HMACs of the device cookie and of the IP, never the values. They
+    // let a coordinator see that one source sent many updates; nulled by the purge.
+    deviceKey: text("device_key"),
+    ipKey: text("ip_key"),
     // A wrong update is cancelled, not edited or deleted, so the history stays readable.
     cancelledAt: timestamp("cancelled_at", { withTimezone: true }),
     cancelledBy: uuid("cancelled_by").references(() => users.id, { onDelete: "set null" }),
@@ -53,6 +60,8 @@ export const worksiteUpdates = pgTable(
     index("worksite_updates_worksite_id_created_at_idx")
       .on(t.worksiteId, t.createdAt.desc())
       .where(sql`${t.cancelledAt} IS NULL`),
+    // Serves a home's history for coordinators, cancelled updates included.
+    index("worksite_updates_worksite_id_history_idx").on(t.worksiteId, t.createdAt.desc(), t.id.desc()),
   ],
 );
 

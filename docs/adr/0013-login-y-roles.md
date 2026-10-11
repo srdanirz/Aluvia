@@ -2,6 +2,7 @@
 
 - **Estado:** propuesta, se cierra con el PR de #16
 - **Fecha:** 2026-10-10
+- **Reemplazada en parte por:** ADR 0018 (cualquiera actualiza una casa; la asignación ya no da permiso)
 
 ## Contexto
 
@@ -46,7 +47,7 @@ Tomar un trabajo pide solo nombre y teléfono, una vez (DESIGN.md, "Primero: sin
 
 ### Autorización para las demás features
 
-`@/shared/auth` exporta `getCurrentUser`, `requireUser`, `getEmergencyAccess`, `findEmergencyAccess` y los predicados `isMember`, `isCoordinator`, `canClaimWorkItems`, `canViewContacts` y `canUpdateWorksite`. Cada Server Action y route handler los llama antes de leer o escribir.
+`@/shared/auth` exporta `getCurrentUser`, `requireUser`, `getEmergencyAccess`, `findEmergencyAccess` y los predicados `isMember`, `isCoordinator`, `canClaimWorkItems` y `canViewContacts`. Cada Server Action y route handler los llama antes de leer o escribir.
 
 ## Alternativas descartadas
 

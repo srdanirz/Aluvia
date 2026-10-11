@@ -18,7 +18,7 @@ import {
   listFieldVolunteersForWorksite,
   listPendingMemberRequests,
 } from "@/features/members/server/queries";
-import { canUpdateWorksite, findEmergencyAccess } from "@/shared/auth/access";
+import { canViewContacts, findEmergencyAccess } from "@/shared/auth/access";
 import { sqlArray } from "@/shared/db/sql-array";
 import { disasterTypes, emergencies, workItems, workTypes, worksites } from "@/shared/db/schema";
 
@@ -98,6 +98,12 @@ beforeAll(async () => {
 });
 
 /** A field volunteer of `emergency`, approved by `admin`. */
+async function isAssigned(userId: string, worksiteId: string) {
+  const rows = await db.execute(sql`
+    SELECT 1 FROM worksite_assignments WHERE user_id = ${userId} AND worksite_id = ${worksiteId}`);
+  return rows.length > 0;
+}
+
 async function createFieldVolunteer(emergencyId = emergency) {
   const userId = await createUser();
   await requestMemberRole(db, { userId, emergencyId, role: "field_volunteer" });
@@ -308,7 +314,8 @@ describe("invitations", () => {
       SELECT role, approved_by FROM emergency_members WHERE emergency_id = ${emergency} AND user_id = ${userId}`);
     expect(member).toEqual({ role: "field_volunteer", approved_by: admin });
     const access = await findEmergencyAccess(db, userId, emergency);
-    expect(await canUpdateWorksite(db, access, home)).toBe(true);
+    expect(access.role).toBe("field_volunteer");
+    expect(await isAssigned(userId, home)).toBe(true);
   });
 
   it("grants a role only while its creator is still an admin", async () => {
@@ -366,8 +373,7 @@ describe("invitations", () => {
     const home = await createWorksite(emergency);
     const { token: link } = await token({ role: "field_volunteer", maxUses: 1, worksiteIds: [home] });
     expect(await acceptInvitation(db, { token: link, userId: fieldVolunteer })).toMatchObject({ ok: true });
-    const access = await findEmergencyAccess(db, fieldVolunteer, emergency);
-    expect(await canUpdateWorksite(db, access, home)).toBe(true);
+    expect(await isAssigned(fieldVolunteer, home)).toBe(true);
   });
 
   it("stops working once revoked or expired", async () => {
@@ -452,10 +458,9 @@ describe("home assignments and access", () => {
     });
   });
 
-  it("decides who may update a home and who may see contacts", async () => {
+  // Updating a home is open to anyone (ADR 0018); the roles still decide who sees contacts.
+  it("decides who may see contacts", async () => {
     const home = await createWorksite(emergency);
-    const otherHome = await createWorksite(emergency);
-    const foreignHome = await createWorksite(otherEmergency);
     const fieldVolunteer = await createFieldVolunteer();
     await assignWorksite(db, admin, { emergencyId: emergency, worksiteId: home, userId: fieldVolunteer });
     const coordinator = await createUser();
@@ -469,21 +474,13 @@ describe("home assignments and access", () => {
         findEmergencyAccess(db, userId, emergency),
       ),
     );
-    if (!field || !coord || !vol || !adminAccess) throw new Error("access not loaded");
-    const can = (access: typeof field, worksiteId: string) => canUpdateWorksite(db, access, worksiteId);
-
-    expect(await Promise.all([can(field, home), can(field, otherHome), can(field, foreignHome)])).toEqual([
+    expect([field, coord, vol, adminAccess].map((access) => canViewContacts(access ?? null))).toEqual([
+      false,
       true,
       false,
       false,
     ]);
-    expect(await Promise.all([can(coord, home), can(coord, otherHome), can(coord, foreignHome)])).toEqual([
-      true,
-      true,
-      false,
-    ]);
-    expect(await Promise.all([can(vol, home), can(adminAccess, home)])).toEqual([false, false]);
-    expect(adminAccess.isPlatformAdmin).toBe(true);
+    expect(adminAccess?.isPlatformAdmin).toBe(true);
   });
 });
 

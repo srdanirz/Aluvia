@@ -10,9 +10,9 @@ import {
 import { db } from "@/shared/db/client";
 
 import { type EmergencyRef, findEmergencyBySlug } from "@/features/emergencies/server";
-import { listCurrentWorksiteUpdates } from "@/features/worksite-updates/server";
+import { listCurrentWorksiteUpdates, listSupplyNames } from "@/features/worksite-updates/server";
 
-import { listMyWorkItems, listSupplyNames, listWorksiteJobs, listWorksitesToHelp } from "./queries";
+import { listMyWorkItems, listWorksiteJobs, listWorksitesToHelp } from "./queries";
 
 /**
  * Everything a work screen shows, fetched in one place so the view appears at once (DESIGN.md,
@@ -90,7 +90,7 @@ export async function loadWorksiteJobsView({
   const user = await getCurrentUser();
   const access = user ? await getEmergencyAccess(emergencyId) : null;
   const viewer = viewerOf(access);
-  if (!user || viewer === "anonymous" || viewer === "guest") return { viewer, jobs: [] };
-  const jobs = await listWorksiteJobs(db, { emergencyId, worksiteId, userId: user.id, locale });
+  // Everyone gets the jobs: anyone may update their status (ADR 0018); taking one still needs to join.
+  const jobs = await listWorksiteJobs(db, { emergencyId, worksiteId, userId: user?.id ?? null, locale });
   return { viewer, jobs };
 }

@@ -24,6 +24,7 @@ export const markWorkItemStatusSchema = workItemRef.extend({
   version: z.int().nonnegative(),
 });
 export const verifyWorkItemSchema = workItemRef.extend({ version: z.int().nonnegative() });
+export const revertWorkItemStatusSchema = verifyWorkItemSchema;
 
 export type ClaimFailure = "not_found" | "not_member" | "not_open" | "hazard_unreviewed" | "already_claimed";
 /** Renew, arrive and release only work on the caller's own live claim. */

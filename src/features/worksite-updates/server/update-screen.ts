@@ -1,18 +1,12 @@
 import "server-only";
 
-import { canUpdateWorksite, getEmergencyAccess } from "@/shared/auth";
-import { db } from "@/shared/db/client";
-
 import { findUpdateForm, type UpdateForm } from "./queries";
 
-/** The update screen's data and whether the signed-in person may send it; null if the home is not there. */
+/** The update screen's data; null if the home is not in an open emergency. Anyone may send it (ADR 0018). */
 export async function getUpdateScreen(input: {
   slug: string;
   worksiteId: string;
   locale: string;
-}): Promise<{ form: UpdateForm; canUpdate: boolean } | null> {
-  const form = await findUpdateForm(input);
-  if (!form) return null;
-  const access = await getEmergencyAccess(form.emergency.id);
-  return { form, canUpdate: await canUpdateWorksite(db, access, input.worksiteId) };
+}): Promise<UpdateForm | null> {
+  return findUpdateForm(input);
 }

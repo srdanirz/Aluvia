@@ -13,6 +13,8 @@ import type { Executor } from "@/shared/db/types";
  */
 
 export type CurrentWorksiteUpdate = {
+  /** Sent back as `previousUpdateId`: the version check of the next update (ADR 0018). */
+  id: string;
   worksiteId: string;
   peoplePresent: number;
   missingSupplyKeys: string[];
@@ -27,6 +29,7 @@ export type UpdateForm = {
 };
 
 type CurrentRow = {
+  id: string;
   worksite_id: string;
   people_present: number;
   missing: string[];
@@ -35,6 +38,7 @@ type CurrentRow = {
 
 const currentUpdates = (worksiteIds: ReturnType<typeof sqlArray>) => sql`
   SELECT DISTINCT ON (u.worksite_id)
+    u.id,
     u.worksite_id,
     u.people_present,
     coalesce(
@@ -45,11 +49,12 @@ const currentUpdates = (worksiteIds: ReturnType<typeof sqlArray>) => sql`
     u.created_at
   FROM worksite_updates u
   WHERE u.worksite_id = ANY(${worksiteIds}) AND u.cancelled_at IS NULL
-  ORDER BY u.worksite_id, u.created_at DESC
+  ORDER BY u.worksite_id, u.created_at DESC, u.id DESC
 `;
 
 function toCurrent(row: CurrentRow): CurrentWorksiteUpdate {
   return {
+    id: row.id,
     worksiteId: row.worksite_id,
     peoplePresent: row.people_present,
     missingSupplyKeys: row.missing,
@@ -119,4 +124,16 @@ export async function findUpdateTarget(
     WHERE e.slug = ${slug} AND e.status = 'open'
   `);
   return row ? { emergencyId: row.id } : null;
+}
+
+/** The emergency's supply names in the viewer's language, by key; to show what a home is missing. */
+export async function listSupplyNames(
+  database: Executor,
+  { emergencyId, locale }: { emergencyId: string; locale: string },
+): Promise<Record<string, string>> {
+  const rows = await database.execute<{ key: string; name: string }>(sql`
+    SELECT st.key, coalesce(st.name ->> ${locale}, st.name ->> e.default_locale, st.key) AS name
+    FROM supply_types st JOIN emergencies e ON e.id = st.emergency_id
+    WHERE st.emergency_id = ${emergencyId}::uuid`);
+  return Object.fromEntries(rows.map((row) => [row.key, row.name]));
 }

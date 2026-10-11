@@ -2,7 +2,6 @@
 // "@/shared/auth"; every Server Action and route handler checks access here before touching data.
 export {
   canClaimWorkItems,
-  canUpdateWorksite,
   canViewContacts,
   type EmergencyAccess,
   findEmergencyAccess,

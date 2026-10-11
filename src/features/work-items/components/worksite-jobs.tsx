@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getFormatter, getTranslations } from "next-intl/server";
 import * as rootParams from "next/root-params";
 import type { ReactNode } from "react";
 
@@ -7,12 +7,13 @@ import { Card, Chip, WorkStatusChip } from "@/shared/ui";
 import { loadWorksiteJobsView } from "../server";
 import { ClaimButton } from "./claim-button";
 import { CoordinatorJobActions } from "./coordinator-job-actions";
+import { JobStatusActions } from "./job-status-actions";
 import { MyWorkCard } from "./my-work-card";
 
 /**
- * A home's jobs with the member's actions (take, arrive, close; verify for coordinators). Anyone
- * else, or a home without jobs, gets `children`: the public list the page already had. Mounted by
- * features/map's WorksitePanel.
+ * A home's jobs with what the viewer can do: anyone updates a status (ADR 0018), a member takes a
+ * job and works the ones they hold, a coordinator verifies, marks duplicates and undoes the last
+ * change. A home without jobs gets `children`. Mounted by features/map's WorksitePanel.
  */
 export async function WorksiteJobs({
   slug,
@@ -31,7 +32,9 @@ export async function WorksiteJobs({
   const t = await getTranslations("work.jobs");
   const tStatus = await getTranslations("workItems.status");
   const tHazard = await getTranslations("work.hazard");
+  const format = await getFormatter();
   const now = new Date();
+  const canClaim = viewer === "member" || viewer === "coordinator";
 
   return (
     <section className="flex flex-col gap-3">
@@ -66,8 +69,14 @@ export async function WorksiteJobs({
                     </WorkStatusChip>
                   </div>
                 </div>
-                {isOpen && !job.isClaimed && !job.isBlocked ? (
+                <p className="text-caption text-ink-muted">
+                  {t("updated", { relative: format.relativeTime(job.updatedAt, now) })}
+                </p>
+                {canClaim && isOpen && !job.isClaimed && !job.isBlocked ? (
                   <ClaimButton emergencyId={emergencyId} workItemId={job.id} label={t("claim")} />
+                ) : null}
+                {isOpen ? (
+                  <JobStatusActions emergencyId={emergencyId} workItemId={job.id} version={job.version} />
                 ) : null}
                 {viewer === "coordinator" ? (
                   <CoordinatorJobActions
@@ -76,6 +85,7 @@ export async function WorksiteJobs({
                     version={job.version}
                     isVerified={job.isVerified}
                     isOpen={isOpen}
+                    isRevertible={job.isRevertible}
                   />
                 ) : null}
               </Card>
