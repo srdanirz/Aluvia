@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="280" viewBox="0 0 1200 280" role="img" aria-label="Cómo funciona: reporta, ayuda, coordina">
+  <defs>
+    <filter id="blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="50"/></filter>
+    <clipPath id="frame"><rect width="1200" height="280" rx="28"/></clipPath>
+  </defs>
+  <g clip-path="url(#frame)">
+    <rect width="1200" height="280" fill="#f5f6fb"/>
+    <g filter="url(#blur)" opacity="0.55">
+      <circle cx="200" cy="200" r="150" fill="#bcd3df"><animate attributeName="cx" values="200;300;200" dur="14s" repeatCount="indefinite"/></circle>
+      <circle cx="600" cy="60" r="140" fill="#c4d3b9"><animate attributeName="cy" values="60;120;60" dur="12s" repeatCount="indefinite"/></circle>
+      <circle cx="1000" cy="220" r="150" fill="#dfc9ad"><animate attributeName="cx" values="1000;900;1000" dur="16s" repeatCount="indefinite"/></circle>
+    </g>
+    <g>
+      <rect x="40" y="40" width="352" height="200" rx="24" fill="#ffffff" fill-opacity="0.72"/>
+      <circle cx="100" cy="98" r="28" fill="#c8372d">
+        <animate attributeName="r" values="28;31;28" dur="3.6s" begin="0.0s" repeatCount="indefinite"/>
+      </circle>
+      <g transform="translate(86 84) scale(1.1667)" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></g>
+      <text x="144" y="106" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="24" font-weight="600" fill="#0a0b10">1 · Reporta</text>
+      <text x="72" y="170" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="17" fill="#3d3f52">Una casa en menos de 30 segundos,</text>
+      <text x="72" y="196" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="17" fill="#3d3f52">sin cuenta. Dirección, qué necesita.</text>
+    </g>
+    <g>
+      <rect x="424" y="40" width="352" height="200" rx="24" fill="#ffffff" fill-opacity="0.72"/>
+      <circle cx="484" cy="98" r="28" fill="#c96a0a">
+        <animate attributeName="r" values="28;31;28" dur="3.6s" begin="1.2s" repeatCount="indefinite"/>
+      </circle>
+      <g transform="translate(470 84) scale(1.1667)" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 14h2a2 2 0 0 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 16"/><path d="m14.45 13.39 5.05-4.694C20.196 8 21 6.85 21 5.75a2.75 2.75 0 0 0-4.797-1.837.276.276 0 0 1-.406 0A2.75 2.75 0 0 0 11 5.75c0 1.2.802 2.248 1.5 2.946L16 11.95"/><path d="m2 15 6 6"/><path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a1 1 0 0 0-2.75-2.91"/></g>
+      <text x="528" y="106" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="24" font-weight="600" fill="#0a0b10">2 · Ayuda</text>
+      <text x="456" y="170" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="17" fill="#3d3f52">Voy para allá toma la casa entera;</text>
+      <text x="456" y="196" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="17" fill="#3d3f52">Llegué y Terminé cierran el ciclo.</text>
+    </g>
+    <g>
+      <rect x="808" y="40" width="352" height="200" rx="24" fill="#ffffff" fill-opacity="0.72"/>
+      <circle cx="868" cy="98" r="28" fill="#2f7d3b">
+        <animate attributeName="r" values="28;31;28" dur="3.6s" begin="2.4s" repeatCount="indefinite"/>
+      </circle>
+      <g transform="translate(854 84) scale(1.1667)" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/></g>
+      <text x="912" y="106" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="24" font-weight="600" fill="#0a0b10">3 · Coordina</text>
+      <text x="840" y="170" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="17" fill="#3d3f52">Zonas, centros de acopio, insumos</text>
+      <text x="840" y="196" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="17" fill="#3d3f52">y quién atiende cada casa.</text>
+    </g>
+  </g>
+</svg>
