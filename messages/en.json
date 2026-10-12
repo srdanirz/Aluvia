@@ -978,6 +978,8 @@
     "phoneLabel": "Public phone of the place (optional)",
     "acceptsLabel": "What it takes",
     "acceptsEmpty": "This emergency has no supplies in its catalog yet.",
+    "surplusLabel": "Do not bring (spare)",
+    "surplusHint": "What the point has too much of. Shown in Reports so nobody brings it.",
     "statusLabel": "Status",
     "statuses": {
       "receiving": "Receiving",
@@ -1039,6 +1041,14 @@
       "remove": "Remove as coordinator",
       "more": "Show more"
     }
+  },
+  "supplies": {
+    "title": "Supplies",
+    "lead": "Bring what is missing, not what is spare. Neighbors mark it at each home and collection points mark what they have too much of.",
+    "missingTitle": "Most missing",
+    "missingAt": "{count, plural, one {at # home} other {at # homes}}",
+    "surplusTitle": "Do not bring",
+    "surplusAt": "{count, plural, one {spare at # point} other {spare at # points}}"
   },
   "worksiteMedia": {
     "picker": {

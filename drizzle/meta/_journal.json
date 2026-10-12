@@ -169,6 +169,13 @@
       "when": 1791730254693,
       "tag": "0023_address_key_thousands",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1791769187702,
+      "tag": "0024_supplies_surplus",
+      "breakpoints": true
     }
   ]
 }

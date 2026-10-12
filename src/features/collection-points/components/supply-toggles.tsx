@@ -7,12 +7,16 @@ import { ToggleTile } from "@/shared/ui";
 
 import type { SupplyOption } from "../server/collection-points";
 
-/** What a point takes, picked by tapping the emergency's active supplies. */
+/** A set of the emergency's active supplies picked by tapping: what a point takes, or has too much of. */
 export function SupplyToggles({
+  label,
+  hint,
   supplyTypes,
   value,
   onChange,
 }: {
+  label: string;
+  hint?: string;
   supplyTypes: SupplyOption[];
   value: string[];
   onChange: (keys: string[]) => void;
@@ -23,8 +27,9 @@ export function SupplyToggles({
   return (
     <div role="group" aria-labelledby={labelId} className="flex flex-col gap-2">
       <p id={labelId} className="text-body-sm font-medium text-ink">
-        {t("acceptsLabel")}
+        {label}
       </p>
+      {hint ? <p className="text-caption text-ink-muted">{hint}</p> : null}
       {active.length === 0 ? (
         <p className="text-body-sm text-ink-soft">{t("acceptsEmpty")}</p>
       ) : (

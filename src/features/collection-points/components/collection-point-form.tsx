@@ -70,7 +70,12 @@ export function CollectionPointForm({
               onChange={(event) => setOpeningHours(event.target.value)}
             />
           </Field>
-          <SupplyToggles supplyTypes={supplyTypes} value={accepts} onChange={setAccepts} />
+          <SupplyToggles
+            label={t("acceptsLabel")}
+            supplyTypes={supplyTypes}
+            value={accepts}
+            onChange={setAccepts}
+          />
           <Field id="collection-point-address" label={t("addressLabel")}>
             <Input value={address} maxLength={200} onChange={(event) => setAddress(event.target.value)} />
           </Field>

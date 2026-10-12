@@ -1,0 +1,3 @@
+ALTER TABLE "collection_points" ADD COLUMN "surplus" text[] DEFAULT '{}'::text[] NOT NULL;--> statement-breakpoint
+CREATE INDEX "worksite_updates_emergency_current_idx" ON "worksite_updates" USING btree ("emergency_id","worksite_id","created_at" DESC NULLS LAST,"id" DESC NULLS LAST) WHERE "worksite_updates"."cancelled_at" IS NULL;--> statement-breakpoint
+ALTER TABLE "collection_points" ADD CONSTRAINT "collection_points_surplus_check" CHECK (cardinality("collection_points"."surplus") <= 40);

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 
+import { SupplyBalance } from "@/features/supplies/components";
 import { ReportedList } from "@/features/worksites/components";
 import { reportsQuerySchema } from "@/features/worksites/schemas";
 import { getReportsScreen } from "@/features/worksites/server";
@@ -32,6 +33,8 @@ export default async function ReportsPage({
         <h1 className="text-heading text-balance text-ink">{t("title")}</h1>
         <p className="text-body text-ink-soft">{t("lead")}</p>
       </header>
+      {/* Only the first page: further pages are for scrolling homes, not repeating the summary. */}
+      {cursor ? null : <SupplyBalance balance={screen.supplies} />}
       <section className="flex flex-col gap-3">
         <ReportedList slug={slug} homes={screen.page.items} timeZone={screen.timeZone} now={now} />
         {screen.page.nextCursor ? (
