@@ -10,6 +10,7 @@ export { DescriptionList } from "./description-list";
 export { Disclosure } from "./disclosure";
 export { Field } from "./field";
 export { FileButton } from "./file-button";
+export { FileDrop } from "./file-drop";
 export { FloatingNav, type FloatingNavItem } from "./floating-nav";
 export { FormError } from "./form-error";
 export { GlassPanel } from "./glass-panel";

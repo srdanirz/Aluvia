@@ -36,6 +36,7 @@ Marca: **negro y blanco** para las acciones, y tres familias del territorio, pro
 | Token | Claro | Oscuro | Uso |
 |---|---|---|---|
 | `canvas` | `#F5F6FB` | `#0B0C12` | Fondo de página, bajo la aurora. |
+| `scrim` | `#0B0C12` | `#0B0C12` | Detrás de una foto abierta entera: oscuro en los dos temas. |
 | `surface` | `#FFFFFF` | `#16171F` | Tarjetas. |
 | `surface-muted` | `#E9EBF5` | `#1E2029` | Fondos de bloque dentro de una tarjeta; skeletons. |
 | `ink` | `#0A0B10` | `#F2F3F8` | Texto principal y texto de chips. |

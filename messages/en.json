@@ -17,6 +17,7 @@
     "dark": "Dark"
   },
   "devUi": {
+    "close": "Close",
     "title": "<highlight>Design system</highlight> catalog",
     "lead": "Every piece with its variants. Check them in light and dark, and at 375, 768, 1024 and 1440 px.",
     "buttons": "Buttons",
@@ -79,6 +80,7 @@
     "fileLabel": "Upload file",
     "fileHint": "Opens the system file picker.",
     "filePick": "Choose file",
+    "fileDropHint": "Drag or paste files here · {count, plural, =0 {none yet} one {# file} other {# files}}",
     "formError": "It could not be saved. Try again.",
     "facts": "Facts",
     "factZone": "Time zone",
@@ -1043,12 +1045,15 @@
       "title": "Photos or video",
       "lead": "Optional. Up to 5 photos and one 30-second video.",
       "warning": "Before choosing: no faces, children, license plates or documents. Photos show on the home's public page.",
+      "dropHint": "You can also drag them here or paste them.",
+      "close": "Close",
       "add": "Add photos or video",
       "preparing": "Preparing",
       "remove": "Remove",
       "itemAlt": "Chosen photo {position}",
       "errors": {
         "media_type_not_allowed": "That file is not a photo or video we can use.",
+        "heic_unsupported": "This browser cannot open iPhone HEIC photos. Upload it from the phone or export it as JPG.",
         "media_too_large": "The video is over 50 MB. Record a shorter one.",
         "video_too_long": "The video is longer than 30 seconds. Record a shorter one.",
         "media_limit_reached": "There are already 5 photos and a video. Remove one to add another."
@@ -1065,6 +1070,7 @@
     },
     "gallery": {
       "title": "Photos and videos",
+      "close": "Close",
       "empty": "No photos of this home yet.",
       "itemAlt": "Photo {position} of the home",
       "hidden": "Hidden",

@@ -12,7 +12,14 @@ export type PickedMedia = {
 };
 
 export type PickError =
-  "media_type_not_allowed" | "media_too_large" | "video_too_long" | "media_limit_reached";
+  | "media_type_not_allowed"
+  | "heic_unsupported"
+  | "media_too_large"
+  | "video_too_long"
+  | "media_limit_reached";
+
+// iPhone photos. Safari decodes them; most other desktop browsers cannot, and the server cannot.
+const isHeic = (file: File) => /^image\/hei[cf]/.test(file.type) || /\.hei[cf]$/i.test(file.name);
 
 // Longest side sent from the phone: plenty for the 1600 px web copy, a fraction of a 12 MP photo
 // on a slow link.
@@ -78,7 +85,7 @@ export async function prepareFiles(
       if (!kind) return "media_type_not_allowed";
       if (kind === "image") {
         const blob = await shrinkImage(file);
-        if (!blob) return "media_type_not_allowed";
+        if (!blob) return isHeic(file) ? "heic_unsupported" : "media_type_not_allowed";
         if (blob.size > MEDIA_LIMITS.image.maxBytes) return "media_too_large";
         return {
           id: crypto.randomUUID(),

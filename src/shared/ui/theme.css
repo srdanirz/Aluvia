@@ -21,6 +21,8 @@
 /* Light palette. Brand: black and white, with the rain, earth and moss families (docs/DESIGN.md). */
 :root {
   --canvas: #f5f6fb;
+  /* Behind a photo opened whole: dark in every theme, photos read best on it. */
+  --scrim: #0b0c12;
   --surface: #ffffff;
   --surface-muted: #e9ebf5;
   --ink: #0a0b10;
@@ -169,6 +171,7 @@
   --color-transparent: transparent;
   --color-current: currentColor;
   --color-canvas: var(--canvas);
+  --color-scrim: var(--scrim);
   --color-surface: var(--surface);
   --color-surface-muted: var(--surface-muted);
   --color-ink: var(--ink);

@@ -37,6 +37,7 @@ export async function WorksiteGallery({
     <Section title={t("title")}>
       {items.length > 0 ? (
         <MediaGallery
+          closeLabel={t("close")}
           items={items.map((item, index) => ({
             id: item.id,
             kind: item.kind,

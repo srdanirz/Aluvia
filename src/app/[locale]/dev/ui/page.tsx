@@ -27,7 +27,6 @@ import {
   CopyField,
   DescriptionList,
   Field,
-  FileButton,
   FloatingNav,
   FormError,
   GlassPanel,
@@ -45,6 +44,7 @@ import {
 } from "@/shared/ui";
 
 import { ReportDemo } from "./report-demo";
+import { FileDropDemo } from "./file-drop-demo";
 import { SegmentedDemo } from "./segmented-demo";
 
 // Living catalog of shared/ui: every primitive and variant on one page, for review in both themes.
@@ -164,6 +164,7 @@ export default async function DesignSystemPage() {
 
         <Section title={t("media")}>
           <MediaGallery
+            closeLabel={t("close")}
             items={[
               { id: "a", kind: "image", src: "/icon.svg", alt: t("mediaAlt"), caption: t("mediaCaption") },
               {
@@ -250,7 +251,7 @@ export default async function DesignSystemPage() {
               </Select>
             </Field>
             <Field id="file" label={t("fileLabel")} hint={t("fileHint")}>
-              <FileButton label={t("filePick")} className="self-start" />
+              <FileDropDemo />
             </Field>
             <CopyField value={t("copyValue")} copyLabel={t("copy")} copiedLabel={t("copied")} />
             <FormError>{t("formError")}</FormError>
