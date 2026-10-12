@@ -8,10 +8,10 @@ import { Button, ButtonGroup, Card, CardTitle, FormError, Spinner, WorkStatusChi
 
 import type { MarkableStatus } from "../schemas";
 import {
-  markWorkItemArrivedAction,
   markWorkItemStatusAction,
-  releaseWorkItemAction,
-  renewWorkItemClaimAction,
+  markWorksiteArrivedAction,
+  releaseWorksiteAction,
+  renewWorksiteClaimAction,
 } from "../server/actions";
 import { useAction } from "@/shared/lib/use-action";
 
@@ -26,18 +26,19 @@ type MyWork = {
 };
 
 /**
- * A job the volunteer holds (issues #12, #13). On the way: Llegué, Sigo en camino, Ya no voy.
- * On site: Terminé, Avancé, Necesita más ayuda, and the two closings found on arrival.
+ * A home the volunteer took (issues #12, #13): its jobs listed, one set of buttons for all of them.
+ * On the way: Llegué, Sigo en camino, Ya no voy. On site: Terminé, Avancé, Necesita más ayuda, and
+ * the two closings found on arrival. The hold shown is the one lapsing first.
  */
 export function MyWorkCard({
   slug,
   emergencyId,
-  work,
+  home,
   now,
 }: {
   slug: string;
   emergencyId: string;
-  work: MyWork;
+  home: { worksiteId: string; jobs: MyWork[] };
   now: Date;
 }) {
   const t = useTranslations("work.mine");
@@ -45,23 +46,33 @@ export function MyWorkCard({
   const tStatus = useTranslations("workItems.status");
   const format = useFormatter();
   const { run, isPending, error } = useAction();
-  const ref = { emergencyId, workItemId: work.id };
+  const ref = { emergencyId, worksiteId: home.worksiteId };
+  const items = home.jobs.map((job) => ({ workItemId: job.id, version: job.version }));
   const mark = (status: MarkableStatus) =>
-    run(() => markWorkItemStatusAction({ ...ref, status, version: work.version }));
-  const isOnSite = work.arrivedAt !== null;
+    run(() => markWorkItemStatusAction({ emergencyId, items, status }));
+  // On site once any job says so: arriving marks every job of the home at once.
+  const arrivedAt = home.jobs.find((job) => job.arrivedAt)?.arrivedAt ?? null;
+  const expiresAt = home.jobs
+    .map((job) => job.expiresAt)
+    .reduce<Date | null>((first, at) => (at && (!first || at < first) ? at : first), null);
+  const isOnSite = arrivedAt !== null;
 
   return (
     <Card className="gap-3">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <CardTitle>{work.workType}</CardTitle>
-        <WorkStatusChip status={work.status}>{tStatus(work.status)}</WorkStatusChip>
-      </div>
+      <ul className="flex flex-col gap-2">
+        {home.jobs.map((job) => (
+          <li key={job.id} className="flex flex-wrap items-center justify-between gap-2">
+            <CardTitle>{job.workType}</CardTitle>
+            <WorkStatusChip status={job.status}>{tStatus(job.status)}</WorkStatusChip>
+          </li>
+        ))}
+      </ul>
       <p className="text-body-sm text-ink-muted">
-        {work.arrivedAt
-          ? t("arrived", { relative: format.relativeTime(work.arrivedAt, now) })
-          : work.expiresAt && work.expiresAt > now
-            ? t("expiresIn", { relative: format.relativeTime(work.expiresAt, now) })
-            : work.expiresAt
+        {arrivedAt
+          ? t("arrived", { relative: format.relativeTime(arrivedAt, now) })
+          : expiresAt && expiresAt > now
+            ? t("expiresIn", { relative: format.relativeTime(expiresAt, now) })
+            : expiresAt
               ? t("expired")
               : null}
       </p>
@@ -119,7 +130,7 @@ export function MyWorkCard({
               size="compact"
               className="flex-1"
               disabled={isPending}
-              onClick={() => run(() => releaseWorkItemAction(ref))}
+              onClick={() => run(() => releaseWorksiteAction(ref))}
             >
               {t("release")}
             </Button>
@@ -131,7 +142,7 @@ export function MyWorkCard({
             size="compact"
             className="flex-1"
             disabled={isPending}
-            onClick={() => run(() => markWorkItemArrivedAction(ref))}
+            onClick={() => run(() => markWorksiteArrivedAction(ref))}
           >
             {t("arrive")}
           </Button>
@@ -140,7 +151,7 @@ export function MyWorkCard({
             size="compact"
             className="flex-1"
             disabled={isPending}
-            onClick={() => run(() => renewWorkItemClaimAction(ref))}
+            onClick={() => run(() => renewWorksiteClaimAction(ref))}
           >
             {t("renew")}
           </Button>
@@ -149,7 +160,7 @@ export function MyWorkCard({
             size="compact"
             className="flex-1"
             disabled={isPending}
-            onClick={() => run(() => releaseWorkItemAction(ref))}
+            onClick={() => run(() => releaseWorksiteAction(ref))}
           >
             {t("release")}
           </Button>
@@ -157,7 +168,7 @@ export function MyWorkCard({
       )}
       <div className="flex items-center justify-between gap-2">
         <Button variant="ghost" asChild>
-          <Link href={`/emergencies/${slug}/worksites/${work.worksiteId}`}>{t("openHome")}</Link>
+          <Link href={`/emergencies/${slug}/worksites/${home.worksiteId}`}>{t("openHome")}</Link>
         </Button>
         {isPending ? <Spinner label={tWork("saving")} /> : null}
       </div>

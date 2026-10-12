@@ -10,13 +10,13 @@ import { db } from "@/shared/db/client";
 
 import {
   type ClaimFailure,
-  claimWorkItemSchema,
+  claimWorksiteSchema,
   type MarkStatusFailure,
   markWorkItemStatusSchema,
   type OwnClaimFailure,
   revertWorkItemStatusSchema,
   verifyWorkItemSchema,
-  workItemClaimSchema,
+  worksiteClaimSchema,
 } from "../schemas";
 import { claimWorkItem, markWorkItemArrived, releaseWorkItem, renewWorkItemClaim } from "./claims";
 import { workItemActions } from "./metrics";
@@ -48,17 +48,16 @@ function settle<Code extends string>(action: string, result: { ok: true } | { ok
   return result.ok ? ({ ok: true } as const) : ({ ok: false, code: result.code } as const);
 }
 
-export async function claimWorkItemAction(input: unknown): Promise<ActionResult<ClaimFailure>> {
-  const auth = await authorize(claimWorkItemSchema, input);
+/** "Voy para allá" for a home: takes every free job of it at once. */
+export async function claimWorksiteAction(input: unknown): Promise<ActionResult<ClaimFailure>> {
+  const auth = await authorize(claimWorksiteSchema, input);
   if (!auth.ok) return settle("claim", auth);
-  const { emergencyId, workItemId } = auth.input;
-  const result = await claimWorkItem(db, { emergencyId, workItemId, userId: auth.userId });
+  const { emergencyId, worksiteId } = auth.input;
+  const result = await claimWorkItem(db, { emergencyId, worksiteId, userId: auth.userId });
   if (result.ok) {
-    trackServerEvent(
-      "work_item_claimed",
-      { emergencyId, workTypeKey: result.data.workTypeKey },
-      { distinctId: auth.userId },
-    );
+    for (const workTypeKey of result.data.workTypeKeys) {
+      trackServerEvent("work_item_claimed", { emergencyId, workTypeKey }, { distinctId: auth.userId });
+    }
   } else if (result.code !== "not_found") {
     trackServerEvent(
       "work_item_claim_rejected",
@@ -69,43 +68,33 @@ export async function claimWorkItemAction(input: unknown): Promise<ActionResult<
   return settle("claim", result);
 }
 
-export async function renewWorkItemClaimAction(input: unknown): Promise<ActionResult<OwnClaimFailure>> {
-  const auth = await authorize(workItemClaimSchema, input);
+export async function renewWorksiteClaimAction(input: unknown): Promise<ActionResult<OwnClaimFailure>> {
+  const auth = await authorize(worksiteClaimSchema, input);
   if (!auth.ok) return settle("renew", auth);
-  const { emergencyId, workItemId } = auth.input;
-  const result = await renewWorkItemClaim(db, {
-    emergencyId,
-    workItemId,
-    userId: auth.userId,
-  });
+  const { emergencyId, worksiteId } = auth.input;
+  const result = await renewWorkItemClaim(db, { emergencyId, worksiteId, userId: auth.userId });
   if (result.ok) trackServerEvent("work_item_claim_renewed", { emergencyId }, { distinctId: auth.userId });
   return settle("renew", result);
 }
 
-export async function markWorkItemArrivedAction(input: unknown): Promise<ActionResult<OwnClaimFailure>> {
-  const auth = await authorize(workItemClaimSchema, input);
+export async function markWorksiteArrivedAction(input: unknown): Promise<ActionResult<OwnClaimFailure>> {
+  const auth = await authorize(worksiteClaimSchema, input);
   if (!auth.ok) return settle("arrive", auth);
-  const { emergencyId, workItemId } = auth.input;
-  const result = await markWorkItemArrived(db, {
-    emergencyId,
-    workItemId,
-    userId: auth.userId,
-  });
+  const { emergencyId, worksiteId } = auth.input;
+  const result = await markWorkItemArrived(db, { emergencyId, worksiteId, userId: auth.userId });
   if (result.ok) {
-    trackServerEvent(
-      "work_item_arrived",
-      { emergencyId, workTypeKey: result.data.workTypeKey },
-      { distinctId: auth.userId },
-    );
+    for (const workTypeKey of result.data.workTypeKeys) {
+      trackServerEvent("work_item_arrived", { emergencyId, workTypeKey }, { distinctId: auth.userId });
+    }
   }
   return settle("arrive", result);
 }
 
-export async function releaseWorkItemAction(input: unknown): Promise<ActionResult<OwnClaimFailure>> {
-  const auth = await authorize(workItemClaimSchema, input);
+export async function releaseWorksiteAction(input: unknown): Promise<ActionResult<OwnClaimFailure>> {
+  const auth = await authorize(worksiteClaimSchema, input);
   if (!auth.ok) return settle("release", auth);
-  const { emergencyId, workItemId } = auth.input;
-  const result = await releaseWorkItem(db, { emergencyId, workItemId, userId: auth.userId });
+  const { emergencyId, worksiteId } = auth.input;
+  const result = await releaseWorkItem(db, { emergencyId, worksiteId, userId: auth.userId });
   if (result.ok) trackServerEvent("work_item_released", { emergencyId }, { distinctId: auth.userId });
   return settle("release", result);
 }
@@ -117,7 +106,7 @@ export async function releaseWorkItemAction(input: unknown): Promise<ActionResul
 export async function markWorkItemStatusAction(input: unknown): Promise<ActionResult<MarkStatusFailure>> {
   const parsed = markWorkItemStatusSchema.safeParse(input);
   if (!parsed.success) return settle("mark_status", { ok: false, code: "invalid_input" });
-  const { emergencyId, workItemId, status, version } = parsed.data;
+  const { emergencyId, items, status } = parsed.data;
   const user = await getCurrentUser();
   const [access, actor] = await Promise.all([
     user ? getEmergencyAccess(emergencyId) : null,
@@ -130,19 +119,21 @@ export async function markWorkItemStatusAction(input: unknown): Promise<ActionRe
   }
   // A signed-in person who has not joined acts like anyone else: named only as a member.
   const userId = access?.role ? access.userId : null;
-  const result = await markWorkItemStatus(db, { emergencyId, workItemId, status, version, userId, actor });
+  const result = await markWorkItemStatus(db, { emergencyId, items, status, userId, actor });
   if (result.ok) {
-    trackServerEvent(
-      "work_item_status_marked",
-      {
-        emergencyId,
-        workTypeKey: result.data.workTypeKey,
-        status,
-        isCoordinator: result.data.isCoordinator,
-        isAnonymous: userId === null,
-      },
-      userId ? { distinctId: userId } : {},
-    );
+    for (const workTypeKey of result.data.workTypeKeys) {
+      trackServerEvent(
+        "work_item_status_marked",
+        {
+          emergencyId,
+          workTypeKey,
+          status,
+          isCoordinator: result.data.isCoordinator,
+          isAnonymous: userId === null,
+        },
+        userId ? { distinctId: userId } : {},
+      );
+    }
   }
   return settle("mark_status", result);
 }

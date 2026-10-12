@@ -5,26 +5,19 @@ import { useTranslations } from "next-intl";
 import { useAction } from "@/shared/lib/use-action";
 import { Button, ButtonGroup, Disclosure, FormError } from "@/shared/ui";
 
-import type { MarkableStatus } from "../schemas";
+import type { MarkableStatus, MarkedItem } from "../schemas";
 import { markWorkItemStatusAction } from "../server/actions";
 
 /**
- * What anyone at a home saw of a job they do not hold (ADR 0018): no account, folded so it does not
- * crowd the page. The version is the one rendered, so a change made meanwhile answers stale_version.
+ * What anyone at a home saw of it (ADR 0018): no account, one set of buttons for every open job
+ * nobody there holds, folded so it does not crowd the page. Each job carries the version rendered,
+ * so a change made meanwhile answers stale_version and nothing changes.
  */
-export function JobStatusActions({
-  emergencyId,
-  workItemId,
-  version,
-}: {
-  emergencyId: string;
-  workItemId: string;
-  version: number;
-}) {
+export function JobStatusActions({ emergencyId, items }: { emergencyId: string; items: MarkedItem[] }) {
   const t = useTranslations("work.jobs");
   const { run, isPending, error } = useAction();
   const mark = (status: MarkableStatus) =>
-    run(() => markWorkItemStatusAction({ emergencyId, workItemId, status, version }));
+    run(() => markWorkItemStatusAction({ emergencyId, items, status }));
 
   return (
     <Disclosure label={t("updateStatus")}>

@@ -43,9 +43,9 @@ export default async function WorkItemsPage({
         <section className="flex flex-col gap-3">
           <h2 className="text-subheading font-medium text-ink">{t("mine.title")}</h2>
           <ul className="flex flex-col gap-3">
-            {view.mine.map((work) => (
-              <li key={work.id}>
-                <MyWorkCard slug={slug} emergencyId={view.emergency.id} work={work} now={now} />
+            {view.mine.map((home) => (
+              <li key={home.worksiteId}>
+                <MyWorkCard slug={slug} emergencyId={view.emergency.id} home={home} now={now} />
               </li>
             ))}
           </ul>

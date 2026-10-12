@@ -141,6 +141,16 @@ export async function listMyWorkItems(
   }));
 }
 
+/** The jobs a volunteer holds at one home: their card and buttons act on all of them at once. */
+export type MyWorkHome = { worksiteId: string; jobs: MyWorkItem[] };
+
+/** Groups held jobs by home, keeping the order of each home's first job (the one lapsing first). */
+export function groupMyWorkByHome(items: MyWorkItem[]): MyWorkHome[] {
+  const homes = new Map<string, MyWorkItem[]>();
+  for (const item of items) homes.set(item.worksiteId, [...(homes.get(item.worksiteId) ?? []), item]);
+  return [...homes].map(([worksiteId, jobs]) => ({ worksiteId, jobs }));
+}
+
 export type WorksiteJob = {
   id: string;
   workType: string;

@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { afterAll, describe, expect, it } from "vitest";
 
 import {
@@ -58,7 +58,7 @@ describe("markWorkItemStatus", () => {
       status: "closed_done",
       now: NOW,
     });
-    expect(result).toEqual({ ok: true, data: { workTypeKey: "mud", isCoordinator: false } });
+    expect(result).toEqual({ ok: true, data: { workTypeKeys: ["mud"], isCoordinator: false } });
     expect(await readItem(job.workItemId)).toMatchObject({
       status: "closed_done",
       claimedBy: job.volunteer,
@@ -330,5 +330,60 @@ describe("revertWorkItemStatus", () => {
       await revertWorkItemStatus(db, { ...job, version: job.version + 1, userId: job.coordinator, now: NOW }),
     ).toEqual({ ok: true, data: null });
     expect(await readItem(job.workItemId)).toMatchObject({ status: "open_unclaimed", claimedBy: null });
+  });
+});
+
+describe("marking a whole home", () => {
+  it("closes every listed job at once", async () => {
+    const emergency = await createEmergency(db);
+    const { workItemIds } = await createWorksite(db, emergency.id, { keys: ["mud", "debris"] });
+    const items = workItemIds.map((workItemId) => ({ workItemId, version: 0 }));
+
+    const result = await markWorkItemStatus(db, {
+      emergencyId: emergency.id,
+      items,
+      userId: null,
+      status: "closed_done",
+      now: NOW,
+    });
+
+    expect(result.ok && [...result.data.workTypeKeys].sort()).toEqual(["debris", "mud"]);
+    const rows = await db
+      .select({ status: workItems.status })
+      .from(workItems)
+      .where(inArray(workItems.id, workItemIds));
+    expect(rows.map((row) => row.status)).toEqual(["closed_done", "closed_done"]);
+  });
+
+  it("changes nothing when one job moved since it was shown", async () => {
+    const emergency = await createEmergency(db);
+    const { workItemIds } = await createWorksite(db, emergency.id, { keys: ["mud", "debris"] });
+    const [first, second] = workItemIds;
+    await markWorkItemStatus(db, {
+      emergencyId: emergency.id,
+      workItemId: second!,
+      version: 0,
+      userId: null,
+      status: "open_partially_done",
+      now: NOW,
+    });
+
+    const result = await markWorkItemStatus(db, {
+      emergencyId: emergency.id,
+      items: [
+        { workItemId: first!, version: 0 },
+        { workItemId: second!, version: 0 },
+      ],
+      userId: null,
+      status: "closed_done",
+      now: NOW,
+    });
+
+    expect(result).toEqual({ ok: false, code: "stale_version" });
+    const [row] = await db
+      .select({ status: workItems.status })
+      .from(workItems)
+      .where(eq(workItems.id, first!));
+    expect(row?.status).toBe("open_unclaimed");
   });
 });

@@ -843,7 +843,7 @@
       "locationDenied": "No pudimos ver tu ubicación. La lista sigue ordenada por espera.",
       "more": "Ver más casas",
       "openHome": "Ver la casa",
-      "claim": "Voy para allá: {workType}",
+      "claim": "Voy para allá",
       "signIn": "Entra para tomar un trabajo",
       "join": "Súmate a esta emergencia para tomar trabajos",
       "shifts": "Ver turnos",
@@ -879,7 +879,7 @@
       "doneByOthers": "Ya estaba hecho",
       "noHelpWanted": "No quieren ayuda",
       "otherClosings": "Otros cierres",
-      "actions": "Acciones del trabajo",
+      "actions": "Acciones de la casa",
       "openHome": "Ver la casa"
     },
     "safety": {

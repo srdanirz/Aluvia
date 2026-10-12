@@ -18,10 +18,24 @@ import { recomputeUnclaimedSince } from "./unclaimed-since";
  * Callers check the session; these functions trust `userId` and let the database decide the rest.
  */
 
-// `now` is for tests only; without it every instant is the database's `now()` (see dbNow).
-type WorkItemRef = { emergencyId: string; workItemId: string; userId: string; now?: Date };
+/**
+ * What a volunteer acts on: one job, or a whole home (every job of it the action applies to). The
+ * app acts on homes; a single job stays for coordinators' tools and tests.
+ */
+export type WorkTarget =
+  { workItemId: string; worksiteId?: never } | { worksiteId: string; workItemId?: never };
 
-export type ClaimedWorkItem = { worksiteId: string; workTypeKey: string; expiresAt: Date };
+// `now` is for tests only; without it every instant is the database's `now()` (see dbNow).
+type WorkItemRef = WorkTarget & { emergencyId: string; userId: string; now?: Date };
+
+export type ClaimedWorkItem = { worksiteId: string; workTypeKeys: string[]; expiresAt: Date };
+
+const targetSql = (target: WorkTarget, alias?: string) => {
+  const column = (name: string) => sql.raw(alias ? `${alias}.${name}` : name);
+  return target.workItemId
+    ? sql`${column("id")} = ${target.workItemId}::uuid`
+    : sql`${column("worksite_id")} = ${target.worksiteId}::uuid`;
+};
 
 // Emergencies without a settings row hold a reservation this long; the column's default.
 const DEFAULT_CLAIM_HOLD_MINUTES = 120;
@@ -38,18 +52,19 @@ const isMemberSql = (emergencyId: string, userId: string) => sql`EXISTS (
   SELECT 1 FROM emergency_members m WHERE m.emergency_id = ${emergencyId}::uuid AND m.user_id = ${userId}::uuid)`;
 
 /**
- * "Voy para allá": claims an open, unclaimed work item, or one whose reservation lapsed before the
- * sweeper released it. Requires membership of an open emergency and a home without an unreviewed
- * "do not enter" risk. Exactly one of many concurrent callers wins.
+ * "Voy para allá": claims the open jobs of a home (or one job) that nobody holds, or whose
+ * reservation lapsed before the sweeper released it. Requires membership of an open emergency and
+ * a home without an unreviewed "do not enter" risk. Each job goes to exactly one of many
+ * concurrent callers; a caller who got none sees why.
  */
 export async function claimWorkItem(
   db: Database,
-  { emergencyId, workItemId, userId, now }: WorkItemRef,
+  { emergencyId, userId, now, ...target }: WorkItemRef,
 ): Promise<Result<ClaimFailure, ClaimedWorkItem>> {
   const at = dbNow(now);
   const claimed = await db.transaction(async (tx) => {
-    // The target CTE locks the row, so the UPDATE below re-checks the latest committed version.
-    const [row] = await tx.execute<{
+    // The target CTE locks the rows, so the UPDATE below re-checks the latest committed versions.
+    const rows = await tx.execute<{
       worksite_id: string;
       work_type_key: string;
       claim_expires_at: Date | string;
@@ -63,7 +78,8 @@ export async function claimWorkItem(
         SELECT id, status, claimed_by, claimed_at,
           CASE WHEN status = 'open_claimed' THEN 'open_unclaimed'::work_item_status ELSE status END AS released_status
         FROM work_items
-        WHERE id = ${workItemId}::uuid AND emergency_id = ${emergencyId}::uuid
+        WHERE ${targetSql(target as WorkTarget)} AND emergency_id = ${emergencyId}::uuid
+        ORDER BY id
         FOR UPDATE
       ), claimed AS (
         UPDATE work_items wi SET
@@ -95,6 +111,7 @@ export async function claimWorkItem(
         FROM claimed
       )
       SELECT worksite_id, work_type_key, claim_expires_at, claimed_at, previous_claimant, previous_claimed_at FROM claimed`);
+    const [row] = rows;
     if (!row) return null;
 
     await recomputeUnclaimedSince(tx, { worksiteIds: [row.worksite_id], now });
@@ -109,24 +126,32 @@ export async function claimWorkItem(
       worksiteIds: [row.worksite_id],
       now: noticeAt,
     });
-    if (row.previous_claimant && row.previous_claimant !== userId) {
+    // Whoever's lapsed hold this claim took over hears it once, whatever the number of jobs.
+    const lapsed = [
+      ...new Set(
+        rows.flatMap((r) =>
+          r.previous_claimant && r.previous_claimant !== userId ? [r.previous_claimant] : [],
+        ),
+      ),
+    ];
+    if (lapsed.length > 0) {
       await enqueueNotification(tx, {
         type: "work_item_claim_expired",
         emergencyId,
-        eventKey: `work_item_claim_expired:${workItemId}:${new Date(row.previous_claimed_at ?? 0).toISOString()}`,
+        eventKey: `work_item_claim_expired:${row.worksite_id}:${new Date(row.claimed_at).toISOString()}`,
         params: {},
-        userIds: [row.previous_claimant],
+        userIds: lapsed,
         now: noticeAt,
       });
     }
     return {
       worksiteId: row.worksite_id,
-      workTypeKey: row.work_type_key,
+      workTypeKeys: rows.map((r) => r.work_type_key),
       expiresAt: new Date(row.claim_expires_at),
     };
   });
   if (claimed) return { ok: true, data: claimed };
-  return { ok: false, code: await explainClaimFailure(db, { emergencyId, workItemId, userId, now }) };
+  return { ok: false, code: await explainClaimFailure(db, emergencyId, userId, target as WorkTarget) };
 }
 
 /**
@@ -135,20 +160,21 @@ export async function claimWorkItem(
  */
 async function explainClaimFailure(
   db: Database,
-  { emergencyId, workItemId, userId }: WorkItemRef,
+  emergencyId: string,
+  userId: string,
+  target: WorkTarget,
 ): Promise<ClaimFailure> {
   const [row] = await db.execute<{
     is_member: boolean;
     is_open: boolean;
     accepts: boolean;
-    status: string;
   }>(sql`
     SELECT ${isMemberSql(emergencyId, userId)} AS is_member,
-      wi.status::text LIKE 'open\\_%' AND e.status = 'open' AS is_open,
-      ${worksiteAcceptsClaims(sql`wi.worksite_id`)} AS accepts,
-      wi.status
+      bool_or(wi.status::text LIKE 'open\\_%') AND bool_and(e.status = 'open') AS is_open,
+      bool_and(${worksiteAcceptsClaims(sql`wi.worksite_id`)}) AS accepts
     FROM work_items wi JOIN emergencies e ON e.id = wi.emergency_id
-    WHERE wi.id = ${workItemId}::uuid AND wi.emergency_id = ${emergencyId}::uuid`);
+    WHERE ${targetSql(target, "wi")} AND wi.emergency_id = ${emergencyId}::uuid
+    HAVING count(*) > 0`);
   if (!row) return "not_found";
   if (!row.is_member) return "not_member";
   if (!row.is_open) return "not_open";
@@ -167,20 +193,20 @@ async function explainOwnClaimFailure(db: Executor, emergencyId: string) {
 /** "Sigo en camino": pushes the caller's live reservation forward by the emergency's hold. */
 export async function renewWorkItemClaim(
   db: Database,
-  { emergencyId, workItemId, userId, now }: WorkItemRef,
+  { emergencyId, userId, now, ...target }: WorkItemRef,
 ): Promise<Result<OwnClaimFailure, { expiresAt: Date }>> {
   const at = dbNow(now);
   const [row] = await db.execute<{ claim_expires_at: Date | string }>(sql`
     WITH renewed AS (
       UPDATE work_items SET claim_expires_at = ${holdUntil(emergencyId, now)}, updated_at = ${at}
-      WHERE id = ${workItemId}::uuid AND emergency_id = ${emergencyId}::uuid AND claimed_by = ${userId}::uuid
+      WHERE ${targetSql(target as WorkTarget)} AND emergency_id = ${emergencyId}::uuid AND claimed_by = ${userId}::uuid
         AND claim_expires_at > ${at} AND ${isOpenEmergencySql(emergencyId)}
       RETURNING id, status, claim_expires_at
     ), events AS (
       INSERT INTO work_item_events (work_item_id, emergency_id, kind, from_status, to_status, actor_id, created_at)
       SELECT id, ${emergencyId}::uuid, 'renewed'::work_item_event_kind, status, status, ${userId}::uuid, ${at} FROM renewed
     )
-    SELECT claim_expires_at FROM renewed`);
+    SELECT claim_expires_at FROM renewed LIMIT 1`);
   if (row) return { ok: true, data: { expiresAt: new Date(row.claim_expires_at) } };
   return { ok: false, code: await explainOwnClaimFailure(db, emergencyId) };
 }
@@ -191,14 +217,14 @@ export async function renewWorkItemClaim(
  */
 export async function markWorkItemArrived(
   db: Database,
-  { emergencyId, workItemId, userId, now }: WorkItemRef,
-): Promise<Result<OwnClaimFailure, { workTypeKey: string }>> {
+  { emergencyId, userId, now, ...target }: WorkItemRef,
+): Promise<Result<OwnClaimFailure, { workTypeKeys: string[] }>> {
   const at = dbNow(now);
-  const [row] = await db.execute<{ work_type_key: string }>(sql`
+  const rows = await db.execute<{ work_type_key: string }>(sql`
     WITH arrived AS (
       UPDATE work_items SET arrived_at = ${at}, claim_expires_at = NULL,
         version = version + 1, updated_at = ${at}
-      WHERE id = ${workItemId}::uuid AND emergency_id = ${emergencyId}::uuid AND claimed_by = ${userId}::uuid
+      WHERE ${targetSql(target as WorkTarget)} AND emergency_id = ${emergencyId}::uuid AND claimed_by = ${userId}::uuid
         AND status::text LIKE 'open\\_%' AND arrived_at IS NULL AND ${isOpenEmergencySql(emergencyId)}
       RETURNING id, status, work_type_key
     ), events AS (
@@ -206,14 +232,14 @@ export async function markWorkItemArrived(
       SELECT id, ${emergencyId}::uuid, 'arrived'::work_item_event_kind, status, status, ${userId}::uuid, ${at} FROM arrived
     )
     SELECT work_type_key FROM arrived`);
-  if (row) return { ok: true, data: { workTypeKey: row.work_type_key } };
+  if (rows.length > 0) return { ok: true, data: { workTypeKeys: rows.map((row) => row.work_type_key) } };
   return { ok: false, code: await explainOwnClaimFailure(db, emergencyId) };
 }
 
 /** "Ya no voy": gives the work back. A progress status (partially done, needs follow-up) stays. */
 export async function releaseWorkItem(
   db: Database,
-  { emergencyId, workItemId, userId, now }: WorkItemRef,
+  { emergencyId, userId, now, ...target }: WorkItemRef,
 ): Promise<Result<OwnClaimFailure>> {
   const at = dbNow(now);
   return db.transaction(async (tx) => {
@@ -223,7 +249,7 @@ export async function releaseWorkItem(
           status = CASE WHEN wi.status = 'open_claimed' THEN 'open_unclaimed'::work_item_status ELSE wi.status END,
           claimed_by = NULL, claimed_at = NULL, claim_expires_at = NULL, arrived_at = NULL,
           version = wi.version + 1, updated_at = ${at}
-        FROM (SELECT id, status FROM work_items WHERE id = ${workItemId}::uuid FOR UPDATE) t
+        FROM (SELECT id, status FROM work_items WHERE ${targetSql(target as WorkTarget)} ORDER BY id FOR UPDATE) t
         WHERE wi.id = t.id AND wi.emergency_id = ${emergencyId}::uuid AND wi.claimed_by = ${userId}::uuid
           AND wi.status::text LIKE 'open\\_%' AND ${isOpenEmergencySql(emergencyId)}
         RETURNING wi.id, wi.worksite_id, t.status AS from_status, wi.status AS to_status
@@ -231,7 +257,7 @@ export async function releaseWorkItem(
         INSERT INTO work_item_events (work_item_id, emergency_id, kind, from_status, to_status, actor_id, created_at)
         SELECT id, ${emergencyId}::uuid, 'released'::work_item_event_kind, from_status, to_status, ${userId}::uuid, ${at} FROM released
       )
-      SELECT worksite_id FROM released`);
+      SELECT worksite_id FROM released LIMIT 1`);
     if (!row) return { ok: false, code: await explainOwnClaimFailure(tx, emergencyId) } as const;
     await recomputeUnclaimedSince(tx, { worksiteIds: [row.worksite_id], now });
     return { ok: true, data: null } as const;

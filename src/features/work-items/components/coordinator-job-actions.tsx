@@ -46,7 +46,15 @@ export function CoordinatorJobActions({
           <Button
             variant="ghost"
             disabled={isPending}
-            onClick={() => run(() => markWorkItemStatusAction({ ...ref, status: "closed_duplicate" }))}
+            onClick={() =>
+              run(() =>
+                markWorkItemStatusAction({
+                  emergencyId,
+                  items: [{ workItemId, version }],
+                  status: "closed_duplicate",
+                }),
+              )
+            }
           >
             {t("duplicate")}
           </Button>

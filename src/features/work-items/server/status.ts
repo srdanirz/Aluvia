@@ -3,6 +3,7 @@ import "server-only";
 import { sql } from "drizzle-orm";
 
 import { dbNow } from "@/shared/db/clock";
+import { sqlArray } from "@/shared/db/sql-array";
 
 import { enqueueNotification } from "@/features/notifications";
 import type { ActorKeys } from "@/shared/anonymous-actor";
@@ -10,6 +11,7 @@ import type { Database } from "@/shared/db/types";
 
 import {
   COORDINATOR_ONLY_STATUSES,
+  type MarkedItem,
   type MarkableStatus,
   type MarkStatusFailure,
   type Result,
@@ -33,32 +35,49 @@ const isCoordinatorSql = (emergencyId: string, userId: string | null) => sql`EXI
   WHERE m.emergency_id = ${emergencyId}::uuid AND m.user_id = ${userId}::uuid
     AND m.role = 'coordinator' AND m.approved_at IS NOT NULL)`;
 
+type MarkChange = Omit<StatusChange, "workItemId" | "version"> &
+  ({ workItemId: string; version: number; items?: never } | { items: MarkedItem[]; workItemId?: never });
+
 /**
- * Terminé, Avancé, Necesita más ayuda and the other closings (issue #13). Open to anyone, signed in
- * or not (ADR 0018): the version check, the rate limit and the coordinator's undo
- * (`revertWorkItemStatus`) bound the abuse. `closed_duplicate` stays with coordinators. Only open
- * work changes. "Needs follow-up" gives the claim back, so the home turns red again and its
- * coordinators get a notice; partial progress keeps the claim and stops its expiry.
+ * Terminé, Avancé, Necesita más ayuda and the other closings (issue #13), for one job or for every
+ * open job of a home at once. Open to anyone, signed in or not (ADR 0018): the version check, the
+ * rate limit and the coordinator's undo (`revertWorkItemStatus`) bound the abuse.
+ * `closed_duplicate` stays with coordinators. All or nothing: if any job changed since it was
+ * shown or is no longer open, none changes. "Needs follow-up" gives the claim back, so the home
+ * turns red again and its coordinators get a notice; partial progress keeps the claim and stops
+ * its expiry.
  */
 export async function markWorkItemStatus(
   db: Database,
-  { emergencyId, workItemId, userId, actor, version, now, status }: StatusChange & { status: MarkableStatus },
-): Promise<Result<MarkStatusFailure, { workTypeKey: string; isCoordinator: boolean }>> {
+  change: MarkChange & { status: MarkableStatus },
+): Promise<Result<MarkStatusFailure, { workTypeKeys: string[]; isCoordinator: boolean }>> {
+  const { emergencyId, userId, actor, now, status } = change;
+  const items = change.items ?? [{ workItemId: change.workItemId, version: change.version }];
+  const ids = items.map((item) => item.workItemId);
+  const versions = items.map((item) => item.version);
   const at = dbNow(now);
   const allowed = COORDINATOR_ONLY_STATUSES.includes(status)
     ? isCoordinatorSql(emergencyId, userId)
     : sql`true`;
 
   const changed = await db.transaction(async (tx) => {
-    const [row] = await tx.execute<{
+    const rows = await tx.execute<{
       worksite_id: string;
       work_type_key: string;
       is_coordinator: boolean;
     }>(sql`
-      WITH target AS (
-        SELECT id, status, claimed_by FROM work_items
-        WHERE id = ${workItemId}::uuid AND emergency_id = ${emergencyId}::uuid
+      WITH expected AS (
+        SELECT * FROM unnest(${sqlArray(ids, "uuid")}, ${sqlArray(versions, "int")}) AS e(id, version)
+      ), target AS (
+        SELECT wi.id, wi.status, wi.claimed_by, wi.version FROM work_items wi
+        WHERE wi.id IN (SELECT id FROM expected) AND wi.emergency_id = ${emergencyId}::uuid
+        ORDER BY wi.id
         FOR UPDATE
+      ), fresh AS (
+        -- Every job found, still open and unchanged since it was shown: one stale job stops all.
+        SELECT count(*) = (SELECT count(*) FROM expected)
+          AND coalesce(bool_and(t.version = e.version AND t.status::text LIKE 'open\\_%'), false) AS ok
+        FROM target t JOIN expected e ON e.id = t.id
       ), marked AS (
         UPDATE work_items wi SET
           status = ${status},
@@ -80,8 +99,8 @@ export async function markWorkItemStatus(
           verified_by = NULL,
           version = wi.version + 1,
           updated_at = ${at}
-        FROM target t
-        WHERE wi.id = t.id AND wi.version = ${version} AND t.status::text LIKE 'open\\_%' AND ${allowed}
+        FROM target t, fresh f
+        WHERE wi.id = t.id AND f.ok AND ${allowed}
           AND EXISTS (SELECT 1 FROM emergencies e WHERE e.id = ${emergencyId}::uuid AND e.status = 'open')
         RETURNING wi.id, wi.worksite_id, wi.work_type_key, t.status AS from_status
       ), events AS (
@@ -91,6 +110,7 @@ export async function markWorkItemStatus(
           ${userId}::uuid, ${actor?.deviceKey ?? null}, ${actor?.ipKey ?? null}, ${at} FROM marked
       )
       SELECT worksite_id, work_type_key, ${isCoordinatorSql(emergencyId, userId)} AS is_coordinator FROM marked`);
+    const [row] = rows;
     if (!row) return null;
 
     await recomputeUnclaimedSince(tx, { worksiteIds: [row.worksite_id], now });
@@ -101,20 +121,17 @@ export async function markWorkItemStatus(
       await enqueueNotification(tx, {
         type: "work_item_needs_follow_up",
         emergencyId,
-        eventKey: `work_item_needs_follow_up:${workItemId}:${version + 1}`,
+        eventKey: `work_item_needs_follow_up:${ids[0]}:${(versions[0] ?? 0) + 1}`,
         params: { worksiteId: row.worksite_id },
         userIds: coordinators.map((c) => c.user_id).filter((id) => id !== userId),
         // The outbox schedules on the app clock; only the status decision needs the database's.
         now: now ?? new Date(),
       });
     }
-    return { workTypeKey: row.work_type_key, isCoordinator: row.is_coordinator };
+    return { workTypeKeys: rows.map((r) => r.work_type_key), isCoordinator: row.is_coordinator };
   });
   if (changed) return { ok: true, data: changed };
-  return {
-    ok: false,
-    code: await explainStatusFailure(db, { emergencyId, workItemId, userId, version, now }, status),
-  };
+  return { ok: false, code: await explainStatusFailure(db, { emergencyId, userId, items }, status) };
 }
 
 /** "Verificado en terreno" (issue #13, after #Verificado19S): a coordinator confirms the status they see. */
@@ -139,7 +156,7 @@ export async function verifyWorkItem(
   if (row) return { ok: true, data: null };
   return {
     ok: false,
-    code: await explainStatusFailure(db, { emergencyId, workItemId, userId, version, now }, null),
+    code: await explainStatusFailure(db, { emergencyId, userId, items: [{ workItemId, version }] }, null),
   };
 }
 
@@ -230,24 +247,34 @@ export async function revertWorkItemStatus(
 /** Picks the code for a refused change; the UPDATE already decided. */
 async function explainStatusFailure(
   db: Database,
-  { emergencyId, workItemId, userId, version }: StatusChange,
+  { emergencyId, userId, items }: { emergencyId: string; userId: string | null; items: MarkedItem[] },
   status: MarkableStatus | null,
 ): Promise<MarkStatusFailure> {
   const [row] = await db.execute<{
-    version: number;
+    found: number;
+    is_fresh: boolean;
     is_open: boolean;
     is_coordinator: boolean;
     is_emergency_open: boolean;
   }>(sql`
-    SELECT version, status::text LIKE 'open\\_%' AS is_open,
-      EXISTS (SELECT 1 FROM emergencies e WHERE e.id = ${emergencyId}::uuid AND e.status = 'open') AS is_emergency_open,
+    SELECT count(wi.id)::int AS found,
+      coalesce(bool_and(wi.version = e.version), false) AS is_fresh,
+      coalesce(bool_and(wi.status::text LIKE 'open\\_%'), false) AS is_open,
+      EXISTS (SELECT 1 FROM emergencies em WHERE em.id = ${emergencyId}::uuid AND em.status = 'open') AS is_emergency_open,
       ${isCoordinatorSql(emergencyId, userId)} AS is_coordinator
-    FROM work_items WHERE id = ${workItemId}::uuid AND emergency_id = ${emergencyId}::uuid`);
-  if (!row) return "not_found";
+    FROM unnest(${sqlArray(
+      items.map((i) => i.workItemId),
+      "uuid",
+    )}, ${sqlArray(
+      items.map((i) => i.version),
+      "int",
+    )}) AS e(id, version)
+    JOIN work_items wi ON wi.id = e.id AND wi.emergency_id = ${emergencyId}::uuid`);
+  if (!row || row.found < items.length) return "not_found";
   if (!row.is_emergency_open) return "emergency_closed";
   const mayAct = row.is_coordinator || (status !== null && !COORDINATOR_ONLY_STATUSES.includes(status));
   if (!mayAct) return "forbidden";
   if (status !== null && !row.is_open) return "not_open";
-  if (row.version !== version) return "stale_version";
+  if (!row.is_fresh) return "stale_version";
   return "not_open";
 }

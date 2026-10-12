@@ -6,16 +6,16 @@ import { useState } from "react";
 
 import { Button, ButtonGroup, Card, FormError, Spinner } from "@/shared/ui";
 
-import { claimWorkItemAction } from "../server/actions";
+import { claimWorksiteAction } from "../server/actions";
 import { useAction } from "@/shared/lib/use-action";
 
-type ClaimButtonProps = { emergencyId: string; workItemId: string; label: string };
+type ClaimButtonProps = { emergencyId: string; worksiteId: string; label: string };
 
 /**
- * "Voy para allá" with the safety check in between (one more tap, never a modal): what to wear and
+ * "Voy para allá" for a whole home (every free job of it), with the safety check in between (one more tap, never a modal): what to wear and
  * when not to go in. The server decides the claim; a refusal shows its translated code here.
  */
-export function ClaimButton({ emergencyId, workItemId, label }: ClaimButtonProps) {
+export function ClaimButton({ emergencyId, worksiteId, label }: ClaimButtonProps) {
   const t = useTranslations("work.safety");
   const tWork = useTranslations("work");
   const [isConfirming, setIsConfirming] = useState(false);
@@ -60,7 +60,7 @@ export function ClaimButton({ emergencyId, workItemId, label }: ClaimButtonProps
           disabled={isPending}
           onClick={() =>
             run(
-              () => claimWorkItemAction({ emergencyId, workItemId }),
+              () => claimWorksiteAction({ emergencyId, worksiteId }),
               () => setIsConfirming(false),
             )
           }
