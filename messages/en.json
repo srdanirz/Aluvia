@@ -948,7 +948,9 @@
   },
   "zones": {
     "draw": "Draw zone",
-    "drawHint": "{count, plural, =0 {Tap the map to mark the zone's edge.} one {# point. Keep tapping the edge.} other {# points. Save once the edge is closed.}}",
+    "drawHint": "{count, plural, =0 {Tap the map to mark the zone's edge.} one {# point. Keep tapping the edge.} other {# points. Tap a point to remove it, drag it to move it, or tap a + to add one between two.}}",
+    "removePoint": "Remove this point",
+    "addPoint": "Add a point here",
     "kindLabel": "Zone type",
     "kinds": {
       "no_entry": "Do not enter",

@@ -4,7 +4,7 @@ import type { ComponentProps, ReactNode } from "react";
 import { cn } from "./cn";
 
 const mapMarkerVariants = cva(
-  "inline-flex h-11 min-w-11 items-center justify-center gap-1 text-body-sm font-medium text-surface tabular-nums shadow-float [&>svg]:size-icon-sm [&>svg]:stroke-[1.5]",
+  "inline-flex items-center justify-center gap-1 text-body-sm font-medium text-surface tabular-nums shadow-float [&>svg]:size-icon-sm [&>svg]:stroke-[1.5]",
   {
     variants: {
       tone: {
@@ -30,8 +30,14 @@ const mapMarkerVariants = cva(
         true: "z-10 scale-110",
         false: "",
       },
+      // `handle`: a secondary point of a shape being edited (add a corner between two), smaller so
+      // the corners stay the obvious targets. Its marker still has the full tap area.
+      size: {
+        default: "h-11 min-w-11",
+        handle: "h-8 min-w-8",
+      },
     },
-    defaultVariants: { tone: "urgent", shape: "pill", grouped: false, selected: false },
+    defaultVariants: { tone: "urgent", shape: "pill", grouped: false, selected: false, size: "default" },
   },
 );
 
@@ -49,12 +55,12 @@ type MapMarkerProps = Omit<ComponentProps<"span">, "children"> &
  * marker element receives the tap and keyboard focus and carries the spoken name (`title`), since
  * Google's marker sits above its content and swallows the click.
  */
-export function MapMarker({ className, tone, shape, selected, icon, count, ...props }: MapMarkerProps) {
+export function MapMarker({ className, tone, shape, selected, size, icon, count, ...props }: MapMarkerProps) {
   const grouped = count !== undefined;
   return (
     <span
       aria-hidden
-      className={cn(mapMarkerVariants({ tone, shape, grouped, selected }), className)}
+      className={cn(mapMarkerVariants({ tone, shape, grouped, selected, size }), className)}
       {...props}
     >
       {icon}

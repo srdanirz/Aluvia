@@ -948,7 +948,9 @@
   },
   "zones": {
     "draw": "Dibujar zona",
-    "drawHint": "{count, plural, =0 {Toca el mapa para marcar el borde de la zona.} one {# punto. Sigue tocando el borde.} other {# puntos. Guarda cuando cierres el borde.}}",
+    "drawHint": "{count, plural, =0 {Toca el mapa para marcar el borde de la zona.} one {# punto. Sigue tocando el borde.} other {# puntos. Toca un punto para quitarlo, arrástralo para moverlo o toca un + para agregar uno entre dos.}}",
+    "removePoint": "Quitar este punto",
+    "addPoint": "Agregar un punto aquí",
     "kindLabel": "Tipo de zona",
     "kinds": {
       "no_entry": "No entrar",
