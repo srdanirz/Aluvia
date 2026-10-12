@@ -24,7 +24,7 @@ import type { MapCollectionPoint, SupplyOption } from "../server/collection-poin
 import { SupplyToggles } from "./supply-toggles";
 
 /**
- * A tapped point: status, hours, what it takes, its phone and how to get there. Coordinators
+ * A tapped point: status, hours, what it takes, what not to bring, its phone and how to get there. Coordinators
  * change its status (against the version they saw) or remove it from here.
  */
 export function CollectionPointPanel({
@@ -49,6 +49,7 @@ export function CollectionPointPanel({
     status: CollectionPointStatus;
     statusNote: string;
     accepts: string[];
+    surplus: string[];
   } | null>(null);
   const [confirmingRemove, setConfirmingRemove] = useState(false);
   const names = new Map(supplyTypes.map((type) => [type.key, type.name]));
@@ -65,6 +66,7 @@ export function CollectionPointPanel({
           status: edit.status,
           statusNote: edit.statusNote.trim() || null,
           accepts: edit.accepts,
+          surplus: edit.surplus,
         });
         // Someone else saved first: show what they saved; the coordinator edits from there.
         if (!result.ok && result.code === "stale_version") {
@@ -110,9 +112,17 @@ export function CollectionPointPanel({
             />
           </Field>
           <SupplyToggles
+            label={t("acceptsLabel")}
             supplyTypes={supplyTypes}
             value={edit.accepts}
             onChange={(accepts) => setEdit({ ...edit, accepts })}
+          />
+          <SupplyToggles
+            label={t("surplusLabel")}
+            hint={t("surplusHint")}
+            supplyTypes={supplyTypes}
+            value={edit.surplus}
+            onChange={(surplus) => setEdit({ ...edit, surplus })}
           />
           <div className="flex justify-end gap-2">
             <Button variant="ghost" disabled={isPending} onClick={() => setEdit(null)}>
@@ -145,6 +155,18 @@ export function CollectionPointPanel({
                   {names.get(key) ?? key}
                 </Chip>
               ))}
+            </div>
+          ) : null}
+          {point.surplus.length > 0 ? (
+            <div className="flex flex-col gap-1">
+              <p className="text-body-sm font-medium text-ink">{t("surplusLabel")}</p>
+              <div className="flex flex-wrap gap-1" role="list">
+                {point.surplus.map((key) => (
+                  <Chip key={key} tone="closed" role="listitem">
+                    {names.get(key) ?? key}
+                  </Chip>
+                ))}
+              </div>
             </div>
           ) : null}
           {point.phone ? (
@@ -180,6 +202,7 @@ export function CollectionPointPanel({
                     statusNote: point.statusNote ?? "",
                     // A supply deactivated since cannot be toggled off nor saved again.
                     accepts: point.accepts.filter((key) => activeKeys.has(key)),
+                    surplus: point.surplus.filter((key) => activeKeys.has(key)),
                   })
                 }
               >

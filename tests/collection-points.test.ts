@@ -102,6 +102,7 @@ describe("collection points", () => {
       version: 1,
       status: "receiving" as const,
       statusNote: null,
+      surplus: [],
       actorId,
     };
     expect(await updateCollectionPoint(db, { ...change, accepts: ["shovels", "gloves"] })).toEqual({
@@ -115,6 +116,33 @@ describe("collection points", () => {
     const { points, supplyTypes } = await listActiveCollectionPoints(db, { slug, locale: "es" });
     expect(points[0]?.accepts).toEqual(["shovels"]);
     expect(supplyTypes.find((type) => type.key === "gloves")?.isActive).toBe(false);
+  });
+
+  it("keeps what a point has too much of, checked against the same catalog", async () => {
+    const slug = "cp-surplus";
+    const { emergencyId, actorId } = await setup(slug);
+    const input = pointInput(emergencyId, actorId);
+    await createCollectionPoint(db, input);
+    const change = {
+      id: input.id,
+      emergencyId,
+      version: 1,
+      status: "only_some" as const,
+      statusNote: null,
+      accepts: ["shovels"],
+      actorId,
+    };
+
+    expect(await updateCollectionPoint(db, { ...change, surplus: ["gloves", "pianos"] })).toEqual({
+      ok: false,
+      code: "invalid_supply_type",
+    });
+    expect(await updateCollectionPoint(db, { ...change, surplus: ["gloves"] })).toEqual({
+      ok: true,
+      version: 2,
+    });
+    const { points } = await listActiveCollectionPoints(db, { slug, locale: "es" });
+    expect(points[0]).toMatchObject({ accepts: ["shovels"], surplus: ["gloves"] });
   });
 
   it("does not answer ok for an id that belongs to another emergency", async () => {
@@ -140,6 +168,7 @@ describe("collection points", () => {
       status: "full" as const,
       statusNote: "Sin espacio",
       accepts: [],
+      surplus: [],
       actorId,
     };
 
@@ -209,6 +238,7 @@ describe("collection points", () => {
       status: "only_some",
       statusNote: null,
       accepts: ["gloves"],
+      surplus: [],
       actorId,
     });
     await db

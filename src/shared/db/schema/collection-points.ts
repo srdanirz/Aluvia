@@ -29,6 +29,12 @@ export const collectionPoints = pgTable(
       .array()
       .notNull()
       .default(sql`'{}'::text[]`),
+    // Supplies the point has too much of: the public "no traigas" list (issue #14). Same catalog
+    // keys and the same in-statement check as accepts.
+    surplus: text("surplus")
+      .array()
+      .notNull()
+      .default(sql`'{}'::text[]`),
     status: collectionPointStatus("status").notNull().default("receiving"),
     statusNote: text("status_note"),
     phone: text("phone"),
@@ -49,6 +55,7 @@ export const collectionPoints = pgTable(
     check("collection_points_opening_hours_check", sql`char_length(${t.openingHours}) <= 120`),
     check("collection_points_status_note_check", sql`char_length(${t.statusNote}) <= 200`),
     check("collection_points_accepts_check", sql`cardinality(${t.accepts}) <= 40`),
+    check("collection_points_surplus_check", sql`cardinality(${t.surplus}) <= 40`),
     check("collection_points_phone_check", e164(t.phone)),
     check("collection_points_version_check", sql`${t.version} >= 1`),
   ],

@@ -980,6 +980,8 @@
     "phoneLabel": "Teléfono público del lugar (opcional)",
     "acceptsLabel": "Qué recibe",
     "acceptsEmpty": "Esta emergencia todavía no tiene insumos en su catálogo.",
+    "surplusLabel": "No traigas (sobra)",
+    "surplusHint": "Lo que el centro tiene de más. Se muestra en Reportes para que nadie lo traiga.",
     "statusLabel": "Estado",
     "statuses": {
       "receiving": "Recibe",
@@ -1041,6 +1043,14 @@
       "remove": "Quitar como coordinador",
       "more": "Ver más"
     }
+  },
+  "supplies": {
+    "title": "Insumos",
+    "lead": "Lleva lo que falta y no lo que sobra. Lo marcan los vecinos en cada casa y los centros de acopio.",
+    "missingTitle": "Lo que más falta",
+    "missingAt": "{count, plural, one {en # casa} other {en # casas}}",
+    "surplusTitle": "No traigas",
+    "surplusAt": "{count, plural, one {sobra en # centro} other {sobra en # centros}}"
   },
   "worksiteMedia": {
     "picker": {

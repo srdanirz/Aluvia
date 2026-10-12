@@ -60,6 +60,10 @@ export const worksiteUpdates = pgTable(
     index("worksite_updates_worksite_id_created_at_idx")
       .on(t.worksiteId, t.createdAt.desc())
       .where(sql`${t.cancelledAt} IS NULL`),
+    // Serves the emergency-wide sum of what homes miss (features/supplies): each home's newest.
+    index("worksite_updates_emergency_current_idx")
+      .on(t.emergencyId, t.worksiteId, t.createdAt.desc(), t.id.desc())
+      .where(sql`${t.cancelledAt} IS NULL`),
     // Serves a home's history for coordinators, cancelled updates included.
     index("worksite_updates_worksite_id_history_idx").on(t.worksiteId, t.createdAt.desc(), t.id.desc()),
   ],

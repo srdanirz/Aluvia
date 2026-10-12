@@ -20,6 +20,8 @@ export type MapCollectionPoint = {
   address: string | null;
   openingHours: string | null;
   accepts: string[];
+  /** Supply keys it has too much of: "no traigas". */
+  surplus: string[];
   status: CollectionPointStatus;
   statusNote: string | null;
   phone: string | null;
@@ -44,6 +46,7 @@ export async function listActiveCollectionPoints(
           SELECT c.created_at, c.id, json_build_object(
               'id', c.id, 'name', c.name, 'lng', ST_X(c.location), 'lat', ST_Y(c.location),
               'address', c.address, 'openingHours', c.opening_hours, 'accepts', c.accepts,
+              'surplus', c.surplus,
               'status', c.status, 'statusNote', c.status_note, 'phone', c.phone, 'version', c.version
             ) AS point
           FROM collection_points c
@@ -69,11 +72,14 @@ export async function listActiveCollectionPoints(
 
 // Every key must be an active supply of the emergency. Postgres has no foreign key from an array
 // element, so each write counts the keys inside its own statement instead of reading first.
-const acceptsAreValid = (emergencyId: string, accepts: string[]) => sql`
-  SELECT count(*) = ${accepts.length} AS ok
-  FROM supply_types
-  WHERE emergency_id = ${emergencyId} AND is_active AND key = ANY(${sqlArray(accepts, "text")})
-`;
+const keysAreValid = (emergencyId: string, keys: string[]) => {
+  const unique = [...new Set(keys)];
+  return sql`
+    SELECT count(*) = ${unique.length} AS ok
+    FROM supply_types
+    WHERE emergency_id = ${emergencyId} AND is_active AND key = ANY(${sqlArray(unique, "text")})
+  `;
+};
 
 export type CreateCollectionPointInput = {
   id: string;
@@ -97,7 +103,7 @@ export async function createCollectionPoint(
   input: CreateCollectionPointInput,
 ): Promise<{ ok: true } | { ok: false; code: "invalid_supply_type" | "invalid_input" }> {
   const [row] = await db.execute<{ valid: boolean; saved: boolean }>(sql`
-    WITH valid AS (${acceptsAreValid(input.emergencyId, input.accepts)}),
+    WITH valid AS (${keysAreValid(input.emergencyId, input.accepts)}),
     created AS (
       INSERT INTO collection_points
         (id, emergency_id, name, location, address, opening_hours, accepts, phone, created_by, updated_by)
@@ -132,7 +138,7 @@ export type UpdateCollectionPointResult =
   { ok: true; version: number } | { ok: false; code: "not_found" | "stale_version" | "invalid_supply_type" };
 
 /**
- * Changes a point's status, note and accepted supplies, only if it is still at the version the
+ * Changes a point's status, note, accepted supplies and surplus, only if it is still at the version the
  * coordinator saw (STYLEGUIDE, ediciones concurrentes). One statement decides and logs; the
  * other columns it returns only pick which code a refusal shows.
  */
@@ -145,15 +151,17 @@ export async function updateCollectionPoint(
     status: CollectionPointStatus;
     statusNote: string | null;
     accepts: string[];
+    surplus: string[];
     actorId: string;
   },
 ): Promise<UpdateCollectionPointResult> {
   const [row] = await db.execute<{ valid: boolean; version: number | null; exists: boolean }>(sql`
-    WITH valid AS (${acceptsAreValid(input.emergencyId, input.accepts)}),
+    WITH valid AS (${keysAreValid(input.emergencyId, [...input.accepts, ...input.surplus])}),
     updated AS (
       UPDATE collection_points c SET
         status = ${input.status}, status_note = ${input.statusNote},
-        accepts = ${sqlArray(input.accepts, "text")}, version = c.version + 1,
+        accepts = ${sqlArray(input.accepts, "text")}, surplus = ${sqlArray(input.surplus, "text")},
+        version = c.version + 1,
         updated_by = ${input.actorId}, updated_at = now()
       FROM valid
       WHERE valid.ok AND c.id = ${input.id} AND c.emergency_id = ${input.emergencyId}

@@ -14,7 +14,7 @@ const optionalText = (max: number) =>
     .nullable()
     .transform((value) => value || null);
 // Supply keys, deduplicated: the database counts them against the catalog.
-const accepts = z
+const supplyKeys = z
   .array(z.string().regex(/^[a-z][a-z0-9_]{1,39}$/))
   .max(40)
   .transform((keys) => [...new Set(keys)]);
@@ -28,7 +28,7 @@ export const createCollectionPointSchema = z.object({
   lat: z.number().min(-90).max(90),
   address: optionalText(200),
   openingHours: optionalText(120),
-  accepts,
+  accepts: supplyKeys,
   // As typed; the action turns it into E.164 or rejects it.
   phone: optionalText(30),
 });
@@ -40,7 +40,9 @@ export const updateCollectionPointSchema = z.object({
   version: z.number().int().min(1),
   status: z.enum(COLLECTION_POINT_STATUSES),
   statusNote: optionalText(200),
-  accepts,
+  accepts: supplyKeys,
+  // What the point has too much of: shown publicly as "no traigas".
+  surplus: supplyKeys,
 });
 
 export const removeCollectionPointSchema = z.object({ id: z.uuid(), slug });
