@@ -1,9 +1,9 @@
 "use client";
 
-import { AdvancedMarker, Polygon, useMap } from "@vis.gl/react-google-maps";
-import { CircleDot, PenLine, X } from "lucide-react";
+import { AdvancedMarker, Polygon, useAdvancedMarkerRef, useMap } from "@vis.gl/react-google-maps";
+import { CircleDot, PenLine, Plus, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useState, useTransition } from "react";
+import { type ReactNode, useEffect, useState, useTransition } from "react";
 
 import { MapControl, useMapTapMode } from "@/features/map/components/map-controls";
 import { useRouter } from "@/shared/i18n/navigation";
@@ -34,6 +34,59 @@ const KIND_TOKEN = {
 const KIND_TONE = { no_entry: "urgent", restricted: "pending", meeting_point: "done" } as const;
 const KINDS: ZoneKind[] = ["no_entry", "restricted", "meeting_point"];
 
+// A corner while drawing. The id keeps its marker mounted while it is dragged.
+type Corner = { id: string; lng: number; lat: number };
+const corner = (lng: number, lat: number): Corner => ({ id: crypto.randomUUID(), lng, lat });
+
+/**
+ * One handle on the perimeter being drawn: a tap or a right click runs `onPick`, and a corner can
+ * be dragged. Google's marker element sits above its content and takes the events, so the right
+ * click is listened to on it, not on the dot.
+ */
+function Handle({
+  position,
+  label,
+  draggable = false,
+  onPick,
+  onMove,
+  children,
+}: {
+  position: google.maps.LatLngLiteral;
+  label: string;
+  draggable?: boolean;
+  onPick: () => void;
+  onMove?: (to: google.maps.LatLngLiteral) => void;
+  children: ReactNode;
+}) {
+  const [ref, marker] = useAdvancedMarkerRef();
+  useEffect(() => {
+    if (!marker) return;
+    const pick = (event: Event) => {
+      event.preventDefault();
+      onPick();
+    };
+    marker.addEventListener("contextmenu", pick);
+    return () => marker.removeEventListener("contextmenu", pick);
+  }, [marker, onPick]);
+  return (
+    <AdvancedMarker
+      ref={ref}
+      position={position}
+      title={label}
+      anchorLeft="-50%"
+      anchorTop="-50%"
+      draggable={draggable}
+      onClick={onPick}
+      onDragEnd={(event) => {
+        const at = event.latLng;
+        if (at && onMove) onMove({ lat: at.lat(), lng: at.lng() });
+      }}
+    >
+      {children}
+    </AdvancedMarker>
+  );
+}
+
 /**
  * Drawn zones over the map, colored by kind, and for coordinators the tool to draw one by tapping
  * its corners. Lives inside the map; the server decides who may save (createZoneAction).
@@ -49,7 +102,7 @@ export function ZonesLayer({ slug, zones, canDraw }: { slug: string; zones: MapZ
   const drawing = mode === "drawing_zone";
   // One id per drawing, so retrying a save whose answer got lost cannot draw the zone twice.
   const [zoneId, setZoneId] = useState<string | null>(null);
-  const [points, setPoints] = useState<[number, number][]>([]);
+  const [points, setPoints] = useState<Corner[]>([]);
   const [kind, setKind] = useState<ZoneKind>("no_entry");
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -60,7 +113,7 @@ export function ZonesLayer({ slug, zones, canDraw }: { slug: string; zones: MapZ
     if (!map || !drawing) return;
     const listener = map.addListener("click", (event: google.maps.MapMouseEvent) => {
       const at = event.latLng;
-      if (at) setPoints((current) => [...current, [at.lng(), at.lat()]]);
+      if (at) setPoints((current) => [...current, corner(at.lng(), at.lat())]);
     });
     // A crosshair says the next click places a corner; back to the arrow when drawing ends.
     map.setOptions({ draggableCursor: "crosshair" });
@@ -85,7 +138,7 @@ export function ZonesLayer({ slug, zones, canDraw }: { slug: string; zones: MapZ
         slug,
         kind,
         note: note.trim() || null,
-        ring: points,
+        ring: points.map(({ lng, lat }) => [lng, lat]),
       });
       if (!result.ok) {
         setError(t(`errors.${result.code}`));
@@ -109,6 +162,16 @@ export function ZonesLayer({ slug, zones, canDraw }: { slug: string; zones: MapZ
   }
 
   const toPath = (ring: [number, number][]) => ring.map(([lng, lat]) => ({ lat, lng }));
+  const removeCorner = (id: string) => setPoints((current) => current.filter((point) => point.id !== id));
+  const moveCorner = (id: string, to: google.maps.LatLngLiteral) =>
+    setPoints((current) => current.map((point) => (point.id === id ? { ...point, ...to } : point)));
+  // Between every two corners (and back to the first once it is an area), a handle adds a corner.
+  const edges = points.length > 2 ? points.length : points.length - 1;
+  const midpoints = Array.from({ length: Math.max(edges, 0) }, (_, index) => {
+    const from = points[index]!;
+    const to = points[(index + 1) % points.length]!;
+    return { index, lng: (from.lng + to.lng) / 2, lat: (from.lat + to.lat) / 2 };
+  });
 
   return (
     <>
@@ -128,23 +191,42 @@ export function ZonesLayer({ slug, zones, canDraw }: { slug: string; zones: MapZ
           />
         );
       })}
-      {/* Each corner is a visible dot, so the first taps read as points, not a stray line. */}
+      {/* Each corner is a visible dot: tap or right click removes it, dragging moves it. */}
       {drawing
-        ? points.map(([lng, lat], index) => (
-            <AdvancedMarker
-              key={`${lng},${lat},${index}`}
-              position={{ lat, lng }}
-              anchorLeft="-50%"
-              anchorTop="-50%"
-              clickable={false}
+        ? points.map((point) => (
+            <Handle
+              key={point.id}
+              position={{ lat: point.lat, lng: point.lng }}
+              label={t("removePoint")}
+              draggable
+              onPick={() => removeCorner(point.id)}
+              onMove={(to) => moveCorner(point.id, to)}
             >
               <MapMarker tone={KIND_TONE[kind]} icon={<CircleDot />} />
-            </AdvancedMarker>
+            </Handle>
+          ))
+        : null}
+      {drawing
+        ? midpoints.map((mid) => (
+            <Handle
+              key={`${points[mid.index]!.id}-mid`}
+              position={{ lat: mid.lat, lng: mid.lng }}
+              label={t("addPoint")}
+              onPick={() =>
+                setPoints((current) => [
+                  ...current.slice(0, mid.index + 1),
+                  corner(mid.lng, mid.lat),
+                  ...current.slice(mid.index + 1),
+                ])
+              }
+            >
+              <MapMarker tone="closed" size="handle" icon={<Plus />} />
+            </Handle>
           ))
         : null}
       {drawing && points.length > 2 ? (
         <Polygon
-          paths={toPath(points)}
+          paths={points.map(({ lng, lat }) => ({ lat, lng }))}
           clickable={false}
           fillColor={colors[KIND_TOKEN[kind]]}
           fillOpacity={0.12}

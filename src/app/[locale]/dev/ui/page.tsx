@@ -9,6 +9,7 @@ import {
   Navigation,
   OctagonX,
   Package,
+  Plus,
   Phone,
   Search,
   Share2,
@@ -159,6 +160,7 @@ export default async function DesignSystemPage() {
             <MapMarker tone="urgent" icon={<HandHelping />} count={128} />
             <MapMarker tone="pending" icon={<Footprints />} selected />
             <MapMarker tone="place" icon={<Package />} />
+            <MapMarker tone="closed" size="handle" icon={<Plus />} />
           </div>
         </Section>
 
