@@ -17,6 +17,7 @@
     "dark": "Oscuro"
   },
   "devUi": {
+    "close": "Cerrar",
     "title": "Catálogo del <highlight>design system</highlight>",
     "lead": "Todas las piezas con sus variantes. Revísalas en tema claro y oscuro, y a 375, 768, 1024 y 1440 px.",
     "buttons": "Botones",
@@ -79,6 +80,7 @@
     "fileLabel": "Subir archivo",
     "fileHint": "Abre el selector de archivos del sistema.",
     "filePick": "Elegir archivo",
+    "fileDropHint": "Arrastra o pega archivos aquí · {count, plural, =0 {ninguno todavía} one {# archivo} other {# archivos}}",
     "formError": "No se pudo guardar. Intenta de nuevo.",
     "facts": "Datos",
     "factZone": "Zona horaria",
@@ -1043,12 +1045,15 @@
       "title": "Fotos o video",
       "lead": "Opcional. Hasta 5 fotos y un video de 30 segundos.",
       "warning": "Antes de elegir: que no aparezcan caras, niños, patentes ni documentos. Las fotos se ven en la ficha pública de la casa.",
+      "dropHint": "También puedes arrastrarlas aquí o pegarlas.",
+      "close": "Cerrar",
       "add": "Agregar fotos o video",
       "preparing": "Preparando",
       "remove": "Quitar",
       "itemAlt": "Foto {position} elegida",
       "errors": {
         "media_type_not_allowed": "Ese archivo no es una foto ni un video que podamos usar.",
+        "heic_unsupported": "Este navegador no abre fotos HEIC del iPhone. Súbela desde el teléfono o expórtala como JPG.",
         "media_too_large": "El video pesa más de 50 MB. Graba uno más corto.",
         "video_too_long": "El video dura más de 30 segundos. Graba uno más corto.",
         "media_limit_reached": "Ya hay 5 fotos y un video. Quita uno para agregar otro."
@@ -1065,6 +1070,7 @@
     },
     "gallery": {
       "title": "Fotos y videos",
+      "close": "Cerrar",
       "empty": "Todavía no hay fotos de esta casa.",
       "itemAlt": "Foto {position} de la casa",
       "hidden": "Oculta",
