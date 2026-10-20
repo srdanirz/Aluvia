@@ -76,6 +76,25 @@ Contraste medido: todo texto cumple AA (4,5:1) sobre `canvas` y `surface` en los
 
 El logotipo es Unbounded 700 convertido a trazos (nunca se reescribe con la fuente). Una sola tinta: sin color, sombra, borde ni contenedor. Mínimo: 24 px de alto la figura, 120 px de ancho el logo.
 
+### Figura y movimiento
+
+La figura del logo es también el sistema de ilustración: la misma persona en distintas tareas. Mismas reglas que el logo: la tinta de marca, cabeza redonda separada del cuerpo a la distancia del logo, tierra y barro en `earth-600`, sin caras ni otros colores.
+
+| Archivo | Qué muestra | Formato |
+|---|---|---|
+| [`brand/figura/aluvia-saludo.png`](brand/figura/aluvia-saludo.png) | De frente, saludando | PNG 2048 px, fondo transparente |
+| [`brand/figura/aluvia-carretilla.png`](brand/figura/aluvia-carretilla.png) | Llevando una carretilla con tierra | PNG 2048 px, fondo transparente |
+| [`brand/figura/aluvia-baldes.png`](brand/figura/aluvia-baldes.png) | Llevando dos baldes con barro | PNG 2048 px, fondo transparente |
+| [`brand/motion/aluvia-logo-cavando.mp4`](brand/motion/aluvia-logo-cavando.mp4) | La figura cava, cae tierra y entra el logotipo | 1080 x 1920, 9,5 s |
+| [`brand/motion/aluvia-cavando.mp4`](brand/motion/aluvia-cavando.mp4) | La figura cava en loop, sin texto | 1080 x 1080, 3 loops |
+| [`brand/motion/aluvia-saludo.mp4`](brand/motion/aluvia-saludo.mp4) | Saludo en loop | 1080 x 1080, 3 loops |
+| [`brand/motion/aluvia-carretilla.mp4`](brand/motion/aluvia-carretilla.mp4) | Caminata con carretilla en loop | 1080 x 1080, 3 loops |
+| [`brand/motion/aluvia-baldes.mp4`](brand/motion/aluvia-baldes.mp4) | Caminata con baldes en loop | 1080 x 1080, 3 loops |
+
+- El movimiento va "a dos": 15 dibujos por segundo con un leve temblor del contorno, como tinta dibujada a mano. La cabeza no tiembla ni cambia de distancia.
+- Los videos no tienen audio. Las versiones con fondo transparente (ProRes 4444) quedan fuera del repositorio por peso; se piden a los mantenedores.
+- Son piezas de comunicación, no de la app: dentro de la UI no hay ilustraciones (estados vacíos con una frase y una acción).
+
 ## Tipografía
 
 Una sola familia: **Helvetica Neue** en dispositivos Apple (la de la referencia; es de pago y no se distribuye, pero viene instalada) e **Inter** en el resto. Geist Mono para datos tabulares.
